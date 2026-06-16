@@ -76,6 +76,26 @@ test("EMOTION命令(新規拡張): 感情名を解決し状態が変化する", 
   assert.strictEqual(last.emotion, "JOY");
 });
 
+test("EMOTION命令(新規拡張): 悲しみは左右対称な腕下ろしポーズになる", async () => {
+  const { interp, poseHistory } = makeInterpreter();
+  await interp.run("EMOTION 悲しみ 0");
+  const last = poseHistory[poseHistory.length - 1];
+  assert.strictEqual(last.emotion, "SAD");
+  assert.strictEqual(last.pose.BODY, 0);
+  assert.strictEqual(last.pose.LUA, 18);
+  assert.strictEqual(last.pose.RUA, -18);
+});
+
+test("EMOTION命令(新規拡張): 普通へ戻すとポーズも初期姿勢に戻る", async () => {
+  const { interp, poseHistory } = makeInterpreter();
+  await interp.run(`EMOTION 悲しみ 0
+EMOTION 普通 0`);
+  const last = poseHistory[poseHistory.length - 1];
+  assert.strictEqual(last.emotion, "NORMAL");
+  assert.strictEqual(last.pose.LUA, 0);
+  assert.strictEqual(last.pose.LLA, 0);
+});
+
 test("EMOTION命令(新規拡張): 不明な感情名はエラーになる", async () => {
   const { consoleLogs, interp } = makeInterpreter();
   await interp.run("EMOTION 知らない感情");

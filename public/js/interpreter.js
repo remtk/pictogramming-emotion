@@ -21,6 +21,8 @@
 
 import { resolvePartName, resolveEmotionName, createInitialPose, EMOTIONS } from "./pictogram.js";
 
+const POSE_ANGLE_KEYS = ["BODY", "LUA", "LLA", "RUA", "RLA", "LUL", "LLL", "RUL", "RLL"];
+
 export class Interpreter {
   constructor({ onPoseChange, onConsole, onSpeak, onDone, frameDelayMs = 16 }) {
     this.onPoseChange = onPoseChange || (() => {});
@@ -359,15 +361,18 @@ export class Interpreter {
     const duration = args[1] !== undefined ? this.evalExpr(args[1]) : 0.6;
     this.emotion = key;
     const emoDef = EMOTIONS[key];
-    const targetPose = emoDef.pose || {};
+    const neutralPose = createInitialPose();
+    const targetPose = { ...neutralPose, ...(emoDef.pose || {}) };
     const startPose = { ...this.pose };
-    const keys = Object.keys(targetPose);
-    if (keys.length === 0 || duration <= 0) {
+    if (duration <= 0) {
+      for (const k of POSE_ANGLE_KEYS) {
+        this.pose[k] = targetPose[k];
+      }
       this._emit();
       return;
     }
     await this._animateValue(null, duration, (progress) => {
-      for (const k of keys) {
+      for (const k of POSE_ANGLE_KEYS) {
         this.pose[k] = startPose[k] + (targetPose[k] - startPose[k]) * progress;
       }
       this._emit();

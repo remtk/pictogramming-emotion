@@ -95,7 +95,8 @@ export const EMOTIONS = {
     color: "#5B7C99",
     face: "sad",
     aliases: ["SAD", "悲しみ", "かなしみ"],
-    pose: { LUA: -12, LLA: -18, RUA: 12, RLA: 18, BODY: -8 },
+    // 喜び・怒りと同じ左右鏡像ルールで、腕を自然に下ろしたうえで前へ少し垂らす
+    pose: { LUA: 18, LLA: 14, RUA: -18, RLA: -14 },
   },
   ANGRY: {
     key: "ANGRY",
