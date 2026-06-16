@@ -8,7 +8,7 @@ import {
   renderSVG,
 } from "../public/js/pictogram.js";
 
-test("renderSVG: neutral pictogram keeps standard standing proportions", () => {
+test("renderSVG: 初期姿勢は気を付け（腕を体側・足を閉じる）", () => {
   const svg = renderSVG(createInitialPose());
   const readEndpoint = (part) => {
     const match = svg.match(new RegExp(`x2="([^"]+)" y2="([^"]+)"[^>]*data-part="${part}"`));
@@ -17,11 +17,16 @@ test("renderSVG: neutral pictogram keeps standard standing proportions", () => {
   };
 
   const leftHand = readEndpoint("LA-lower");
+  const rightHand = readEndpoint("RA-lower");
   const leftFoot = readEndpoint("LL-lower");
+  const rightFoot = readEndpoint("RL-lower");
 
   assert.ok(leftHand.y > 150, "neutral arm should hang below the shoulder");
   assert.ok(leftFoot.y > 250, "neutral leg should extend below the hip");
   assert.ok(leftFoot.y > leftHand.y, "legs should read longer than arms");
+  assert.ok(Math.abs(leftHand.x - 179) < 4, "left arm should hang along the body");
+  assert.ok(Math.abs(rightHand.x - 221) < 4, "right arm should hang along the body");
+  assert.ok(Math.abs(leftFoot.x - rightFoot.x) < 6, "feet should stay closed together");
 });
 
 test("resolvePartName: 英語/日本語/ひらがな表記を解決できる", () => {

@@ -138,9 +138,9 @@ btnStop.disabled = true;
 // --- サンプルコード -------------------------------------------------------
 const SAMPLES = {
   basic: `// 基本サンプル：両手を上げる
-R LUA -150
+R LUA -120
 R LLA -10
-R RUA 150
+R RUA -120
 R RLA 10`,
   emotion: `// 感情サンプル：喜び→驚き→悲しみと遷移する
 EMOTION 喜び 0.8

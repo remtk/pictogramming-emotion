@@ -55,7 +55,7 @@ export function resolvePartName(token) {
   return null;
 }
 
-// 初期姿勢（角度はすべて0 = 直立）
+// 初期姿勢（各部位の角度オフセットは0 = 気を付けの直立姿勢）
 export function createInitialPose() {
   return {
     BODY: 0,
@@ -87,7 +87,7 @@ export const EMOTIONS = {
     color: "#E8A33D",
     face: "joy",
     aliases: ["JOY", "喜び", "よろこび"],
-    pose: { LUA: 120, LLA: 0, RUA: -120, RLA: 0 },
+    pose: { LUA: -210, LLA: 0, RUA: -150, RLA: 0 },
   },
   SAD: {
     key: "SAD",
@@ -96,7 +96,7 @@ export const EMOTIONS = {
     face: "sad",
     aliases: ["SAD", "悲しみ", "かなしみ"],
     // 喜び・怒りと同じ左右鏡像ルールで、腕を自然に下ろしたうえで前へ少し垂らす
-    pose: { LUA: 18, LLA: 14, RUA: -18, RLA: -14 },
+    pose: { LUA: -312, LLA: 14, RUA: -48, RLA: -14 },
   },
   ANGRY: {
     key: "ANGRY",
@@ -104,7 +104,7 @@ export const EMOTIONS = {
     color: "#C44536",
     face: "angry",
     aliases: ["ANGRY", "怒り", "いかり"],
-    pose: { LUA: 55, LLA: -80, RUA: -55, RLA: 80 },
+    pose: { LUA: -275, LLA: -80, RUA: -85, RLA: 80 },
   },
   SURPRISE: {
     key: "SURPRISE",
@@ -112,7 +112,7 @@ export const EMOTIONS = {
     color: "#8B6BB5",
     face: "surprise",
     aliases: ["SURPRISE", "驚き", "おどろき"],
-    pose: { LUA: 140, LLA: 0, RUA: -140, RLA: 0 },
+    pose: { LUA: -190, LLA: 0, RUA: -170, RLA: 0 },
   },
 };
 
@@ -137,11 +137,12 @@ const DIMS = {
   legW: 24,
 };
 
+// 気を付け：腕・脚は真下、付け根は胴体に沿わせる
 const NEUTRAL_ANGLES = {
-  LUA: -150,
-  RUA: 150,
-  LUL: -170,
-  RUL: 170,
+  LUA: 180,
+  RUA: 180,
+  LUL: 180,
+  RUL: 180,
 };
 
 /**
@@ -168,8 +169,8 @@ export function renderSVG(pose, opts = {}) {
 
   const neckY = cy - DIMS.bodyH / 2;
   const hipY = cy + DIMS.bodyH / 2;
-  const shoulderOffsetX = DIMS.bodyW * 0.58;
-  const hipOffsetX = DIMS.bodyW * 0.3;
+  const shoulderOffsetX = DIMS.bodyW * 0.5;
+  const hipOffsetX = DIMS.bodyW * 0.04;
 
   function limb(originX, originY, angleDeg, len, width, childAngleDeg, childLen, label) {
     const rad = ((angleDeg - 90) * Math.PI) / 180;
