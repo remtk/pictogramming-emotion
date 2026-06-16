@@ -127,7 +127,7 @@ export function resolveEmotionName(token) {
 // ISO3864を参考にした各部位の寸法比率（簡易値・正面方向のみサポート）
 const DIMS = {
   headR: 26,
-  bodyW: 44,
+  bodyW: 55,
   bodyH: 100,
   upperArmL: 54,
   lowerArmL: 48,
@@ -169,8 +169,9 @@ export function renderSVG(pose, opts = {}) {
 
   const neckY = cy - DIMS.bodyH / 2;
   const hipY = cy + DIMS.bodyH / 2;
+  const shoulderY = neckY + 20;
   const shoulderOffsetX = DIMS.bodyW * 0.5;
-  const hipOffsetX = DIMS.bodyW * 0.13;
+  const hipOffsetX = DIMS.bodyW * 0.18;
 
   function limb(originX, originY, angleDeg, len, width, childAngleDeg, childLen, label) {
     const rad = ((angleDeg - 90) * Math.PI) / 180;
@@ -189,8 +190,8 @@ export function renderSVG(pose, opts = {}) {
     };
   }
 
-  const leftArm = limb(cx - shoulderOffsetX, neckY, laUA, DIMS.upperArmL, DIMS.armW, laLA, DIMS.lowerArmL, "LA");
-  const rightArm = limb(cx + shoulderOffsetX, neckY, raUA, DIMS.upperArmL, DIMS.armW, raLA, DIMS.lowerArmL, "RA");
+  const leftArm = limb(cx - shoulderOffsetX, shoulderY, laUA, DIMS.upperArmL, DIMS.armW, laLA, DIMS.lowerArmL, "LA");
+  const rightArm = limb(cx + shoulderOffsetX, shoulderY, raUA, DIMS.upperArmL, DIMS.armW, raLA, DIMS.lowerArmL, "RA");
   const leftLeg = limb(cx - hipOffsetX, hipY, laUL, DIMS.upperLegL, DIMS.legW, laLL, DIMS.lowerLegL, "LL");
   const rightLeg = limb(cx + hipOffsetX, hipY, raUL, DIMS.upperLegL, DIMS.legW, raLL, DIMS.lowerLegL, "RL");
 
