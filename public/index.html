@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ピクトグラミング+感情表現 | Pictogramming Emotion Edition</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="app-header">
+  <div class="brand">
+    <h1>ピクトグラミング<span style="color:var(--accent-joy)">+感情</span></h1>
+    <span class="brand-sub">PICTOGRAMMING — EMOTION EDITION</span>
+  </div>
+  <p class="tagline">人型ピクトグラムを命令で動かして作品をつくる学習環境に、新しく「感情表現」コマンドを追加した拡張版です。</p>
+</header>
+
+<main class="app-main">
+
+  <!-- 左パネル: 人型ピクトグラム表示 + 感情パレット -->
+  <section class="panel pictogram-panel">
+    <h2 class="panel-title"><span class="dot"></span>人型ピクトグラム表示パネル</h2>
+    <div class="pictogram-stage" id="pictogram-stage">
+      <div class="speech-bubble" id="speech-bubble"></div>
+      <!-- SVGはJSが描画 -->
+    </div>
+    <div class="stage-controls">
+      <button class="btn primary" id="btn-run" style="flex:1">実行 ▶</button>
+      <button class="btn danger" id="btn-stop">停止</button>
+      <button class="btn ghost" id="btn-reset">リセット</button>
+    </div>
+
+    <div class="emotion-palette">
+      <h2 class="panel-title" style="margin-bottom:8px"><span class="dot" style="background:var(--accent-joy)"></span>感情パレット（新規拡張）</h2>
+      <div class="emotion-palette-grid" id="emotion-palette"></div>
+    </div>
+  </section>
+
+  <!-- 中央パネル: コード入力 + コンソール -->
+  <section class="panel code-panel">
+    <h2 class="panel-title"><span class="dot"></span>プログラムコード記述領域</h2>
+    <div class="code-area-wrap">
+      <textarea id="code-input" spellcheck="false" placeholder="// ここに命令を書きます
+R LUA -120
+R LLA -10
+EMOTION 喜び"></textarea>
+    </div>
+    <div class="code-toolbar">
+      <button class="btn ghost" id="btn-sample-basic">基本サンプル</button>
+      <button class="btn ghost" id="btn-sample-emotion">感情サンプル</button>
+      <button class="btn ghost" id="btn-sample-graphics">図形サンプル</button>
+      <button class="btn ghost" id="btn-clear">クリア</button>
+    </div>
+    <h2 class="panel-title" style="margin-top:14px"><span class="dot"></span>コンソールパネル</h2>
+    <div class="console-panel-inner" id="console-panel"></div>
+  </section>
+
+  <!-- 右パネル: 命令リファレンス -->
+  <aside class="panel reference-panel">
+    <h2 class="panel-title"><span class="dot"></span>入力可能命令一覧</h2>
+    <div id="reference-content"></div>
+  </aside>
+
+</main>
+
+<footer class="app-footer">
+  伊藤一成「ピクトグラミング——人型ピクトグラムを用いたプログラミング学習環境」(情報処理学会論文誌 教育とコンピュータ Vol.4 No.2, 2018) の設計指針を参考に、感情表現(EMOTION命令)を新規拡張した非公式の学習用実装です。本実装は元の Pictogramming (<a href="https://pictogramming.org/editor/" target="_blank" rel="noopener">pictogramming.org</a>) とは独立したコードベースです。
+</footer>
+
+<script type="module" src="js/app.js"></script>
+</body>
+</html>

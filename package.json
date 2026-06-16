@@ -1,0 +1,19 @@
+{
+  "name": "pictogramming-emotion",
+  "version": "0.1.0",
+  "description": "ピクトグラミング（人型ピクトグラムを用いたプログラミング学習環境）に感情表現コマンドを追加した拡張版。伊藤一成(2018)の論文の設計指針を参考にした非公式の学習用実装。",
+  "private": true,
+  "type": "commonjs",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test test/*.mjs"
+  },
+  "license": "MIT",
+  "keywords": [
+    "pictogramming",
+    "pictogram",
+    "programming-education",
+    "emotion"
+  ]
+}

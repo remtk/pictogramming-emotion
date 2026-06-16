@@ -1,0 +1,405 @@
+/* ==========================================================================
+   ピクトグラミング+感情表現版 — スタイルシート
+   デザイントークン:
+   色: --paper(#F7F5F0) --ink(#2B2B2E) --panel-dark(#1E1E22) --line(#DAD6CC)
+       感情アクセント: joy(#E8A33D) sad(#5B7C99) angry(#C44536) surprise(#8B6BB5)
+   タイプ: 見出し = "Zen Kaku Gothic New"風(フォールバック付き)
+           本文   = システムUIゴシック
+           コード = "JetBrains Mono"風モノスペース
+   ========================================================================== */
+
+:root {
+  --paper: #f7f5f0;
+  --paper-soft: #efebe1;
+  --ink: #2b2b2e;
+  --ink-soft: #5b5b62;
+  --panel-dark: #1e1e22;
+  --panel-dark-2: #26262b;
+  --line: #dad6cc;
+  --accent-joy: #e8a33d;
+  --accent-sad: #5b7c99;
+  --accent-angry: #c44536;
+  --accent-surprise: #8b6bb5;
+  --accent-normal: #2b2b2e;
+  --radius-card: 18px;
+  --radius-sm: 8px;
+  --font-display: "Zen Kaku Gothic New", "Hiragino Sans", "Noto Sans JP", system-ui, sans-serif;
+  --font-body: "Hiragino Sans", "Noto Sans JP", system-ui, -apple-system, sans-serif;
+  --font-mono: "JetBrains Mono", "SF Mono", "Menlo", "Consolas", monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body);
+  height: 100%;
+}
+
+body {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ---------- ヘッダー ---------- */
+.app-header {
+  padding: 28px 32px 18px;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.app-header .brand {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+}
+
+.app-header h1 {
+  font-family: var(--font-display);
+  font-size: 26px;
+  font-weight: 700;
+  margin: 0;
+  letter-spacing: 0.01em;
+}
+
+.app-header .brand-sub {
+  font-size: 12px;
+  color: var(--ink-soft);
+  letter-spacing: 0.08em;
+  font-family: var(--font-mono);
+}
+
+.app-header .tagline {
+  font-size: 13px;
+  color: var(--ink-soft);
+  max-width: 480px;
+  line-height: 1.6;
+}
+
+/* ---------- メインレイアウト ---------- */
+.app-main {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 380px 1fr 280px;
+  gap: 20px;
+  padding: 20px 32px 32px;
+  min-height: 0;
+}
+
+@media (max-width: 1100px) {
+  .app-main {
+    grid-template-columns: 1fr;
+  }
+}
+
+.panel {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.panel-title {
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--ink-soft);
+  text-transform: uppercase;
+  margin: 0 0 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.panel-title .dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent-normal);
+}
+
+/* ---------- ピクトグラム表示パネル ---------- */
+.pictogram-panel {
+  align-items: center;
+}
+
+.pictogram-stage {
+  flex: 1;
+  width: 100%;
+  background: var(--paper-soft);
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  min-height: 320px;
+}
+
+.pictogram-svg {
+  width: 100%;
+  height: 100%;
+  max-width: 360px;
+  transition: filter 0.2s ease;
+}
+
+.emotion-aura {
+  animation: aura-pulse 1.6s ease-in-out infinite;
+  transform-origin: center;
+}
+
+@keyframes aura-pulse {
+  0%, 100% { opacity: 0.35; r: 28; }
+  50% { opacity: 0.65; r: 32; }
+}
+
+.speech-bubble {
+  position: absolute;
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--ink);
+  color: var(--paper);
+  font-size: 13px;
+  padding: 8px 14px;
+  border-radius: 14px;
+  opacity: 0;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+  max-width: 80%;
+  text-align: center;
+  pointer-events: none;
+}
+
+.speech-bubble.visible {
+  opacity: 1;
+}
+
+.stage-controls {
+  display: flex;
+  gap: 8px;
+  margin-top: 14px;
+  width: 100%;
+}
+
+/* ---------- 感情パレット（新規拡張UI） ---------- */
+.emotion-palette {
+  margin-top: 16px;
+  width: 100%;
+}
+
+.emotion-palette-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+}
+
+.emotion-chip {
+  border: 1.5px solid var(--line);
+  background: #fff;
+  border-radius: 12px;
+  padding: 8px 4px;
+  font-size: 11px;
+  font-family: var(--font-body);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  transition: transform 0.12s ease, border-color 0.12s ease, background 0.12s ease;
+}
+
+.emotion-chip:hover {
+  transform: translateY(-2px);
+}
+
+.emotion-chip .swatch {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+}
+
+.emotion-chip[data-emo="JOY"] { border-color: var(--accent-joy); }
+.emotion-chip[data-emo="SAD"] { border-color: var(--accent-sad); }
+.emotion-chip[data-emo="ANGRY"] { border-color: var(--accent-angry); }
+.emotion-chip[data-emo="SURPRISE"] { border-color: var(--accent-surprise); }
+.emotion-chip[data-emo="NORMAL"] { border-color: var(--accent-normal); }
+
+.emotion-chip.active[data-emo="JOY"] { background: var(--accent-joy); color: #fff; }
+.emotion-chip.active[data-emo="SAD"] { background: var(--accent-sad); color: #fff; }
+.emotion-chip.active[data-emo="ANGRY"] { background: var(--accent-angry); color: #fff; }
+.emotion-chip.active[data-emo="SURPRISE"] { background: var(--accent-surprise); color: #fff; }
+.emotion-chip.active[data-emo="NORMAL"] { background: var(--accent-normal); color: #fff; }
+
+/* ---------- コードパネル ---------- */
+.code-panel {
+  min-height: 0;
+}
+
+.code-area-wrap {
+  position: relative;
+  flex: 1;
+  min-height: 220px;
+  display: flex;
+}
+
+#code-input {
+  flex: 1;
+  width: 100%;
+  resize: none;
+  background: var(--panel-dark);
+  color: #e8e6df;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 14px 16px;
+  font-family: var(--font-mono);
+  font-size: 14px;
+  line-height: 1.7;
+  tab-size: 2;
+}
+
+#code-input:focus {
+  outline: 2px solid var(--accent-joy);
+  outline-offset: -2px;
+}
+
+.code-toolbar {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+
+.console-panel-inner {
+  margin-top: 14px;
+  background: var(--panel-dark-2);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  color: #c9c6bc;
+  height: 110px;
+  overflow-y: auto;
+}
+
+.console-line.error { color: #ff8b7a; }
+.console-line.warn { color: #f3c969; }
+.console-line.ok { color: #8fd19e; }
+
+/* ---------- ボタン ---------- */
+.btn {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  border: 1.5px solid var(--ink);
+  background: #fff;
+  color: var(--ink);
+  border-radius: 999px;
+  padding: 9px 18px;
+  cursor: pointer;
+  transition: transform 0.1s ease, background 0.15s ease, color 0.15s ease;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+}
+
+.btn.primary {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.btn.danger {
+  border-color: var(--accent-angry);
+  color: var(--accent-angry);
+}
+
+.btn.ghost {
+  border-color: var(--line);
+  color: var(--ink-soft);
+}
+
+.btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ---------- 命令リファレンスパネル ---------- */
+.reference-panel {
+  overflow-y: auto;
+}
+
+.ref-group {
+  margin-bottom: 16px;
+}
+
+.ref-group h4 {
+  font-family: var(--font-display);
+  font-size: 12px;
+  color: var(--ink-soft);
+  margin: 0 0 8px;
+  letter-spacing: 0.04em;
+}
+
+.ref-item {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  background: var(--paper-soft);
+  border-radius: 8px;
+  padding: 7px 10px;
+  margin-bottom: 6px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: border-color 0.12s ease;
+}
+
+.ref-item:hover {
+  border-color: var(--line);
+}
+
+.ref-item .desc {
+  display: block;
+  font-family: var(--font-body);
+  font-size: 11px;
+  color: var(--ink-soft);
+  margin-top: 2px;
+}
+
+.ref-item.emotion-ref {
+  border-left: 3px solid var(--accent-joy);
+}
+
+/* ---------- フッター ---------- */
+.app-footer {
+  padding: 14px 32px 22px;
+  font-size: 11px;
+  color: var(--ink-soft);
+  border-top: 1px solid var(--line);
+}
+
+.app-footer a {
+  color: var(--ink-soft);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .emotion-aura,
+  .btn,
+  .speech-bubble {
+    animation: none !important;
+    transition: none !important;
+  }
+}
