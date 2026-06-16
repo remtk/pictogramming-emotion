@@ -125,15 +125,15 @@ export function resolveEmotionName(token) {
 
 // ISO3864を参考にした各部位の寸法比率（簡易値・正面方向のみサポート）
 const DIMS = {
-  headR: 18,
-  bodyW: 26,
-  bodyH: 70,
-  upperArmL: 48,
-  lowerArmL: 44,
-  armW: 15,
-  upperLegL: 55,
-  lowerLegL: 52,
-  legW: 17,
+  headR: 30,
+  bodyW: 43,
+  bodyH: 116,
+  upperArmL: 80,
+  lowerArmL: 73,
+  armW: 24,
+  upperLegL: 92,
+  lowerLegL: 86,
+  legW: 27,
 };
 
 /**
