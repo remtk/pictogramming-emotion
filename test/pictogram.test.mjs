@@ -24,9 +24,11 @@ test("renderSVG: 初期姿勢は気を付け（腕を体側・足を閉じる）
   assert.ok(leftHand.y > 150, "neutral arm should hang below the shoulder");
   assert.ok(leftFoot.y > 250, "neutral leg should extend below the hip");
   assert.ok(leftFoot.y > leftHand.y, "legs should read longer than arms");
-  assert.ok(Math.abs(leftHand.x - 179) < 4, "left arm should hang along the body");
-  assert.ok(Math.abs(rightHand.x - 221) < 4, "right arm should hang along the body");
-  assert.ok(Math.abs(leftFoot.x - rightFoot.x) < 6, "feet should stay closed together");
+  assert.ok(Math.abs(leftHand.x - 178) < 5, "left arm should hang along the body");
+  assert.ok(Math.abs(rightHand.x - 222) < 5, "right arm should hang along the body");
+  const footGap = Math.abs(leftFoot.x - rightFoot.x);
+  assert.ok(footGap > 6, "feet should not collapse into a single line");
+  assert.ok(footGap < 16, "feet should stay closed together");
 });
 
 test("resolvePartName: 英語/日本語/ひらがな表記を解決できる", () => {

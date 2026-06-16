@@ -127,14 +127,14 @@ export function resolveEmotionName(token) {
 // ISO3864を参考にした各部位の寸法比率（簡易値・正面方向のみサポート）
 const DIMS = {
   headR: 26,
-  bodyW: 42,
+  bodyW: 44,
   bodyH: 100,
   upperArmL: 54,
   lowerArmL: 48,
-  armW: 22,
+  armW: 30,
   upperLegL: 72,
   lowerLegL: 68,
-  legW: 24,
+  legW: 28,
 };
 
 // 気を付け：腕・脚は真下、付け根は胴体に沿わせる
@@ -170,7 +170,7 @@ export function renderSVG(pose, opts = {}) {
   const neckY = cy - DIMS.bodyH / 2;
   const hipY = cy + DIMS.bodyH / 2;
   const shoulderOffsetX = DIMS.bodyW * 0.5;
-  const hipOffsetX = DIMS.bodyW * 0.04;
+  const hipOffsetX = DIMS.bodyW * 0.13;
 
   function limb(originX, originY, angleDeg, len, width, childAngleDeg, childLen, label) {
     const rad = ((angleDeg - 90) * Math.PI) / 180;
@@ -181,7 +181,7 @@ export function renderSVG(pose, opts = {}) {
       const crad = ((childAngleDeg - 90) * Math.PI) / 180;
       const cex = ex + childLen * Math.cos(crad);
       const cey = ey + childLen * Math.sin(crad);
-      childPart = `<line x1="${ex.toFixed(1)}" y1="${ey.toFixed(1)}" x2="${cex.toFixed(1)}" y2="${cey.toFixed(1)}" stroke="${emotion.color}" stroke-width="${width - 4}" stroke-linecap="round" data-part="${label}-lower"/>`;
+      childPart = `<line x1="${ex.toFixed(1)}" y1="${ey.toFixed(1)}" x2="${cex.toFixed(1)}" y2="${cey.toFixed(1)}" stroke="${emotion.color}" stroke-width="${width - 2}" stroke-linecap="round" data-part="${label}-lower"/>`;
     }
     return {
       svg: `<line x1="${originX.toFixed(1)}" y1="${originY.toFixed(1)}" x2="${ex.toFixed(1)}" y2="${ey.toFixed(1)}" stroke="${emotion.color}" stroke-width="${width}" stroke-linecap="round" data-part="${label}-upper"/>${childPart}`,
