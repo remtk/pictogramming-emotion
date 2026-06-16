@@ -5,7 +5,24 @@ import {
   resolveEmotionName,
   createInitialPose,
   EMOTIONS,
+  renderSVG,
 } from "../public/js/pictogram.js";
+
+test("renderSVG: neutral pictogram keeps standard standing proportions", () => {
+  const svg = renderSVG(createInitialPose());
+  const readEndpoint = (part) => {
+    const match = svg.match(new RegExp(`x2="([^"]+)" y2="([^"]+)"[^>]*data-part="${part}"`));
+    assert.ok(match, `${part} endpoint should exist`);
+    return { x: Number(match[1]), y: Number(match[2]) };
+  };
+
+  const leftHand = readEndpoint("LA-lower");
+  const leftFoot = readEndpoint("LL-lower");
+
+  assert.ok(leftHand.y > 150, "neutral arm should hang below the shoulder");
+  assert.ok(leftFoot.y > 250, "neutral leg should extend below the hip");
+  assert.ok(leftFoot.y > leftHand.y, "legs should read longer than arms");
+});
 
 test("resolvePartName: 英語/日本語/ひらがな表記を解決できる", () => {
   assert.strictEqual(resolvePartName("LUA"), "LUA");

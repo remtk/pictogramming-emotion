@@ -87,7 +87,7 @@ export const EMOTIONS = {
     color: "#E8A33D",
     face: "joy",
     aliases: ["JOY", "喜び", "よろこび"],
-    pose: { LUA: -150, LLA: -10, RUA: 150, RLA: 10 },
+    pose: { LUA: 120, LLA: 0, RUA: -120, RLA: 0 },
   },
   SAD: {
     key: "SAD",
@@ -95,7 +95,7 @@ export const EMOTIONS = {
     color: "#5B7C99",
     face: "sad",
     aliases: ["SAD", "悲しみ", "かなしみ"],
-    pose: { LUA: -20, LLA: -25, RUA: 20, RLA: 25, BODY: -8 },
+    pose: { LUA: -12, LLA: -18, RUA: 12, RLA: 18, BODY: -8 },
   },
   ANGRY: {
     key: "ANGRY",
@@ -103,7 +103,7 @@ export const EMOTIONS = {
     color: "#C44536",
     face: "angry",
     aliases: ["ANGRY", "怒り", "いかり"],
-    pose: { LUA: -60, LLA: -90, RUA: 60, RLA: 90 },
+    pose: { LUA: 55, LLA: -80, RUA: -55, RLA: 80 },
   },
   SURPRISE: {
     key: "SURPRISE",
@@ -111,7 +111,7 @@ export const EMOTIONS = {
     color: "#8B6BB5",
     face: "surprise",
     aliases: ["SURPRISE", "驚き", "おどろき"],
-    pose: { LUA: -170, LLA: 0, RUA: 170, RLA: 0 },
+    pose: { LUA: 140, LLA: 0, RUA: -140, RLA: 0 },
   },
 };
 
@@ -125,15 +125,22 @@ export function resolveEmotionName(token) {
 
 // ISO3864を参考にした各部位の寸法比率（簡易値・正面方向のみサポート）
 const DIMS = {
-  headR: 30,
-  bodyW: 43,
-  bodyH: 116,
-  upperArmL: 80,
-  lowerArmL: 73,
-  armW: 24,
-  upperLegL: 92,
-  lowerLegL: 86,
-  legW: 27,
+  headR: 26,
+  bodyW: 42,
+  bodyH: 100,
+  upperArmL: 54,
+  lowerArmL: 48,
+  armW: 22,
+  upperLegL: 72,
+  lowerLegL: 68,
+  legW: 24,
+};
+
+const NEUTRAL_ANGLES = {
+  LUA: -150,
+  RUA: 150,
+  LUL: -170,
+  RUL: 170,
 };
 
 /**
@@ -147,21 +154,21 @@ export function renderSVG(pose, opts = {}) {
   const cy = 200 + (pose.y || 0);
   const bodyAngle = pose.BODY || 0;
 
-  // 各関節の絶対角度 = 体の角度 + 部位自身の角度（簡易合成。前腕は上腕角度も加算）
-  const a = (k) => (pose[k] || 0) + bodyAngle;
-  const laUA = a("LUA");
-  const laLA = a("LUA") + (pose.LLA || 0);
-  const raUA = a("RUA");
-  const raLA = a("RUA") + (pose.RLA || 0);
-  const laUL = a("LUL");
-  const laLL = a("LUL") + (pose.LLL || 0);
-  const raUL = a("RUL");
-  const raLL = a("RUL") + (pose.RLL || 0);
+  // Limb commands rotate from a neutral standing pictogram pose.
+  const limbBase = (k) => (NEUTRAL_ANGLES[k] || 0) + bodyAngle + (pose[k] || 0);
+  const laUA = limbBase("LUA");
+  const laLA = laUA + (pose.LLA || 0);
+  const raUA = limbBase("RUA");
+  const raLA = raUA + (pose.RLA || 0);
+  const laUL = limbBase("LUL");
+  const laLL = laUL + (pose.LLL || 0);
+  const raUL = limbBase("RUL");
+  const raLL = raUL + (pose.RLL || 0);
 
   const neckY = cy - DIMS.bodyH / 2;
   const hipY = cy + DIMS.bodyH / 2;
-  const shoulderOffsetX = DIMS.bodyW / 2;
-  const hipOffsetX = DIMS.bodyW / 2 - 4;
+  const shoulderOffsetX = DIMS.bodyW * 0.58;
+  const hipOffsetX = DIMS.bodyW * 0.3;
 
   function limb(originX, originY, angleDeg, len, width, childAngleDeg, childLen, label) {
     const rad = ((angleDeg - 90) * Math.PI) / 180;
