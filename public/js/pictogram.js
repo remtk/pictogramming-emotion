@@ -139,10 +139,10 @@ const DIMS = {
 
 // 気を付け：腕・脚は真下、付け根は胴体に沿わせる
 const NEUTRAL_ANGLES = {
-  LUA: 180,
-  RUA: 180,
-  LUL: 180,
-  RUL: 180,
+  LUA: 177,
+  RUA: 183,
+  LUL: 178,
+  RUL: 182,
 };
 
 /**
@@ -155,9 +155,10 @@ export function renderSVG(pose, opts = {}) {
   const cx = 200 + (pose.x || 0);
   const cy = 200 + (pose.y || 0);
   const bodyAngle = pose.BODY || 0;
+  const bodyRad = (bodyAngle * Math.PI) / 180;
 
   // Limb commands rotate from a neutral standing pictogram pose.
-  const limbBase = (k) => (NEUTRAL_ANGLES[k] || 0) + bodyAngle + (pose[k] || 0);
+  const limbBase = (k) => (NEUTRAL_ANGLES[k] || 0) + (pose[k] || 0);
   const laUA = limbBase("LUA");
   const laLA = laUA + (pose.LLA || 0);
   const raUA = limbBase("RUA");
@@ -173,27 +174,39 @@ export function renderSVG(pose, opts = {}) {
   const shoulderOffsetX = DIMS.bodyW * 0.5;
   const hipOffsetX = DIMS.bodyW * 0.18;
 
-  function limb(originX, originY, angleDeg, len, width, childAngleDeg, childLen, label) {
-    const rad = ((angleDeg - 90) * Math.PI) / 180;
-    const ex = originX + len * Math.cos(rad);
-    const ey = originY + len * Math.sin(rad);
-    let childPart = "";
-    if (childAngleDeg !== undefined) {
-      const crad = ((childAngleDeg - 90) * Math.PI) / 180;
-      const cex = ex + childLen * Math.cos(crad);
-      const cey = ey + childLen * Math.sin(crad);
-      childPart = `<line x1="${ex.toFixed(1)}" y1="${ey.toFixed(1)}" x2="${cex.toFixed(1)}" y2="${cey.toFixed(1)}" stroke="${emotion.color}" stroke-width="${width - 2}" stroke-linecap="round" data-part="${label}-lower"/>`;
-    }
+  function toWorld(localX, localY) {
     return {
-      svg: `<line x1="${originX.toFixed(1)}" y1="${originY.toFixed(1)}" x2="${ex.toFixed(1)}" y2="${ey.toFixed(1)}" stroke="${emotion.color}" stroke-width="${width}" stroke-linecap="round" data-part="${label}-upper"/>${childPart}`,
-      end: { x: ex, y: ey },
+      x: cx + localX * Math.cos(bodyRad) - localY * Math.sin(bodyRad),
+      y: cy + localX * Math.sin(bodyRad) + localY * Math.cos(bodyRad),
     };
   }
 
-  const leftArm = limb(cx - shoulderOffsetX, shoulderY, laUA, DIMS.upperArmL, DIMS.armW, laLA, DIMS.lowerArmL, "LA");
-  const rightArm = limb(cx + shoulderOffsetX, shoulderY, raUA, DIMS.upperArmL, DIMS.armW, raLA, DIMS.lowerArmL, "RA");
-  const leftLeg = limb(cx - hipOffsetX, hipY, laUL, DIMS.upperLegL, DIMS.legW, laLL, DIMS.lowerLegL, "LL");
-  const rightLeg = limb(cx + hipOffsetX, hipY, raUL, DIMS.upperLegL, DIMS.legW, raLL, DIMS.lowerLegL, "RL");
+  function limb(originLocalX, originLocalY, angleDeg, len, width, childAngleDeg, childLen, label) {
+    const origin = toWorld(originLocalX, originLocalY);
+    const rad = ((angleDeg - 90) * Math.PI) / 180;
+    const exLocal = originLocalX + len * Math.cos(rad);
+    const eyLocal = originLocalY + len * Math.sin(rad);
+    const elbow = toWorld(exLocal, eyLocal);
+    let childPart = "";
+    if (childAngleDeg !== undefined) {
+      const crad = ((childAngleDeg - 90) * Math.PI) / 180;
+      const cexLocal = exLocal + childLen * Math.cos(crad);
+      const ceyLocal = eyLocal + childLen * Math.sin(crad);
+      const end = toWorld(cexLocal, ceyLocal);
+      childPart = `<line x1="${elbow.x.toFixed(1)}" y1="${elbow.y.toFixed(1)}" x2="${end.x.toFixed(1)}" y2="${end.y.toFixed(1)}" stroke="${emotion.color}" stroke-width="${width - 2}" stroke-linecap="round" data-part="${label}-lower"/>`;
+    }
+    return {
+      svg: `<line x1="${origin.x.toFixed(1)}" y1="${origin.y.toFixed(1)}" x2="${elbow.x.toFixed(1)}" y2="${elbow.y.toFixed(1)}" stroke="${emotion.color}" stroke-width="${width}" stroke-linecap="round" data-part="${label}-upper"/>${childPart}`,
+      end: elbow,
+    };
+  }
+
+  const shoulderLocalY = shoulderY - cy;
+  const hipLocalY = hipY - cy;
+  const leftArm = limb(-shoulderOffsetX, shoulderLocalY, laUA, DIMS.upperArmL, DIMS.armW, laLA, DIMS.lowerArmL, "LA");
+  const rightArm = limb(shoulderOffsetX, shoulderLocalY, raUA, DIMS.upperArmL, DIMS.armW, raLA, DIMS.lowerArmL, "RA");
+  const leftLeg = limb(-hipOffsetX, hipLocalY, laUL, DIMS.upperLegL, DIMS.legW, laLL, DIMS.lowerLegL, "LL");
+  const rightLeg = limb(hipOffsetX, hipLocalY, raUL, DIMS.upperLegL, DIMS.legW, raLL, DIMS.lowerLegL, "RL");
 
   // ペン描画軌跡（ピクトグラフィックス）
   let penSVG = "";

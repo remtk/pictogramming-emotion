@@ -39,37 +39,44 @@ html, body {
   color: var(--ink);
   font-family: var(--font-body);
   height: 100%;
+  overflow: hidden;
 }
 
 body {
-  min-height: 100vh;
+  height: 100vh;
   display: flex;
   flex-direction: column;
 }
 
 /* ---------- ヘッダー ---------- */
 .app-header {
-  padding: 28px 32px 18px;
+  flex: 0 0 auto;
+  padding: 12px 24px 10px;
   border-bottom: 1px solid var(--line);
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 12px;
+  flex-wrap: nowrap;
+  gap: 8px;
+  overflow: hidden;
 }
 
 .app-header .brand {
   display: flex;
   align-items: baseline;
   gap: 14px;
+  min-width: 0;
 }
 
 .app-header h1 {
   font-family: var(--font-display);
-  font-size: 26px;
+  font-size: 20px;
   font-weight: 700;
   margin: 0;
   letter-spacing: 0.01em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .app-header .brand-sub {
@@ -77,52 +84,66 @@ body {
   color: var(--ink-soft);
   letter-spacing: 0.08em;
   font-family: var(--font-mono);
+  white-space: nowrap;
 }
 
 .app-header .tagline {
-  font-size: 13px;
+  font-size: 11px;
   color: var(--ink-soft);
   max-width: 480px;
-  line-height: 1.6;
+  line-height: 1.35;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* ---------- メインレイアウト ---------- */
 .app-main {
-  flex: 1;
+  flex: 1 1 0;
   display: grid;
-  grid-template-columns: 430px minmax(420px, 1fr) 280px;
-  gap: 20px;
-  padding: 20px 32px 32px;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.2fr) minmax(0, 0.7fr);
+  gap: 12px;
+  padding: 12px 24px;
   min-height: 0;
+  overflow: hidden;
 }
 
 @media (max-width: 1100px) {
   .app-main {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+  }
+
+  .reference-panel {
+    display: none;
   }
 }
 
 .panel {
   background: #fff;
   border: 1px solid var(--line);
-  border-radius: var(--radius-card);
-  padding: 18px;
+  border-radius: 12px;
+  padding: 12px;
   display: flex;
   flex-direction: column;
   min-height: 0;
+  overflow: hidden;
 }
 
 .panel-title {
   font-family: var(--font-display);
-  font-size: 13px;
+  font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.06em;
   color: var(--ink-soft);
   text-transform: uppercase;
-  margin: 0 0 12px;
+  margin: 0 0 8px;
   display: flex;
   align-items: center;
   gap: 8px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .panel-title .dot {
@@ -138,7 +159,7 @@ body {
 }
 
 .pictogram-stage {
-  flex: 1 1 auto;
+  flex: 1 1 0;
   width: 100%;
   background: var(--paper-soft);
   border-radius: var(--radius-sm);
@@ -147,13 +168,12 @@ body {
   justify-content: center;
   position: relative;
   overflow: hidden;
-  min-height: 440px;
-  aspect-ratio: 4 / 5;
+  min-height: 0;
 }
 
 .pictogram-svg {
-  width: min(100%, 440px);
-  height: auto;
+  width: min(100%, 390px);
+  height: 100%;
   max-height: 100%;
   transition: filter 0.2s ease;
 }
@@ -192,13 +212,14 @@ body {
 .stage-controls {
   display: flex;
   gap: 8px;
-  margin-top: 14px;
+  margin-top: 8px;
   width: 100%;
 }
 
 /* ---------- 感情パレット（新規拡張UI） ---------- */
 .emotion-palette {
-  margin-top: 16px;
+  flex: 0 0 auto;
+  margin-top: 8px;
   width: 100%;
 }
 
@@ -211,9 +232,9 @@ body {
 .emotion-chip {
   border: 1.5px solid var(--line);
   background: #fff;
-  border-radius: 12px;
-  padding: 8px 4px;
-  font-size: 11px;
+  border-radius: 8px;
+  padding: 5px 4px;
+  font-size: 10px;
   font-family: var(--font-body);
   cursor: pointer;
   display: flex;
@@ -228,8 +249,8 @@ body {
 }
 
 .emotion-chip .swatch {
-  width: 18px;
-  height: 18px;
+  width: 12px;
+  height: 12px;
   border-radius: 50%;
 }
 
@@ -252,8 +273,8 @@ body {
 
 .code-area-wrap {
   position: relative;
-  flex: 0 0 clamp(220px, 42vh, 360px);
-  min-height: 220px;
+  flex: 0 0 clamp(150px, 30vh, 260px);
+  min-height: 0;
   display: flex;
 }
 
@@ -265,10 +286,10 @@ body {
   color: #e8e6df;
   border: none;
   border-radius: var(--radius-sm);
-  padding: 14px 16px;
+  padding: 10px 12px;
   font-family: var(--font-mono);
-  font-size: 14px;
-  line-height: 1.7;
+  font-size: 13px;
+  line-height: 1.45;
   tab-size: 2;
 }
 
@@ -280,20 +301,20 @@ body {
 .code-toolbar {
   display: flex;
   gap: 8px;
-  margin-top: 12px;
+  margin-top: 8px;
   flex-wrap: wrap;
 }
 
 .console-panel-inner {
-  margin-top: 14px;
+  margin-top: 8px;
   background: var(--panel-dark-2);
   border-radius: var(--radius-sm);
   padding: 10px 14px;
   font-family: var(--font-mono);
   font-size: 12.5px;
   color: #c9c6bc;
-  flex: 1 1 240px;
-  min-height: 240px;
+  flex: 1 1 0;
+  min-height: 0;
   overflow-y: auto;
 }
 
@@ -304,13 +325,13 @@ body {
 /* ---------- ボタン ---------- */
 .btn {
   font-family: var(--font-body);
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
   border: 1.5px solid var(--ink);
   background: #fff;
   color: var(--ink);
   border-radius: 999px;
-  padding: 9px 18px;
+  padding: 7px 12px;
   cursor: pointer;
   transition: transform 0.1s ease, background 0.15s ease, color 0.15s ease;
 }
@@ -346,12 +367,12 @@ body {
 }
 
 .ref-group {
-  margin-bottom: 16px;
+  margin-bottom: 10px;
 }
 
 .ref-group h4 {
   font-family: var(--font-display);
-  font-size: 12px;
+  font-size: 11px;
   color: var(--ink-soft);
   margin: 0 0 8px;
   letter-spacing: 0.04em;
@@ -359,11 +380,11 @@ body {
 
 .ref-item {
   font-family: var(--font-mono);
-  font-size: 12px;
+  font-size: 11px;
   background: var(--paper-soft);
   border-radius: 8px;
-  padding: 7px 10px;
-  margin-bottom: 6px;
+  padding: 5px 8px;
+  margin-bottom: 5px;
   cursor: pointer;
   border: 1px solid transparent;
   transition: border-color 0.12s ease;
@@ -387,10 +408,14 @@ body {
 
 /* ---------- フッター ---------- */
 .app-footer {
-  padding: 14px 32px 22px;
-  font-size: 11px;
+  flex: 0 0 auto;
+  padding: 6px 24px;
+  font-size: 10px;
   color: var(--ink-soft);
   border-top: 1px solid var(--line);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .app-footer a {
