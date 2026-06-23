@@ -44,9 +44,9 @@ REPEAT 3
   R BODY [COUNT * 10]
   LET COUNT [COUNT + 1]
 END`);
-  // 3回ループ後、最後の回転は (0,1,2)*10 のうち2*10=20度
+  // 3回ループ後、最後の回転は相対累積されるため (0 + 10 + 20) = 30度
   const last = poseHistory[poseHistory.length - 1];
-  assert.strictEqual(last.pose.BODY, 20);
+  assert.strictEqual(last.pose.BODY, 30);
 });
 
 test("IF命令: 条件が真のときのみ実行される", async () => {
@@ -135,4 +135,22 @@ test("REPEATに対応するENDがない場合は構文エラー", async () => {
   await ctx.interp.run("REPEAT 3\nR BODY 10");
   const hasError = ctx.consoleLogs.some((l) => l.level === "error");
   assert.ok(hasError);
+});
+
+test("R命令: 累積的な相対回転が機能すること", async () => {
+  const { interp, poseHistory } = makeInterpreter();
+  await interp.run(`R LUA 45
+R LUA 45`);
+  const last = poseHistory[poseHistory.length - 1];
+  assert.strictEqual(last.pose.LUA, 90);
+});
+
+test("M命令: BODYの回転角を考慮した累積的相対移動ができること", async () => {
+  const { interp, poseHistory } = makeInterpreter();
+  await interp.run(`R BODY 90
+M 60 0`);
+  const last = poseHistory[poseHistory.length - 1];
+  // 90度回転しているので、ローカルの(60, 0)はグローバルの(0, 60)に相当する
+  assert.strictEqual(Math.round(last.pose.x), 0);
+  assert.strictEqual(Math.round(last.pose.y), 60);
 });

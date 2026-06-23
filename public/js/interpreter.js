@@ -304,14 +304,15 @@ export class Interpreter {
     if (typeof angle !== "number" || Number.isNaN(angle)) throw new Error("角度は数値で指定してください");
 
     if (!animate) {
-      this.pose[part] = angle;
+      this.pose[part] = (this.pose[part] || 0) + angle;
       this._emit();
       return Promise.resolve();
     }
     const duration = args[2] !== undefined ? this.evalExpr(args[2]) : 1;
-    const startVal = this.pose[part];
+    const startVal = this.pose[part] || 0;
+    const targetVal = startVal + angle;
     return this._animateValue(null, duration, (progress) => {
-      this.pose[part] = startVal + (angle - startVal) * progress;
+      this.pose[part] = startVal + (targetVal - startVal) * progress;
       this._emit();
     });
   }
@@ -320,18 +321,26 @@ export class Interpreter {
     if (args.length < 2) throw new Error("M/MW x y [秒] の形式で指定してください");
     const x = this.evalExpr(args[0]);
     const y = this.evalExpr(args[1]);
+
+    const bodyAngle = this.pose.BODY || 0;
+    const bodyRad = (bodyAngle * Math.PI) / 180;
+    const dx = x * Math.cos(bodyRad) - y * Math.sin(bodyRad);
+    const dy = x * Math.sin(bodyRad) + y * Math.cos(bodyRad);
+
     if (!animate) {
-      this.pose.x = x;
-      this.pose.y = y;
+      this.pose.x = (this.pose.x || 0) + dx;
+      this.pose.y = (this.pose.y || 0) + dy;
       this._emit();
       return Promise.resolve();
     }
     const duration = args[2] !== undefined ? this.evalExpr(args[2]) : 1;
-    const startX = this.pose.x;
-    const startY = this.pose.y;
+    const startX = this.pose.x || 0;
+    const startY = this.pose.y || 0;
+    const targetX = startX + dx;
+    const targetY = startY + dy;
     return this._animateValue(null, duration, (progress) => {
-      this.pose.x = startX + (x - startX) * progress;
-      this.pose.y = startY + (y - startY) * progress;
+      this.pose.x = startX + (targetX - startX) * progress;
+      this.pose.y = startY + (targetY - startY) * progress;
       this._emit();
     });
   }
