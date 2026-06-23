@@ -95,7 +95,6 @@ export const EMOTIONS = {
     color: "#5B7C99",
     face: "sad",
     aliases: ["SAD", "悲しみ", "かなしみ"],
-    // 喜び・怒りと同じ左右鏡像ルールで、腕を自然に下ろしたうえで前へ少し垂らす
     pose: { LUA: -312, LLA: 14, RUA: -48, RLA: -14 },
   },
   ANGRY: {
@@ -174,6 +173,7 @@ export function renderSVG(pose, opts = {}) {
   const shoulderOffsetX = DIMS.bodyW * 0.5;
   const hipOffsetX = DIMS.bodyW * 0.18;
 
+  // ローカル座標(体の中心を原点)からワールド座標へ変換（BODY回転を適用）
   function toWorld(localX, localY) {
     return {
       x: cx + localX * Math.cos(bodyRad) - localY * Math.sin(bodyRad),
@@ -220,17 +220,15 @@ export function renderSVG(pose, opts = {}) {
   // 体（胴体は角丸長方形を体角度で回転）
   const bodySVG = `<g transform="rotate(${bodyAngle} ${cx} ${cy})"><rect x="${(cx - DIMS.bodyW / 2).toFixed(1)}" y="${(cy - DIMS.bodyH / 2).toFixed(1)}" width="${DIMS.bodyW}" height="${DIMS.bodyH}" rx="${DIMS.bodyW / 2}" fill="${emotion.color}" data-part="BODY"/></g>`;
 
-  // 頭（体の上、首位置から頭半径分上）
-  const headRad = ((bodyAngle - 90) * Math.PI) / 180;
-  const headCx = cx + (DIMS.headR + 6) * Math.cos(headRad - Math.PI / 2 + Math.PI / 2) ; // 簡易: 体角度に応じて首方向へ
-  // 頭の中心は首から上方向(体角度に垂直な軸の逆方向)へ配置
-  const headDirRad = (bodyAngle * Math.PI) / 180;
-  const headX = cx - Math.sin(headDirRad) * (DIMS.bodyH / 2 + DIMS.headR + 4);
-  const headY = cy - Math.cos(headDirRad) * (DIMS.bodyH / 2 + DIMS.headR + 4);
-  const headSVG = `<circle cx="${headX.toFixed(1)}" cy="${headY.toFixed(1)}" r="${DIMS.headR}" fill="${emotion.color}" data-part="HEAD"/>`;
+  // 頭: toWorld() で胴体ローカル座標から変換することで BODY 回転と完全に連動させる
+  // 胴体ローカルでの首の上端 = (0, -bodyH/2)、そこから headR 分さらに上 = (0, -bodyH/2 - headR)
+  // ただし headR 分だけ胴体に重ねて隙間をゼロにする → (0, -bodyH/2 - headR + headR*0.3)
+  const headLocalY = -(DIMS.bodyH / 2) - DIMS.headR + DIMS.headR * 0.3;
+  const headPos = toWorld(0, headLocalY);
+  const headSVG = `<circle cx="${headPos.x.toFixed(1)}" cy="${headPos.y.toFixed(1)}" r="${DIMS.headR}" fill="${emotion.color}" data-part="HEAD"/>`;
 
-  const faceSVG = renderFace(headX, headY, emotion.face);
-  const auraSVG = renderAura(headX, headY, emotion);
+  const faceSVG = renderFace(headPos.x, headPos.y, emotion.face);
+  const auraSVG = renderAura(headPos.x, headPos.y, emotion);
 
   return `<svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg" class="pictogram-svg">
     <g class="pen-layer">${penSVG}</g>
