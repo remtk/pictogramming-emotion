@@ -24,11 +24,12 @@ import { resolvePartName, resolveEmotionName, createInitialPose, EMOTIONS } from
 const POSE_ANGLE_KEYS = ["BODY", "LUA", "LLA", "RUA", "RLA", "LUL", "LLL", "RUL", "RLL"];
 
 export class Interpreter {
-  constructor({ onPoseChange, onConsole, onSpeak, onDone, frameDelayMs = 16 }) {
+  constructor({ onPoseChange, onConsole, onSpeak, onDone, onCommandExecuted, frameDelayMs = 16 }) {
     this.onPoseChange = onPoseChange || (() => {});
     this.onConsole = onConsole || (() => {});
     this.onSpeak = onSpeak || (() => {});
     this.onDone = onDone || (() => {});
+    this.onCommandExecuted = onCommandExecuted || (() => {});
     this.frameDelayMs = frameDelayMs;
     this.reset();
   }
@@ -327,6 +328,8 @@ export class Interpreter {
     const dx = x * Math.cos(bodyRad) - y * Math.sin(bodyRad);
     const dy = x * Math.sin(bodyRad) + y * Math.cos(bodyRad);
 
+    this.onCommandExecuted("MOVE", { x, y, dx, dy, penDown: this.penDown });
+
     if (!animate) {
       this.pose.x = (this.pose.x || 0) + dx;
       this.pose.y = (this.pose.y || 0) + dy;
@@ -347,6 +350,7 @@ export class Interpreter {
 
   _opPen(args) {
     const mode = (args[0] || "").toUpperCase();
+    this.onCommandExecuted("PEN", { mode });
     if (mode === "UP") {
       this.penDown = false;
     } else if (mode === "DOWN") {
@@ -370,6 +374,9 @@ export class Interpreter {
     const duration = args[1] !== undefined ? this.evalExpr(args[1]) : 0.6;
     this.emotion = key;
     const emoDef = EMOTIONS[key];
+
+    this.onCommandExecuted("EMOTION", { emotion: key, label: emoDef.label, duration });
+
     const neutralPose = createInitialPose();
     const targetPose = { ...neutralPose, ...(emoDef.pose || {}) };
     const startPose = { ...this.pose };

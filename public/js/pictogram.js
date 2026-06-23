@@ -103,7 +103,7 @@ export const EMOTIONS = {
     color: "#C44536",
     face: "angry",
     aliases: ["ANGRY", "怒り", "いかり"],
-    pose: { LUA: 85, LLA: -80, RUA: -85, RLA: 80 },
+    pose: { LUA: 60, LLA: -120, RUA: -60, RLA: 120 },
   },
   SURPRISE: {
     key: "SURPRISE",

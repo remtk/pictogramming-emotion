@@ -63,6 +63,46 @@ EMOTION 喜び"></textarea>
 
 </main>
 
+<button id="btn-log-trigger" class="btn-log-trigger" title="プログラム実行ログを確認">📊 実行ログ確認</button>
+
+<div id="log-modal" class="modal-overlay">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>📊 実行ログ・統計確認</h3>
+      <button id="btn-modal-close" class="modal-close-btn">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="stats-section">
+        <h4>📈 統計要約</h4>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <span class="stat-label">描画された線</span>
+            <span class="stat-value" id="stat-line-count">0 回</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-label">線の合計長さ</span>
+            <span class="stat-value" id="stat-line-length">0 px</span>
+          </div>
+        </div>
+        <h5 style="margin-top:14px; margin-bottom:8px; font-weight:600; color:var(--ink);">感情表現回数</h5>
+        <div class="stats-emotions-grid" id="stats-emotions-list">
+          <!-- 感情ごとの回数をJSで挿入 -->
+        </div>
+      </div>
+      <div class="history-section">
+        <h4>📋 詳細実行ログ履歴</h4>
+        <div class="history-log-list" id="history-log-list">
+          <!-- タイムスタンプ付き詳細ログ -->
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button id="btn-log-clear" class="btn danger">ログクリア</button>
+      <button id="btn-modal-close-footer" class="btn ghost">閉じる</button>
+    </div>
+  </div>
+</div>
+
 <script type="module" src="js/app.js"></script>
 </body>
 </html>

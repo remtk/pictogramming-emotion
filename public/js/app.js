@@ -66,7 +66,11 @@ const interpreter = new Interpreter({
   onDone: () => {
     btnRun.disabled = false;
     btnStop.disabled = true;
+    addLogHistory("プログラムの実行が完了しました", "done");
   },
+  onCommandExecuted: (cmd, details) => {
+    handleCommandLog(cmd, details);
+  }
 });
 
 draw();
@@ -105,6 +109,7 @@ btnRun.addEventListener("click", async () => {
   consolePanel.innerHTML = "";
   btnRun.disabled = true;
   btnStop.disabled = false;
+  addLogHistory("プログラムの実行を開始します", "start");
   await interpreter.run(codeInput.value);
 });
 
@@ -240,3 +245,141 @@ function escapeHtml(s) {
 }
 
 codeInput.value = SAMPLES.emotion;
+
+// --- ログデータ管理 --------------------------------------------------------
+let runLog = {
+  stats: {
+    emotions: {
+      "JOY": 0,
+      "SAD": 0,
+      "ANGRY": 0,
+      "SURPRISE": 0,
+      "NORMAL": 0,
+    },
+    lineDrawCount: 0,
+    lineDrawLength: 0,
+  },
+  history: [],
+};
+
+const emotionLabels = {
+  "JOY": "喜び",
+  "SAD": "悲しみ",
+  "ANGRY": "怒り",
+  "SURPRISE": "驚き",
+  "NORMAL": "普通"
+};
+
+function clearLog() {
+  runLog = {
+    stats: {
+      emotions: {
+        "JOY": 0,
+        "SAD": 0,
+        "ANGRY": 0,
+        "SURPRISE": 0,
+        "NORMAL": 0,
+      },
+      lineDrawCount: 0,
+      lineDrawLength: 0,
+    },
+    history: [],
+  };
+  updateLogUI();
+}
+
+function addLogHistory(text, type = "info") {
+  const time = new Date().toLocaleTimeString("ja-JP", { hour12: false });
+  runLog.history.push({ time, text, type });
+}
+
+function handleCommandLog(cmd, details) {
+  if (cmd === "EMOTION") {
+    const { emotion, label, duration } = details;
+    runLog.stats.emotions[emotion] = (runLog.stats.emotions[emotion] || 0) + 1;
+    addLogHistory(`感情を「${label}」に変更しました（${duration}秒）`, "info");
+  } else if (cmd === "MOVE") {
+    const { x, y, dx, dy, penDown } = details;
+    if (penDown) {
+      const length = Math.round(Math.sqrt(dx * dx + dy * dy));
+      runLog.stats.lineDrawCount += 1;
+      runLog.stats.lineDrawLength += length;
+      addLogHistory(`線を描画しました (長さ: ${length}px)`, "info");
+    } else {
+      const length = Math.round(Math.sqrt(dx * dx + dy * dy));
+      addLogHistory(`ピクトグラムを移動しました (距離: ${length}px)`, "info");
+    }
+  } else if (cmd === "PEN") {
+    const { mode } = details;
+    if (mode === "DOWN") {
+      addLogHistory(`ペンを下げました`, "info");
+    } else if (mode === "UP") {
+      addLogHistory(`ペンを上げました`, "info");
+    }
+  }
+}
+
+function updateLogUI() {
+  document.getElementById("stat-line-count").textContent = `${runLog.stats.lineDrawCount} 回`;
+  document.getElementById("stat-line-length").textContent = `${runLog.stats.lineDrawLength} px`;
+
+  const emotionsList = document.getElementById("stats-emotions-list");
+  if (emotionsList) {
+    emotionsList.innerHTML = "";
+    Object.keys(runLog.stats.emotions).forEach(key => {
+      const card = document.createElement("div");
+      card.className = "stat-emotion-card";
+      const label = emotionLabels[key] || key;
+      const count = runLog.stats.emotions[key];
+      card.innerHTML = `<span class="count">${count}</span><span class="label">${label}</span>`;
+      emotionsList.appendChild(card);
+    });
+  }
+
+  const historyList = document.getElementById("history-log-list");
+  if (historyList) {
+    historyList.innerHTML = "";
+    if (runLog.history.length === 0) {
+      historyList.innerHTML = `<div class="log-item" style="color:var(--ink-soft); font-style:italic;">ログ履歴はありません。プログラムを実行すると記録されます。</div>`;
+    } else {
+      runLog.history.forEach(item => {
+        const div = document.createElement("div");
+        div.className = `log-item ${item.type}`;
+        div.innerHTML = `<span class="log-time">[${item.time}]</span><span class="log-text">${escapeHtml(item.text)}</span>`;
+        historyList.appendChild(div);
+      });
+      historyList.scrollTop = historyList.scrollHeight;
+    }
+  }
+}
+
+// --- モーダル制御 ---------------------------------------------------------
+const logModal = document.getElementById("log-modal");
+const btnLogTrigger = document.getElementById("btn-log-trigger");
+const btnModalClose = document.getElementById("btn-modal-close");
+const btnModalCloseFooter = document.getElementById("btn-modal-close-footer");
+const btnLogClear = document.getElementById("btn-log-clear");
+
+btnLogTrigger.addEventListener("click", () => {
+  updateLogUI();
+  logModal.classList.add("active");
+});
+
+const closeModal = () => {
+  logModal.classList.remove("active");
+};
+
+btnModalClose.addEventListener("click", closeModal);
+btnModalCloseFooter.addEventListener("click", closeModal);
+logModal.addEventListener("click", (e) => {
+  if (e.target === logModal) closeModal();
+});
+
+btnLogClear.addEventListener("click", () => {
+  if (confirm("ログと統計情報をクリアしますか？")) {
+    clearLog();
+  }
+});
+
+// 初期適用
+clearLog();

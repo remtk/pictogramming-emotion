@@ -7,7 +7,7 @@ globalThis.performance = globalThis.performance || { now: () => Date.now() };
 
 const { Interpreter } = await import("../public/js/interpreter.js");
 
-function makeInterpreter() {
+function makeInterpreter(onCommandExecuted) {
   const consoleLogs = [];
   const poseHistory = [];
   const speeches = [];
@@ -19,6 +19,7 @@ function makeInterpreter() {
     onDone: () => {
       done = true;
     },
+    onCommandExecuted,
   });
   return { interp, consoleLogs, poseHistory, speeches, isDone: () => done };
 }
@@ -153,4 +154,24 @@ M 60 0`);
   // 90度回転しているので、ローカルの(60, 0)はグローバルの(0, 60)に相当する
   assert.strictEqual(Math.round(last.pose.x), 0);
   assert.strictEqual(Math.round(last.pose.y), 60);
+});
+
+test("onCommandExecuted: 各コマンド実行時にコールバックがトリガーされること", async () => {
+  const executed = [];
+  const { interp } = makeInterpreter((cmd, details) => {
+    executed.push({ cmd, details });
+  });
+
+  await interp.run(`EMOTION 喜び 0
+PEN DOWN
+M 10 0`);
+
+  assert.strictEqual(executed.length, 3);
+  assert.strictEqual(executed[0].cmd, "EMOTION");
+  assert.strictEqual(executed[0].details.emotion, "JOY");
+  assert.strictEqual(executed[1].cmd, "PEN");
+  assert.strictEqual(executed[1].details.mode, "DOWN");
+  assert.strictEqual(executed[2].cmd, "MOVE");
+  assert.strictEqual(executed[2].details.x, 10);
+  assert.strictEqual(executed[2].details.penDown, true);
 });
