@@ -87,7 +87,7 @@ export const EMOTIONS = {
     color: "#E8A33D",
     face: "joy",
     aliases: ["JOY", "喜び", "よろこび"],
-    pose: { LUA: -210, LLA: 0, RUA: -150, RLA: 0 },
+    pose: { LUA: 150, LLA: 0, RUA: -150, RLA: 0 },
   },
   SAD: {
     key: "SAD",
@@ -95,7 +95,7 @@ export const EMOTIONS = {
     color: "#5B7C99",
     face: "sad",
     aliases: ["SAD", "悲しみ", "かなしみ"],
-    pose: { LUA: -312, LLA: 14, RUA: -48, RLA: -14 },
+    pose: { LUA: 48, LLA: 14, RUA: -48, RLA: -14 },
   },
   ANGRY: {
     key: "ANGRY",
@@ -103,7 +103,7 @@ export const EMOTIONS = {
     color: "#C44536",
     face: "angry",
     aliases: ["ANGRY", "怒り", "いかり"],
-    pose: { LUA: -275, LLA: -80, RUA: -85, RLA: 80 },
+    pose: { LUA: 85, LLA: -80, RUA: -85, RLA: 80 },
   },
   SURPRISE: {
     key: "SURPRISE",
@@ -111,7 +111,7 @@ export const EMOTIONS = {
     color: "#8B6BB5",
     face: "surprise",
     aliases: ["SURPRISE", "驚き", "おどろき"],
-    pose: { LUA: -190, LLA: 0, RUA: -170, RLA: 0 },
+    pose: { LUA: 170, LLA: 0, RUA: -170, RLA: 0 },
   },
 };
 
