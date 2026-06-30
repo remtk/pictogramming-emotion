@@ -71,6 +71,9 @@ const interpreter = new Interpreter({
     btnRun.disabled = false;
     btnStop.disabled = true;
     addLogHistory("プログラムの実行が完了しました", "done");
+    if (typeof sendComprehensiveLog === "function") {
+      sendComprehensiveLog(codeInput.value);
+    }
   },
   onCommandExecuted: (cmd, details) => {
     handleCommandLog(cmd, details);
@@ -253,6 +256,8 @@ function escapeHtml(s) {
 codeInput.value = SAMPLES.emotion;
 
 // --- ログデータ管理 --------------------------------------------------------
+const sessionId = Math.random().toString(36).substring(2, 10);
+
 let runLog = {
   stats: {
     emotions: {
@@ -297,6 +302,19 @@ function clearLog() {
 function addLogHistory(text, type = "info") {
   const time = new Date().toLocaleTimeString("ja-JP", { hour12: false });
   runLog.history.push({ time, text, type });
+}
+
+function sendComprehensiveLog(code) {
+  fetch("/api/logs", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      sessionId: sessionId,
+      action: "RUN_PROGRAM",
+      stats: runLog.stats,
+      code: code
+    })
+  }).catch(err => console.error("Failed to send log:", err));
 }
 
 function handleCommandLog(cmd, details) {
@@ -365,6 +383,11 @@ const btnLogTrigger = document.getElementById("btn-log-trigger");
 const btnModalClose = document.getElementById("btn-modal-close");
 const btnModalCloseFooter = document.getElementById("btn-modal-close-footer");
 const btnLogClear = document.getElementById("btn-log-clear");
+const btnLogDownload = document.getElementById("btn-log-download");
+
+btnLogDownload?.addEventListener("click", () => {
+  window.location.href = "/api/logs/csv";
+});
 
 btnLogTrigger.addEventListener("click", () => {
   updateLogUI();
