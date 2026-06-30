@@ -19,6 +19,8 @@ let currentState = {
   penDown: false,
   penPath: [],
   penColor: "#2B2B2E",
+  walkPhase: undefined,
+  walkDir: 1,
 };
 
 function draw() {
@@ -29,6 +31,8 @@ function draw() {
       emotion: currentState.emotion,
       penPath: currentState.penPath,
       penColor: currentState.penColor,
+      walkPhase: currentState.walkPhase,
+      walkDir: currentState.walkDir,
     })
   );
   updateActivePalette();
@@ -126,6 +130,8 @@ btnReset.addEventListener("click", () => {
     penDown: false,
     penPath: [],
     penColor: "#2B2B2E",
+    walkPhase: undefined,
+    walkDir: 1,
   };
   draw();
   consolePanel.innerHTML = "";

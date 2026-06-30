@@ -4,7 +4,9 @@
  * 論文「ピクトグラミング」(伊藤, 2018) の人型ピクトグラム仕様(9部位・ISO3864比率)を参考にした簡易実装。
  * 体(BODY) / 左右上腕(LUA,RUA) / 左右前腕(LLA,RLA) / 左右上腿(LUL,RUL) / 左右下腿(LLL,RLL)
  *
- * 新規拡張: 感情(EMOTION)を表す顔アイコンと色オーラをピクトグラム頭部付近に表示する。
+ * 新規拡張:
+ *  - 感情(EMOTION)を表す顔アイコンと色オーラをピクトグラム頭部付近に表示する。
+ *  - 移動中(歩行モーション)は正面ピクトグラムとは別の側面向け歩行シルエットを描画する。
  */
 
 // 各部位の上位ID（連鎖回転関係）。論文 表6 に対応。
@@ -124,16 +126,17 @@ export function resolveEmotionName(token) {
 }
 
 // ISO3864を参考にした各部位の寸法比率（簡易値・正面方向のみサポート）
+// 比率はそのまま、最初のオリジナル値から0.6倍にスケールダウンして表示サイズを小さくしている。
 const DIMS = {
-  headR: 26,
-  bodyW: 55,
-  bodyH: 100,
-  upperArmL: 54,
-  lowerArmL: 48,
-  armW: 30,
-  upperLegL: 72,
-  lowerLegL: 68,
-  legW: 28,
+  headR: 15.6,
+  bodyW: 33,
+  bodyH: 60,
+  upperArmL: 32.4,
+  lowerArmL: 28.8,
+  armW: 18,
+  upperLegL: 43.2,
+  lowerLegL: 40.8,
+  legW: 16.8,
 };
 
 // 気を付け：腕・脚は真下、付け根は胴体に沿わせる
@@ -146,10 +149,16 @@ const NEUTRAL_ANGLES = {
 
 /**
  * 現在のpose（角度群）からSVGを描画する。
+ * opts.walkPhase が定義されている場合は正面ピクトグラムではなく、
+ * 側面向けの歩行専用シルエット(renderWalkingSideSVG)を描画する。
  * @param {object} pose - createInitialPose()形式
- * @param {object} opts - { emotion: 'NORMAL', penPath: [{x,y}], penColor }
+ * @param {object} opts - { emotion: 'NORMAL', penPath: [{x,y}], penColor, walkPhase, walkDir }
  */
 export function renderSVG(pose, opts = {}) {
+  if (opts.walkPhase !== undefined) {
+    return renderWalkingSideSVG(pose, opts);
+  }
+
   const emotion = EMOTIONS[opts.emotion] || EMOTIONS.NORMAL;
   const cx = 200 + (pose.x || 0);
   const cy = 200 + (pose.y || 0);
@@ -221,8 +230,6 @@ export function renderSVG(pose, opts = {}) {
   const bodySVG = `<g transform="rotate(${bodyAngle} ${cx} ${cy})"><rect x="${(cx - DIMS.bodyW / 2).toFixed(1)}" y="${(cy - DIMS.bodyH / 2).toFixed(1)}" width="${DIMS.bodyW}" height="${DIMS.bodyH}" rx="${DIMS.bodyW / 2}" fill="${emotion.color}" data-part="BODY"/></g>`;
 
   // 頭: toWorld() で胴体ローカル座標から変換することで BODY 回転と完全に連動させる
-  // 胴体ローカルでの首の上端 = (0, -bodyH/2)、そこから headR 分さらに上 = (0, -bodyH/2 - headR)
-  // ただし headR 分だけ胴体に重ねて隙間をゼロにする → (0, -bodyH/2 - headR + headR*0.3)
   const headLocalY = -(DIMS.bodyH / 2) - DIMS.headR + DIMS.headR * 0.3;
   const headPos = toWorld(0, headLocalY);
   const headSVG = `<circle cx="${headPos.x.toFixed(1)}" cy="${headPos.y.toFixed(1)}" r="${DIMS.headR}" fill="${emotion.color}" data-part="HEAD"/>`;
@@ -241,7 +248,155 @@ export function renderSVG(pose, opts = {}) {
   </svg>`;
 }
 
-// --- 感情の顔アイコン（新規拡張）---------------------------------
+// --- 新規拡張: 横向き歩行ピクトグラム ---------------------------------
+// 「非常口」ピクトグラムのような側面シルエットで、脚を前後に開閉させながら歩く。
+// walkPhase(0〜1)の周期で前脚・後脚・腕の振りをsin波で動かす。
+// walkDir(1=右向き/-1=左向き)に応じて全体を左右反転する。
+const WALK_DIMS = {
+  headR: DIMS.headR,
+  torsoLen: DIMS.bodyH * 0.62, // 体幹（首〜股）
+  torsoW: DIMS.bodyW * 0.62,
+  upperLegL: DIMS.upperLegL,
+  lowerLegL: DIMS.lowerLegL,
+  legW: DIMS.legW * 0.85,
+  upperArmL: DIMS.upperArmL * 0.85,
+  lowerArmL: DIMS.lowerArmL * 0.85,
+  armW: DIMS.armW * 0.8,
+};
+
+function renderWalkingSideSVG(pose, opts) {
+  const emotion = EMOTIONS[opts.emotion] || EMOTIONS.NORMAL;
+  const dir = opts.walkDir >= 0 ? 1 : -1;
+  const cx = 200 + (pose.x || 0);
+  const cy = 200 + (pose.y || 0);
+  const t = (opts.walkPhase || 0) * Math.PI * 2;
+
+  // 股(hip)を原点とするローカル座標。+x = 進行方向、+y = 下方向。
+  const hipLocalY = WALK_DIMS.lowerLegL * 0.55; // 脚の沈み込みを考慮した股の高さ
+  const shoulderLocalY = hipLocalY - WALK_DIMS.torsoLen;
+
+  // 脚: 前後逆位相。前に出た脚は伸び、後ろの脚は膝を曲げて地面を蹴る。
+  const frontSwing = Math.sin(t) * 40; // 度
+  const backSwing = Math.sin(t + Math.PI) * 40;
+  const frontKnee = Math.max(0, -Math.sin(t)) * 55; // 前脚が後方にあるときに少し曲げる
+  const backKnee = Math.max(0, Math.sin(t + Math.PI * 0.15)) * 60; // 後ろへ蹴り上げる脚を曲げる
+
+  // 腕: 脚と逆位相で自然に振る（右脚が前なら左腕が前）
+  const armSwing = Math.sin(t + Math.PI) * 32;
+
+  function rad(deg) {
+    return (deg * Math.PI) / 180;
+  }
+
+  // ローカル座標(原点=股、+x=進行方向、+y=下)からワールド座標へ。
+  // walkDir=-1のときはX軸を反転して左向きにする。
+  function toWorld(lx, ly) {
+    return { x: cx + lx * dir, y: cy + ly };
+  }
+
+  // 角度0度=真下、正の角度=進行方向(前)へ振る、という極座標で関節を伸ばす。
+  function joint(originLocal, angleDeg, len) {
+    const a = rad(angleDeg);
+    const lx = originLocal.lx + len * Math.sin(a);
+    const ly = originLocal.ly + len * Math.cos(a);
+    return { lx, ly };
+  }
+
+  function limbSVG(originLocal, upperAngle, upperLen, kneeBend, lowerLen, width, label) {
+    const hipPt = toWorld(originLocal.lx, originLocal.ly);
+    const kneeLocal = joint(originLocal, upperAngle, upperLen);
+    const kneePt = toWorld(kneeLocal.lx, kneeLocal.ly);
+    const lowerAngle = upperAngle + kneeBend * dir * -1; // 膝から下は曲がる方向(常に後方)へ
+    const footLocal = joint(kneeLocal, upperAngle - kneeBend, lowerLen);
+    const footPt = toWorld(footLocal.lx, footLocal.ly);
+    return `<line x1="${hipPt.x.toFixed(1)}" y1="${hipPt.y.toFixed(1)}" x2="${kneePt.x.toFixed(1)}" y2="${kneePt.y.toFixed(1)}" stroke="${emotion.color}" stroke-width="${width}" stroke-linecap="round" data-part="${label}-upper"/>` +
+      `<line x1="${kneePt.x.toFixed(1)}" y1="${kneePt.y.toFixed(1)}" x2="${footPt.x.toFixed(1)}" y2="${footPt.y.toFixed(1)}" stroke="${emotion.color}" stroke-width="${(width - 2).toFixed(1)}" stroke-linecap="round" data-part="${label}-lower"/>` +
+      `<circle cx="${kneePt.x.toFixed(1)}" cy="${kneePt.y.toFixed(1)}" r="${(width / 2).toFixed(1)}" fill="${emotion.color}"/>`;
+  }
+
+  const hipOrigin = { lx: 0, ly: hipLocalY };
+  // 後ろ脚(画面奥に描く): 進行方向と逆に振れている方
+  const backLeg = limbSVG(hipOrigin, backSwing, WALK_DIMS.upperLegL, backKnee, WALK_DIMS.lowerLegL, WALK_DIMS.legW, "BACK_LEG");
+  // 前脚(手前): 進行方向に振れている方
+  const frontLeg = limbSVG(hipOrigin, frontSwing, WALK_DIMS.upperLegL, frontKnee, WALK_DIMS.lowerLegL, WALK_DIMS.legW, "FRONT_LEG");
+
+  // 体幹(股〜肩)。わずかに前傾させて歩行の躍動感を出す。
+  const torsoLean = 6;
+  const shoulderLocal = joint(hipOrigin, -torsoLean, WALK_DIMS.torsoLen);
+  const hipWorld = toWorld(hipOrigin.lx, hipOrigin.ly);
+  const shoulderWorld = toWorld(shoulderLocal.lx, shoulderLocal.ly);
+  const torsoSVG = `<line x1="${hipWorld.x.toFixed(1)}" y1="${hipWorld.y.toFixed(1)}" x2="${shoulderWorld.x.toFixed(1)}" y2="${shoulderWorld.y.toFixed(1)}" stroke="${emotion.color}" stroke-width="${WALK_DIMS.torsoW.toFixed(1)}" stroke-linecap="round" data-part="TORSO"/>`;
+
+  // 腕(肩から1本、肘で少し曲げる)。後ろ脚と同位相で振る(自然な対角線運動)。
+  const armOrigin = shoulderLocal;
+  const armSVG = limbSVG(armOrigin, -torsoLean + armSwing, WALK_DIMS.upperArmL, 18, WALK_DIMS.lowerArmL, WALK_DIMS.armW, "ARM");
+
+  // 頭: 肩のさらに上、進行方向をわずかに見る。
+  const headLocal = joint(shoulderLocal, -torsoLean, WALK_DIMS.headR * 1.15);
+  const headWorld = toWorld(headLocal.lx, headLocal.ly);
+  const headSVG = `<circle cx="${headWorld.x.toFixed(1)}" cy="${headWorld.y.toFixed(1)}" r="${WALK_DIMS.headR}" fill="${emotion.color}" data-part="HEAD"/>`;
+
+  // 顔は進行方向側に寄せて表示する（側面なので目は省略し、簡易な表情のみ）
+  const faceSVG = renderSideFace(headWorld.x, headWorld.y, emotion.face, dir);
+  const auraSVG = renderAura(headWorld.x, headWorld.y, emotion);
+
+  // ペン軌跡(ワールド座標、歩行時も継続して描く)
+  let penSVG = "";
+  if (opts.penPath && opts.penPath.length > 1) {
+    const d = opts.penPath
+      .map((p, i) => `${i === 0 ? "M" : "L"} ${(200 + p.x).toFixed(1)} ${(200 + p.y).toFixed(1)}`)
+      .join(" ");
+    penSVG = `<path d="${d}" fill="none" stroke="${opts.penColor || '#2B2B2E'}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>`;
+  }
+
+  return `<svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg" class="pictogram-svg">
+    <g class="pen-layer">${penSVG}</g>
+    <g class="walk-back-leg">${backLeg}</g>
+    ${torsoSVG}
+    <g class="walk-arm">${armSVG}</g>
+    <g class="walk-front-leg">${frontLeg}</g>
+    ${headSVG}
+    ${faceSVG}
+    ${auraSVG}
+  </svg>`;
+}
+
+// 側面向けの簡易表情（進行方向側に目と口を寄せる）
+function renderSideFace(hx, hy, face, dir) {
+  const eyeX = hx + dir * (WALK_DIMS.headR * 0.35);
+  const eyeY = hy - 1;
+  const mouthX = hx + dir * (WALK_DIMS.headR * 0.55);
+  const mouthY = hy + 4;
+  switch (face) {
+    case "joy":
+      return `<g class="face" data-face="joy">
+        <path d="M ${eyeX - dir * 3} ${eyeY} Q ${eyeX} ${eyeY - 4} ${eyeX + dir * 3} ${eyeY}" stroke="#fff" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+        <path d="M ${mouthX - dir * 4} ${mouthY} Q ${mouthX} ${mouthY + 4} ${mouthX + dir * 4} ${mouthY - 1}" stroke="#fff" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+      </g>`;
+    case "sad":
+      return `<g class="face" data-face="sad">
+        <circle cx="${eyeX}" cy="${eyeY}" r="1.6" fill="#fff"/>
+        <path d="M ${mouthX - dir * 4} ${mouthY + 2} Q ${mouthX} ${mouthY - 2} ${mouthX + dir * 4} ${mouthY + 2}" stroke="#fff" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+      </g>`;
+    case "angry":
+      return `<g class="face" data-face="angry">
+        <line x1="${eyeX - dir * 4}" y1="${eyeY - 3}" x2="${eyeX + dir * 3}" y2="${eyeY}" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/>
+        <line x1="${mouthX - dir * 4}" y1="${mouthY}" x2="${mouthX + dir * 4}" y2="${mouthY}" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/>
+      </g>`;
+    case "surprise":
+      return `<g class="face" data-face="surprise">
+        <circle cx="${eyeX}" cy="${eyeY}" r="2.2" fill="#fff"/>
+        <circle cx="${mouthX}" cy="${mouthY + 1}" r="2.6" fill="#fff"/>
+      </g>`;
+    default:
+      return `<g class="face" data-face="normal">
+        <circle cx="${eyeX}" cy="${eyeY}" r="1.6" fill="#fff"/>
+        <line x1="${mouthX - dir * 3}" y1="${mouthY}" x2="${mouthX + dir * 3}" y2="${mouthY}" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/>
+      </g>`;
+  }
+}
+
+// --- 感情の顔アイコン（正面ピクトグラム用・新規拡張）---------------------------------
 function renderFace(hx, hy, face) {
   const eyeY = hy - 3;
   const lEyeX = hx - 6;

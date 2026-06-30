@@ -41,6 +41,8 @@ export class Interpreter {
     this.penPath = [];
     this.penColor = "#2B2B2E";
     this.vars = {};
+    this.walkPhase = undefined; // 歩行モーション位相（0〜1、未定義で通常姿勢＝正面ピクトグラム表示）
+    this.walkDir = 1; // 歩行中の向き（1=右向き、-1=左向き）
     this._stopRequested = false;
     this._running = false;
   }
@@ -124,7 +126,6 @@ export class Interpreter {
   _tokenize(text) {
     const tokens = [];
     let i = 0;
-    const s = text.replace(/[\uFF08\uFF09]/g, (c) => (c === "（" ? "(" : ")")); // 全角括弧→半角は式とは無関係なので未使用
     const str = text;
     while (i < str.length) {
       while (i < str.length && /\s/.test(str[i])) i++;
@@ -267,7 +268,7 @@ export class Interpreter {
           await this._opMove(args, true);
           break;
         case "PEN":
-          this._opPen(args);
+          await this._opPen(args);
           break;
         case "LET":
           this._opLet(args);
@@ -312,12 +313,16 @@ export class Interpreter {
     const duration = args[2] !== undefined ? this.evalExpr(args[2]) : 1;
     const startVal = this.pose[part] || 0;
     const targetVal = startVal + angle;
-    return this._animateValue(null, duration, (progress) => {
+    return this._animateValue(duration, (progress) => {
       this.pose[part] = startVal + (targetVal - startVal) * progress;
       this._emit();
     });
   }
 
+  // M/MW: 体全体の平行移動。
+  // ペンが下がっている間は「歩行モーション」(walkPhase)を進行させ、
+  // pictogram.js 側で側面向きの歩行ピクトグラムに切り替えて描画する。
+  // 進行方向の左右(dxの符号)を walkDir として保持し、側面ピクトグラムの向きに反映する。
   _opMove(args, animate) {
     if (args.length < 2) throw new Error("M/MW x y [秒] の形式で指定してください");
     const x = this.evalExpr(args[0]);
@@ -336,23 +341,34 @@ export class Interpreter {
       this._emit();
       return Promise.resolve();
     }
+
     const duration = args[2] !== undefined ? this.evalExpr(args[2]) : 1;
     const startX = this.pose.x || 0;
     const startY = this.pose.y || 0;
     const targetX = startX + dx;
     const targetY = startY + dy;
-    return this._animateValue(null, duration, (progress) => {
+
+    if (this.penDown && Math.abs(dx) > 0.001) {
+      this.walkDir = dx >= 0 ? 1 : -1;
+    }
+    const walkStart = Math.random(); // 複数回のMWで位相が揃うのを避ける
+
+    return this._animateValue(duration, (progress) => {
       this.pose.x = startX + (targetX - startX) * progress;
       this.pose.y = startY + (targetY - startY) * progress;
+      if (this.penDown) {
+        this.walkPhase = (walkStart + progress * 3) % 1; // 移動中は3周期分歩く
+      }
       this._emit();
     });
   }
 
-  _opPen(args) {
+  async _opPen(args) {
     const mode = (args[0] || "").toUpperCase();
     this.onCommandExecuted("PEN", { mode });
     if (mode === "UP") {
       this.penDown = false;
+      this.walkPhase = undefined;
     } else if (mode === "DOWN") {
       this.penDown = true;
       this.penPath.push({ x: this.pose.x, y: this.pose.y });
@@ -387,7 +403,7 @@ export class Interpreter {
       this._emit();
       return;
     }
-    await this._animateValue(null, duration, (progress) => {
+    await this._animateValue(duration, (progress) => {
       for (const k of POSE_ANGLE_KEYS) {
         this.pose[k] = startPose[k] + (targetPose[k] - startPose[k]) * progress;
       }
@@ -395,7 +411,7 @@ export class Interpreter {
     });
   }
 
-  async _animateValue(_unused, duration, frameFn) {
+  async _animateValue(duration, frameFn) {
     if (duration <= 0) {
       frameFn(1);
       return;
@@ -428,6 +444,8 @@ export class Interpreter {
       penDown: this.penDown,
       penPath: [...this.penPath],
       penColor: this.penColor,
+      walkPhase: this.walkPhase,
+      walkDir: this.walkDir,
     });
     if (this.penDown) {
       this.penPath.push({ x: this.pose.x, y: this.pose.y });
