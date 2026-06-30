@@ -282,7 +282,7 @@ function renderWalkingSideSVG(pose, opts) {
   const backKnee = Math.max(0, Math.sin(t + Math.PI * 0.15)) * 60; // 後ろへ蹴り上げる脚を曲げる
 
   // 腕: 脚と逆位相で自然に振る（右脚が前なら左腕が前）
-  const armSwing = Math.sin(t + Math.PI) * 32;
+  const armSwing = Math.sin(t + Math.PI) * 50; // 腕の振りを大きくしました（元は32）
 
   function rad(deg) {
     return (deg * Math.PI) / 180;
@@ -322,17 +322,22 @@ function renderWalkingSideSVG(pose, opts) {
 
   // 体幹(股〜肩)。わずかに前傾させて歩行の躍動感を出す。
   const torsoLean = 6;
-  const shoulderLocal = joint(hipOrigin, -torsoLean, WALK_DIMS.torsoLen);
+  // joint()は角度0で下に向かうため、上に向かせるために長さを負にする
+  const shoulderLocal = joint(hipOrigin, -torsoLean, -WALK_DIMS.torsoLen);
   const hipWorld = toWorld(hipOrigin.lx, hipOrigin.ly);
   const shoulderWorld = toWorld(shoulderLocal.lx, shoulderLocal.ly);
   const torsoSVG = `<line x1="${hipWorld.x.toFixed(1)}" y1="${hipWorld.y.toFixed(1)}" x2="${shoulderWorld.x.toFixed(1)}" y2="${shoulderWorld.y.toFixed(1)}" stroke="${emotion.color}" stroke-width="${WALK_DIMS.torsoW.toFixed(1)}" stroke-linecap="round" data-part="TORSO"/>`;
 
-  // 腕(肩から1本、肘で少し曲げる)。後ろ脚と同位相で振る(自然な対角線運動)。
+  // 腕(肩から1本、肘で曲げる)。後ろ脚と同位相で振る(自然な対角線運動)。
   const armOrigin = shoulderLocal;
-  const armSVG = limbSVG(armOrigin, -torsoLean + armSwing, WALK_DIMS.upperArmL, 18, WALK_DIMS.lowerArmL, WALK_DIMS.armW, "ARM");
+  // 腕が前に振れる時ほど肘を大きく曲げ、下腕が前・上向きになるようにする
+  // limbSVGは第4引数を「後方への曲がり角度」として減算するため、前方に曲げるにはマイナス値を渡す
+  const elbowBend = 45 + armSwing * 0.8; 
+  const armSVG = limbSVG(armOrigin, -torsoLean + armSwing, WALK_DIMS.upperArmL, -elbowBend, WALK_DIMS.lowerArmL, WALK_DIMS.armW, "ARM");
 
   // 頭: 肩のさらに上、進行方向をわずかに見る。
-  const headLocal = joint(shoulderLocal, -torsoLean, WALK_DIMS.headR * 1.15);
+  // 同様に長さを負にして上方向に伸ばす
+  const headLocal = joint(shoulderLocal, -torsoLean, -WALK_DIMS.headR * 1.15);
   const headWorld = toWorld(headLocal.lx, headLocal.ly);
   const headSVG = `<circle cx="${headWorld.x.toFixed(1)}" cy="${headWorld.y.toFixed(1)}" r="${WALK_DIMS.headR}" fill="${emotion.color}" data-part="HEAD"/>`;
 
