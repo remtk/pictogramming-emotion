@@ -82,7 +82,7 @@ const interpreter = new Interpreter({
 
 draw();
 
-// --- 感情パレット生成（新規拡張UI） -----------------------------------
+// --- 感情パレット生成 -----------------------------------
 function buildEmotionPalette() {
   emotionPalette.innerHTML = "";
   Object.values(EMOTIONS).forEach((emo) => {
