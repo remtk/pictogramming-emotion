@@ -114,6 +114,14 @@ function insertAtCursor(text) {
 // --- 実行制御 -----------------------------------------------------------
 btnRun.addEventListener("click", async () => {
   consolePanel.innerHTML = "";
+  
+  // 実行のたびに今回の統計情報をリセットする（累計にしない）
+  runLog.stats = {
+    emotions: { "JOY": 0, "SAD": 0, "ANGRY": 0, "SURPRISE": 0, "NORMAL": 0 },
+    lineDrawCount: 0,
+    lineDrawLength: 0,
+  };
+  
   btnRun.disabled = true;
   btnStop.disabled = false;
   addLogHistory("プログラムの実行を開始します", "start");
