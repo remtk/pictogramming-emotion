@@ -214,9 +214,23 @@ document.getElementById("btn-sample-item")?.addEventListener("click", () => {
 // --- 命令リファレンス -------------------------------------------------------
 const REFERENCE = [
   {
+    group: "部位指定用コード一覧",
+    items: [
+      { code: "BODY または 体", desc: "体全体（胴体）" },
+      { code: "LUA または 左上腕", desc: "左の二の腕" },
+      { code: "LLA または 左前腕", desc: "左の肘から先" },
+      { code: "RUA または 右上腕", desc: "右の二の腕" },
+      { code: "RLA または 右前腕", desc: "右の肘から先" },
+      { code: "LUL または 左上腿", desc: "左の太もも" },
+      { code: "LLL または 左下腿", desc: "左の膝から下" },
+      { code: "RUL または 右上腿", desc: "右の太もも" },
+      { code: "RLL または 右下腿", desc: "右の膝から下" },
+    ],
+  },
+  {
     group: "ピクトアニメーション命令",
     items: [
-      { code: "R 部位 角度", desc: "指定した部位を瞬時に回転させる（例: R LUA -90）" },
+      { code: "R 部位 角度", desc: "指定した部位を瞬時に回転させる（例: R 左上腕 -90）" },
       { code: "RW 部位 角度 秒", desc: "指定秒数をかけて部位を回転させる（アニメーション）" },
       { code: "M x y", desc: "体全体を瞬時に平行移動する" },
       { code: "MW x y 秒", desc: "指定秒数をかけて体全体を平行移動する" },
@@ -241,7 +255,7 @@ const REFERENCE = [
     ],
   },
   {
-    group: "感情表現命令（新規拡張）",
+    group: "感情表現命令",
     emotion: true,
     items: [
       { code: "EMOTION 喜び [秒]", desc: "喜びの表情・ポーズ・色オーラに遷移する" },
@@ -252,7 +266,7 @@ const REFERENCE = [
     ],
   },
   {
-    group: "アイテム配置命令（新規拡張）",
+    group: "アイテム配置命令",
     items: [
       { code: "ITEM 種類 x y [倍率]", desc: "指定座標にアイテムを配置（リンゴ, 星, ハート, 剣, ボール）" },
       { code: "ITEM CLEAR", desc: "配置したアイテムをすべて消去する" },
