@@ -265,6 +265,10 @@ codeInput.value = SAMPLES.emotion;
 
 // --- ログデータ管理 --------------------------------------------------------
 const sessionId = Math.random().toString(36).substring(2, 10);
+const displaySessionEl = document.getElementById("display-session-id");
+if (displaySessionEl) displaySessionEl.textContent = sessionId;
+const modalSessionEl = document.getElementById("modal-session-id");
+if (modalSessionEl) modalSessionEl.textContent = sessionId;
 
 let runLog = {
   stats: {
