@@ -115,8 +115,8 @@ function insertAtCursor(text) {
 btnRun.addEventListener("click", async () => {
   consolePanel.innerHTML = "";
   
-  // 実行のたびに今回の統計情報をリセットする（累計にしない）
-  runLog.stats = {
+  // 実行のたびに今回の統計情報をリセットする（送信用）
+  currentRunStats = {
     emotions: { "JOY": 0, "SAD": 0, "ANGRY": 0, "SURPRISE": 0, "NORMAL": 0 },
     lineDrawCount: 0,
     lineDrawLength: 0,
@@ -281,6 +281,12 @@ let runLog = {
   history: [],
 };
 
+let currentRunStats = {
+  emotions: { "JOY": 0, "SAD": 0, "ANGRY": 0, "SURPRISE": 0, "NORMAL": 0 },
+  lineDrawCount: 0,
+  lineDrawLength: 0,
+};
+
 const emotionLabels = {
   "JOY": "喜び",
   "SAD": "悲しみ",
@@ -319,7 +325,7 @@ function sendComprehensiveLog(code) {
     body: JSON.stringify({
       sessionId: sessionId,
       action: "RUN_PROGRAM",
-      stats: runLog.stats,
+      stats: currentRunStats,
       code: code
     })
   }).catch(err => console.error("Failed to send log:", err));
@@ -329,6 +335,7 @@ function handleCommandLog(cmd, details) {
   if (cmd === "EMOTION") {
     const { emotion, label, duration } = details;
     runLog.stats.emotions[emotion] = (runLog.stats.emotions[emotion] || 0) + 1;
+    currentRunStats.emotions[emotion] = (currentRunStats.emotions[emotion] || 0) + 1;
     addLogHistory(`感情を「${label}」に変更しました（${duration}秒）`, "info");
   } else if (cmd === "MOVE") {
     const { x, y, dx, dy, penDown } = details;
@@ -336,6 +343,8 @@ function handleCommandLog(cmd, details) {
       const length = Math.round(Math.sqrt(dx * dx + dy * dy));
       runLog.stats.lineDrawCount += 1;
       runLog.stats.lineDrawLength += length;
+      currentRunStats.lineDrawCount += 1;
+      currentRunStats.lineDrawLength += length;
       addLogHistory(`線を描画しました (長さ: ${length}px)`, "info");
     } else {
       const length = Math.round(Math.sqrt(dx * dx + dy * dy));
