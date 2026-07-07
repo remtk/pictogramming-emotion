@@ -19,6 +19,7 @@ let currentState = {
   penDown: false,
   penPath: [],
   penColor: "#2B2B2E",
+  items: [],
   walkPhase: undefined,
   walkDir: 1,
 };
@@ -31,6 +32,7 @@ function draw() {
       emotion: currentState.emotion,
       penPath: currentState.penPath,
       penColor: currentState.penColor,
+      items: currentState.items,
       walkPhase: currentState.walkPhase,
       walkDir: currentState.walkDir,
     })
@@ -141,6 +143,7 @@ btnReset.addEventListener("click", () => {
     penDown: false,
     penPath: [],
     penColor: "#2B2B2E",
+    items: [],
     walkPhase: undefined,
     walkDir: 1,
   };
@@ -183,6 +186,16 @@ REPEAT 3
 END
 PEN UP
 EMOTION 喜び`,
+  items: `// アイテム配置サンプル：リンゴと星を配置
+ITEM CLEAR
+ITEM リンゴ -80 -20 1.5
+ITEM 星 80 -40 2.0
+EMOTION 喜び 0.8
+SP "わーい！"
+WAIT 1.5
+EMOTION 普通 0.6
+ITEM CLEAR
+SP "片付けたよ"`,
 };
 
 document.getElementById("btn-sample-basic").addEventListener("click", () => {
@@ -193,6 +206,9 @@ document.getElementById("btn-sample-emotion").addEventListener("click", () => {
 });
 document.getElementById("btn-sample-graphics").addEventListener("click", () => {
   codeInput.value = SAMPLES.graphics;
+});
+document.getElementById("btn-sample-item")?.addEventListener("click", () => {
+  codeInput.value = SAMPLES.items;
 });
 
 // --- 命令リファレンス -------------------------------------------------------
@@ -233,6 +249,13 @@ const REFERENCE = [
       { code: "EMOTION 怒り [秒]", desc: "怒りの表情・ポーズ・色オーラに遷移する" },
       { code: "EMOTION 驚き [秒]", desc: "驚きの表情・ポーズ・色オーラに遷移する" },
       { code: "EMOTION 普通 [秒]", desc: "通常の表情・色に戻す" },
+    ],
+  },
+  {
+    group: "アイテム配置命令（新規拡張）",
+    items: [
+      { code: "ITEM 種類 x y [倍率]", desc: "指定座標にアイテムを配置（リンゴ, 星, ハート, 剣, ボール）" },
+      { code: "ITEM CLEAR", desc: "配置したアイテムをすべて消去する" },
     ],
   },
 ];
@@ -361,6 +384,11 @@ function handleCommandLog(cmd, details) {
     } else if (mode === "UP") {
       addLogHistory(`ペンを上げました`, "info");
     }
+  } else if (cmd === "ITEM") {
+    const { type, x, y, scale } = details;
+    addLogHistory(`アイテム「${type}」を (${x}, ${y}) に配置しました`, "info");
+  } else if (cmd === "ITEM_CLEAR") {
+    addLogHistory(`すべてのアイテムを消去しました`, "info");
   }
 }
 

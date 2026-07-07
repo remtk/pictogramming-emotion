@@ -19,7 +19,7 @@
  * コメントは // 以降を無視。命令と引数は空白区切り。式は[ ]で囲む。
  */
 
-import { resolvePartName, resolveEmotionName, createInitialPose, EMOTIONS } from "./pictogram.js";
+import { resolvePartName, resolveEmotionName, resolveItemName, createInitialPose, EMOTIONS } from "./pictogram.js";
 
 const POSE_ANGLE_KEYS = ["BODY", "LUA", "LLA", "RUA", "RLA", "LUL", "LLL", "RUL", "RLL"];
 
@@ -40,6 +40,7 @@ export class Interpreter {
     this.penDown = false;
     this.penPath = [];
     this.penColor = "#2B2B2E";
+    this.items = [];
     this.vars = {};
     this.walkPhase = undefined; // 歩行モーション位相（0〜1、未定義で通常姿勢＝正面ピクトグラム表示）
     this.walkDir = 1; // 歩行中の向き（1=右向き、-1=左向き）
@@ -283,6 +284,9 @@ export class Interpreter {
         case "EMOTION":
           await this._opEmotion(args);
           break;
+        case "ITEM":
+          this._opItem(args);
+          break;
         default:
           throw new Error(`未知の命令です: ${head}`);
       }
@@ -411,6 +415,28 @@ export class Interpreter {
     });
   }
 
+  _opItem(args) {
+    if (args.length < 1) throw new Error("ITEM 種類 [x] [y] [scale] または ITEM CLEAR を指定してください");
+    const subCmd = args[0].toUpperCase();
+    if (subCmd === "CLEAR") {
+      this.items = [];
+      this.onCommandExecuted("ITEM_CLEAR", {});
+      this._emit();
+      return;
+    }
+    
+    const itemKey = resolveItemName(args[0].replace(/^"|"$/g, ""));
+    if (!itemKey) throw new Error(`不明なアイテム名です: ${args[0]}`);
+    
+    const x = args[1] !== undefined ? this.evalExpr(args[1]) : 0;
+    const y = args[2] !== undefined ? this.evalExpr(args[2]) : 0;
+    const scale = args[3] !== undefined ? this.evalExpr(args[3]) : 1;
+    
+    this.items.push({ type: itemKey, x, y, scale });
+    this.onCommandExecuted("ITEM", { type: itemKey, x, y, scale });
+    this._emit();
+  }
+
   async _animateValue(duration, frameFn) {
     if (duration <= 0) {
       frameFn(1);
@@ -444,6 +470,7 @@ export class Interpreter {
       penDown: this.penDown,
       penPath: [...this.penPath],
       penColor: this.penColor,
+      items: [...this.items],
       walkPhase: this.walkPhase,
       walkDir: this.walkDir,
     });

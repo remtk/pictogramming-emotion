@@ -117,6 +117,43 @@ export const EMOTIONS = {
   },
 };
 
+// アイテム（モノ）のSVGテンプレート定義
+export const ITEM_TEMPLATES = {
+  APPLE: {
+    key: "APPLE",
+    aliases: ["APPLE", "リンゴ", "りんご"],
+    svg: `<path d="M 0 -8 C 5 -8, 8 -3, 8 2 C 8 8, 3 12, 0 12 C -3 12, -8 8, -8 2 C -8 -3, -5 -8, 0 -8 Z" fill="#2B2B2E"/><path d="M 0 -8 Q 3 -12 6 -10" fill="none" stroke="#2B2B2E" stroke-width="1.5"/><path d="M 0 -8 Q -2 -13 -5 -11 Q -3 -8 0 -8" fill="#2B2B2E"/>`
+  },
+  STAR: {
+    key: "STAR",
+    aliases: ["STAR", "星", "ほし"],
+    svg: `<path d="M 0 -10 L 2.5 -3 L 10 -3 L 4 1.5 L 6 9 L 0 5 L -6 9 L -4 1.5 L -10 -3 L -2.5 -3 Z" fill="#2B2B2E"/>`
+  },
+  HEART: {
+    key: "HEART",
+    aliases: ["HEART", "ハート", "はーと"],
+    svg: `<path d="M 0 3 C -5 -5, -10 -2, -10 3 C -10 8, 0 13, 0 13 C 0 13, 10 8, 10 3 C 10 -2, 5 -5, 0 3 Z" fill="#2B2B2E"/>`
+  },
+  SWORD: {
+    key: "SWORD",
+    aliases: ["SWORD", "剣", "けん"],
+    svg: `<path d="M -1.5 -15 L 1.5 -15 L 1.5 5 L -1.5 5 Z" fill="#2B2B2E"/><rect x="-4" y="5" width="8" height="2" fill="#2B2B2E"/><rect x="-1" y="7" width="2" height="6" fill="#2B2B2E"/>`
+  },
+  BALL: {
+    key: "BALL",
+    aliases: ["BALL", "ボール", "ぼーる"],
+    svg: `<circle cx="0" cy="0" r="8" fill="#EFEBE1" stroke="#2B2B2E" stroke-width="1.5"/><path d="M 0 -4 L 3.5 -1.5 L 2 3 L -2 3 L -3.5 -1.5 Z" fill="#2B2B2E"/><line x1="0" y1="-4" x2="0" y2="-8" stroke="#2B2B2E" stroke-width="1.5"/><line x1="3.5" y1="-1.5" x2="7.5" y2="-2.5" stroke="#2B2B2E" stroke-width="1.5"/><line x1="-3.5" y1="-1.5" x2="-7.5" y2="-2.5" stroke="#2B2B2E" stroke-width="1.5"/><line x1="2" y1="3" x2="4" y2="7" stroke="#2B2B2E" stroke-width="1.5"/><line x1="-2" y1="3" x2="-4" y2="7" stroke="#2B2B2E" stroke-width="1.5"/>`
+  }
+};
+
+export function resolveItemName(token) {
+  const t = token.trim();
+  for (const key of Object.keys(ITEM_TEMPLATES)) {
+    if (ITEM_TEMPLATES[key].aliases.includes(t)) return key;
+  }
+  return null;
+}
+
 export function resolveEmotionName(token) {
   const t = token.trim();
   for (const key of Object.keys(EMOTIONS)) {
@@ -237,7 +274,21 @@ export function renderSVG(pose, opts = {}) {
   const faceSVG = renderFace(headPos.x, headPos.y, emotion.face);
   const auraSVG = renderAura(headPos.x, headPos.y, emotion);
 
+  // アイテムの描画
+  let itemsSVG = "";
+  if (opts.items && opts.items.length > 0) {
+    itemsSVG = opts.items.map(item => {
+      const template = ITEM_TEMPLATES[item.type];
+      if (!template) return "";
+      // ユーザーから渡される座標(item.x, item.y)は中心を(200,200)とした相対座標。
+      const itemX = 200 + item.x;
+      const itemY = 200 + item.y;
+      return `<g transform="translate(${itemX.toFixed(1)}, ${itemY.toFixed(1)}) scale(${item.scale || 1})" data-type="${item.type}">${template.svg}</g>`;
+    }).join("");
+  }
+
   return `<svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg" class="pictogram-svg">
+    <g class="items-layer">${itemsSVG}</g>
     <g class="pen-layer">${penSVG}</g>
     <g class="limbs-back">${leftArm.svg}${leftLeg.svg}</g>
     ${bodySVG}

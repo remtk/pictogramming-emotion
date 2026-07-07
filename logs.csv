@@ -344,3 +344,23 @@ REPEAT 3
 END
 PEN UP
 EMOTION 喜び"
+2026-07-07T05:49:21.424Z,286k4jpx,RUN_PROGRAM,1,0,0,0,1,0,0,"// アイテム配置サンプル：リンゴと星を配置
+ITEM CLEAR
+ITEM リンゴ -80 -20 1.5
+ITEM 星 80 -40 2.0
+EMOTION 喜び 0.8
+SP ""わーい！""
+WAIT 1.5
+EMOTION 普通 0.6
+ITEM CLEAR
+SP ""片付けたよ"""
+2026-07-07T05:52:16.568Z,286k4jpx,RUN_PROGRAM,1,0,0,0,1,0,0,"// アイテム配置サンプル：リンゴと星を配置
+ITEM CLEAR
+ITEM リンゴ -80 -20 1.5
+ITEM 星 80 -40 2.0
+EMOTION 喜び 0.8
+SP ""わーい！""
+WAIT 1.5
+EMOTION 普通 0.6
+ITEM CLEAR
+SP ""片付けたよ"""
