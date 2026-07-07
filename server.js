@@ -4,12 +4,19 @@
  * `node server.js` で起動し、http://localhost:3000 で public/ 配下を配信する。
  */
 const http = require("http");
+const https = require("https"); // GASへの送信に使用
 const fs = require("fs");
 const path = require("path");
 
 const PORT = process.env.PORT || 3000;
 const ROOT = path.join(__dirname, "public");
 const LOG_FILE = path.join(__dirname, "logs.csv");
+
+// ==========================================
+// 管理者設定: Google Apps Script (GAS) WebアプリURL
+// 発行されたURLを以下の変数に貼り付けてください（空文字の場合はローカル保存のみ）
+// ==========================================
+const GAS_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbz_1wXsaydCFO5g_SffaOK_DGoBdq4BLjwXIjCcBVbgCLb-Y6cDq1IEaIpHW9vIb3Zp/exec"; 
 
 // ログファイルが存在しない場合はヘッダを作成
 if (!fs.existsSync(LOG_FILE)) {
@@ -53,6 +60,34 @@ const server = http.createServer((req, res) => {
         fs.appendFile(LOG_FILE, csvRow, (err) => {
           if (err) console.error("Failed to write log:", err);
         });
+
+        // GASへの転送処理 (URLが設定されている場合)
+        if (GAS_WEBHOOK_URL && GAS_WEBHOOK_URL.startsWith("https://")) {
+          const reqBody = JSON.stringify({
+            timestamp, session, action, joy, sad, angry, surprise, normal,
+            lines, length, code: data.code || ""
+          });
+
+          const reqOpts = {
+            method: "POST",
+            headers: {
+              "Content-Type": "text/plain", // GASはapplication/jsonだとCORSエラーになる場合があるためtext/plainを利用
+              "Content-Length": Buffer.byteLength(reqBody)
+            }
+          };
+
+          const gasReq = https.request(GAS_WEBHOOK_URL, reqOpts, (gasRes) => {
+            // リダイレクトされる場合があるが、送信自体は完了しているため詳細なハンドリングは省略
+            // console.log(`GAS webhook response: ${gasRes.statusCode}`);
+          });
+
+          gasReq.on("error", (e) => {
+            console.error("Failed to send log to GAS:", e);
+          });
+
+          gasReq.write(reqBody);
+          gasReq.end();
+        }
 
         res.writeHead(200, { "Content-Type": "application/json" });
         res.end(JSON.stringify({ success: true }));
