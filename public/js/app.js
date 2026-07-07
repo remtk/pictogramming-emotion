@@ -461,3 +461,48 @@ btnLogClear.addEventListener("click", () => {
 
 // 初期適用
 clearLog();
+
+// --- 座標表示ツールチップ ---------------------------------------------------
+const stageEl = document.getElementById("pictogram-stage");
+const coordTooltip = document.getElementById("coord-tooltip");
+
+if (stageEl && coordTooltip) {
+  stageEl.addEventListener("mouseenter", () => {
+    coordTooltip.style.display = "block";
+  });
+
+  stageEl.addEventListener("mouseleave", () => {
+    coordTooltip.style.display = "none";
+  });
+
+  stageEl.addEventListener("mousemove", (e) => {
+    const svg = stageEl.querySelector("svg");
+    if (!svg) return;
+
+    const rect = svg.getBoundingClientRect();
+    const rx = e.clientX - rect.left;
+    const ry = e.clientY - rect.top;
+
+    if (rx < 0 || rx > rect.width || ry < 0 || ry > rect.height) {
+      coordTooltip.style.display = "none";
+      return;
+    }
+    coordTooltip.style.display = "block";
+
+    // SVG(viewBox=400x400)に対する相対座標
+    const svgX = (rx / rect.width) * 400;
+    const svgY = (ry / rect.height) * 400;
+
+    // 中央(200, 200)を原点としたコマンド用の座標系
+    const cmdX = Math.round(svgX - 200);
+    const cmdY = Math.round(svgY - 200);
+
+    coordTooltip.textContent = `X: ${cmdX}, Y: ${cmdY}`;
+
+    // ツールチップの位置をカーソルに追従
+    const stageRect = stageEl.getBoundingClientRect();
+    const tx = e.clientX - stageRect.left + 12;
+    const ty = e.clientY - stageRect.top + 12;
+    coordTooltip.style.transform = `translate(${tx}px, ${ty}px)`;
+  });
+}

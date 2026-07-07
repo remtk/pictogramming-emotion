@@ -24,8 +24,9 @@
   <!-- 左パネル: 人型ピクトグラム表示 + 感情パレット -->
   <section class="panel pictogram-panel">
     <h2 class="panel-title"><span class="dot"></span>人型ピクトグラム表示パネル</h2>
-    <div class="pictogram-stage" id="pictogram-stage">
+    <div class="pictogram-stage" id="pictogram-stage" style="position: relative;">
       <div class="speech-bubble" id="speech-bubble"></div>
+      <div class="coord-tooltip" id="coord-tooltip" style="display:none; position:absolute; top:0; left:0; pointer-events:none; background:var(--ink-soft); color:white; padding:4px 8px; border-radius:4px; font-size:12px; font-weight:bold; z-index:100; font-family:monospace;">X: 0, Y: 0</div>
       <!-- SVGはJSが描画 -->
     </div>
     <div class="stage-controls">
