@@ -164,7 +164,7 @@ export function resolveEmotionName(token) {
 
 // ISO3864を参考にした各部位の寸法比率（簡易値・正面方向のみサポート）
 // 比率はそのまま、最初のオリジナル値から0.6倍にスケールダウンして表示サイズを小さくしている。
-const DIMS = {
+export const DIMS = {
   headR: 15.6,
   bodyW: 33,
   bodyH: 60,
@@ -177,7 +177,7 @@ const DIMS = {
 };
 
 // 気を付け：腕・脚は真下、付け根は胴体に沿わせる
-const NEUTRAL_ANGLES = {
+export const NEUTRAL_ANGLES = {
   LUA: 177,
   RUA: 183,
   LUL: 178,

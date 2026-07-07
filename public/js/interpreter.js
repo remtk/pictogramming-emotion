@@ -19,7 +19,7 @@
  * コメントは // 以降を無視。命令と引数は空白区切り。式は[ ]で囲む。
  */
 
-import { resolvePartName, resolveEmotionName, resolveItemName, createInitialPose, EMOTIONS } from "./pictogram.js";
+import { resolvePartName, resolveEmotionName, resolveItemName, createInitialPose, EMOTIONS, DIMS, NEUTRAL_ANGLES } from "./pictogram.js";
 
 const POSE_ANGLE_KEYS = ["BODY", "LUA", "LLA", "RUA", "RLA", "LUL", "LLL", "RUL", "RLL"];
 
@@ -287,6 +287,12 @@ export class Interpreter {
         case "ITEM":
           this._opItem(args);
           break;
+        case "IK":
+          this._opIK(args, false);
+          break;
+        case "IKW":
+          await this._opIK(args, true);
+          break;
         default:
           throw new Error(`未知の命令です: ${head}`);
       }
@@ -435,6 +441,105 @@ export class Interpreter {
     this.items.push({ type: itemKey, x, y, scale });
     this.onCommandExecuted("ITEM", { type: itemKey, x, y, scale });
     this._emit();
+  }
+
+  // --- インバース・キネマティクス (IK) ---
+  _opIK(args, animate) {
+    if (args.length < 3) throw new Error("IK/IKW 腕・脚 x y [秒] の形式で指定してください");
+    const targetLimb = args[0];
+    const x = this.evalExpr(args[1]);
+    const y = this.evalExpr(args[2]);
+
+    const cx = 200 + (this.pose.x || 0);
+    const cy = 200 + (this.pose.y || 0);
+    const bodyRad = ((this.pose.BODY || 0) * Math.PI) / 180;
+    
+    const txWorld = 200 + x;
+    const tyWorld = 200 + y;
+    
+    const dx = txWorld - cx;
+    const dy = tyWorld - cy;
+    
+    const localTx = dx * Math.cos(-bodyRad) - dy * Math.sin(-bodyRad);
+    const localTy = dx * Math.sin(-bodyRad) + dy * Math.cos(-bodyRad);
+
+    const neckY = -DIMS.bodyH / 2;
+    const hipY = DIMS.bodyH / 2;
+    const shoulderY = neckY + 20;
+    const shoulderOffsetX = DIMS.bodyW * 0.5;
+    const hipOffsetX = DIMS.bodyW * 0.18;
+
+    let ox, oy, L1, L2, upperKey, lowerKey, isRight;
+    const targetAlias = targetLimb.trim().toUpperCase();
+
+    if (["LA", "左腕", "ひだりうで"].includes(targetAlias)) {
+      ox = -shoulderOffsetX; oy = shoulderY;
+      L1 = DIMS.upperArmL; L2 = DIMS.lowerArmL;
+      upperKey = "LUA"; lowerKey = "LLA"; isRight = false;
+    } else if (["RA", "右腕", "みぎうで"].includes(targetAlias)) {
+      ox = shoulderOffsetX; oy = shoulderY;
+      L1 = DIMS.upperArmL; L2 = DIMS.lowerArmL;
+      upperKey = "RUA"; lowerKey = "RLA"; isRight = true;
+    } else if (["LL", "左脚", "ひだりあし"].includes(targetAlias)) {
+      ox = -hipOffsetX; oy = hipY;
+      L1 = DIMS.upperLegL; L2 = DIMS.lowerLegL;
+      upperKey = "LUL"; lowerKey = "LLL"; isRight = false;
+    } else if (["RL", "右脚", "みぎあし"].includes(targetAlias)) {
+      ox = hipOffsetX; oy = hipY;
+      L1 = DIMS.upperLegL; L2 = DIMS.lowerLegL;
+      upperKey = "RUL"; lowerKey = "RLL"; isRight = true;
+    } else {
+      throw new Error(`IKの部位は 左腕, 右腕, 左脚, 右脚 のいずれかを指定してください`);
+    }
+
+    const vx = localTx - ox;
+    const vy = localTy - oy;
+    let D = Math.sqrt(vx * vx + vy * vy);
+
+    if (D > L1 + L2) D = L1 + L2 - 0.01;
+
+    const theta = Math.atan2(vy, vx);
+
+    const alpha = Math.acos(Math.max(-1, Math.min(1, (L1 * L1 + D * D - L2 * L2) / (2 * L1 * D))));
+    const beta = Math.acos(Math.max(-1, Math.min(1, (L1 * L1 + L2 * L2 - D * D) / (2 * L1 * L2))));
+
+    const bendDir = isRight ? -1 : 1;
+    
+    const upperRad = theta + bendDir * alpha;
+    const lowerRadRelative = bendDir * (Math.PI - beta);
+
+    const targetUpperDeg = (upperRad * 180) / Math.PI + 90;
+    const targetLowerDeg = (lowerRadRelative * 180) / Math.PI;
+
+    let angleUpper = targetUpperDeg - (NEUTRAL_ANGLES[upperKey] || 0);
+    // 正規化 (-180 〜 180)
+    while (angleUpper > 180) angleUpper -= 360;
+    while (angleUpper < -180) angleUpper += 360;
+
+    const angleLower = targetLowerDeg;
+
+    if (!animate) {
+      this.pose[upperKey] = angleUpper;
+      this.pose[lowerKey] = angleLower;
+      this._emit();
+      return Promise.resolve();
+    }
+    
+    const duration = args[3] !== undefined ? this.evalExpr(args[3]) : 1;
+    const startUpper = this.pose[upperKey] || 0;
+    const startLower = this.pose[lowerKey] || 0;
+
+    // 最短距離で回転させるための補正
+    let diffUpper = angleUpper - startUpper;
+    while (diffUpper > 180) diffUpper -= 360;
+    while (diffUpper < -180) diffUpper += 360;
+    const finalUpper = startUpper + diffUpper;
+
+    return this._animateValue(duration, (progress) => {
+      this.pose[upperKey] = startUpper + (finalUpper - startUpper) * progress;
+      this.pose[lowerKey] = startLower + (angleLower - startLower) * progress;
+      this._emit();
+    });
   }
 
   async _animateValue(duration, frameFn) {

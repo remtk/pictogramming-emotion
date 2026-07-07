@@ -196,6 +196,13 @@ WAIT 1.5
 EMOTION 普通 0.6
 ITEM CLEAR
 SP "片付けたよ"`,
+  ik: `// IK動作サンプル：リンゴを掴む
+ITEM CLEAR
+ITEM リンゴ -100 -50 1.5
+WAIT 0.5
+IKW 左腕 -100 -50 1
+EMOTION 喜び 0.5
+SP "とった！"`,
 };
 
 document.getElementById("btn-sample-basic").addEventListener("click", () => {
@@ -209,6 +216,9 @@ document.getElementById("btn-sample-graphics").addEventListener("click", () => {
 });
 document.getElementById("btn-sample-item")?.addEventListener("click", () => {
   codeInput.value = SAMPLES.items;
+});
+document.getElementById("btn-sample-ik")?.addEventListener("click", () => {
+  codeInput.value = SAMPLES.ik;
 });
 
 // --- 命令リファレンス -------------------------------------------------------
@@ -270,6 +280,13 @@ const REFERENCE = [
     items: [
       { code: "ITEM 種類 x y [倍率]", desc: "指定座標にアイテムを配置（リンゴ, 星, ハート, 剣, ボール）" },
       { code: "ITEM CLEAR", desc: "配置したアイテムをすべて消去する" },
+    ],
+  },
+  {
+    group: "座標指定（IK）命令",
+    items: [
+      { code: "IK 部位 x y", desc: "指定した手足を座標(x,y)に瞬時に移動させる（部位: 左腕, 右腕, 左脚, 右脚）" },
+      { code: "IKW 部位 x y 秒", desc: "指定秒数をかけて手足を座標(x,y)に移動させる" },
     ],
   },
 ];
