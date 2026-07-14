@@ -795,3 +795,64 @@ REPEAT 8
 END
 PEN UP
 "
+2026-07-14T05:54:29.483Z,dnqoe9hf,RUN_PROGRAM,1,0,0,0,0,3,240,"// 図形サンプル：ピクトグラフィックスで三角形を描く
+PEN DOWN
+REPEAT 3
+  MW 80 0 0.6
+  R BODY 145
+END
+PEN UP
+EMOTION 喜び"
+2026-07-14T05:54:52.871Z,dnqoe9hf,RUN_PROGRAM,0,0,0,0,0,12,960,"// 図形サンプル：ピクトグラフィックスで三角形を描く
+PEN DOWN
+REPEAT 12
+  MW 80 0 0.6
+  R BODY 145
+END
+PEN UP
+"
+2026-07-14T05:55:41.645Z,dnqoe9hf,RUN_PROGRAM,0,0,0,0,0,50,4000,"// 図形サンプル：ピクトグラフィックスで三角形を描く
+PEN DOWN
+REPEAT 50
+  MW 80 0 0.6
+  R BODY 145
+END
+PEN UP
+"
+2026-07-14T05:56:09.955Z,dnqoe9hf,RUN_PROGRAM,0,0,0,0,0,5,400,"// 図形サンプル：ピクトグラフィックスで三角形を描く
+PEN DOWN
+REPEAT 5
+  MW 80 0 0.6
+  R BODY 140
+END
+PEN UP
+"
+2026-07-14T05:56:54.539Z,dnqoe9hf,RUN_PROGRAM,0,0,0,0,0,50,4000,"// 図形サンプル：ピクトグラフィックスで三角形を描く
+PEN DOWN
+REPEAT 50
+  MW 80 0 0.6
+  R BODY 147
+END
+PEN UP
+"
+2026-07-14T06:02:50.141Z,dnqoe9hf,RUN_PROGRAM,0,0,0,0,0,0,0,"// IK動作サンプル：リンゴを掴む
+ITEM ボール -100 -50 1.5
+"
+2026-07-14T06:02:50.972Z,dnqoe9hf,RUN_PROGRAM,0,0,0,0,0,0,0,"// IK動作サンプル：リンゴを掴む
+ITEM ボール -100 -50 1.5
+"
+2026-07-14T06:03:38.576Z,dnqoe9hf,RUN_PROGRAM,0,0,0,0,0,0,0,"// IK動作サンプル：リンゴを掴む
+ITEM ボール -220 -50 1.5
+"
+2026-07-14T06:03:39.182Z,dnqoe9hf,RUN_PROGRAM,0,0,0,0,0,0,0,"// IK動作サンプル：リンゴを掴む
+ITEM ボール -220 -50 1.5
+"
+2026-07-14T06:03:39.364Z,dnqoe9hf,RUN_PROGRAM,0,0,0,0,0,0,0,"// IK動作サンプル：リンゴを掴む
+ITEM ボール -220 -50 1.5
+"
+2026-07-14T06:04:28.002Z,dnqoe9hf,RUN_PROGRAM,0,0,0,0,0,0,0,"// IK動作サンプル：リンゴを掴む
+ITEM ボール -180 -85 20.0
+"
+2026-07-14T06:04:41.339Z,dnqoe9hf,RUN_PROGRAM,0,0,0,0,0,0,0,"// IK動作サンプル：リンゴを掴む
+ITEM ボール -220 -85 2.0
+"

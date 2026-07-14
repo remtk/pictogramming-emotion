@@ -491,10 +491,93 @@ btnLogClear.addEventListener("click", () => {
 // 初期適用
 clearLog();
 
-// --- 座標表示ツールチップ ---------------------------------------------------
+// --- 座標表示ツールチップ ・ ドラッグ共通 ---
 const stageEl = document.getElementById("pictogram-stage");
 const coordTooltip = document.getElementById("coord-tooltip");
 
+// --- ピクトグラムのドラッグ移動 -----------------------------------------
+// SVG上の人体（HEAD/BODYパーツ）をつまんで pose.x/y を変更できる。
+// プログラム実行中は無効。
+(function setupDrag() {
+  let dragging = false;
+  let dragStartSvgX = 0;
+  let dragStartSvgY = 0;
+  let dragStartPoseX = 0;
+  let dragStartPoseY = 0;
+
+  // SVGの任意のイベント座標 → SVGビューボックス(0-400)座標に変換
+  function toSvgCoord(e) {
+    const svg = stageEl.querySelector("svg");
+    if (!svg) return null;
+    const rect = svg.getBoundingClientRect();
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    return {
+      x: ((clientX - rect.left) / rect.width) * 400,
+      y: ((clientY - rect.top) / rect.height) * 400,
+    };
+  }
+
+  // 人体パーツの上にいるか判定（HEAD or BODY）
+  function isOnPictogram(e) {
+    const target = e.target;
+    if (!target) return false;
+    const part = target.getAttribute("data-part");
+    return part === "HEAD" || part === "BODY" || part === "TORSO";
+  }
+
+  function onPointerDown(e) {
+    if (interpreter._running) return; // 実行中はドラッグ不可
+    if (!isOnPictogram(e)) return;
+    const coord = toSvgCoord(e);
+    if (!coord) return;
+    dragging = true;
+    dragStartSvgX = coord.x;
+    dragStartSvgY = coord.y;
+    dragStartPoseX = currentState.pose.x || 0;
+    dragStartPoseY = currentState.pose.y || 0;
+    stageEl.style.cursor = "grabbing";
+    e.preventDefault();
+  }
+
+  function onPointerMove(e) {
+    if (!dragging) return;
+    const coord = toSvgCoord(e);
+    if (!coord) return;
+    const dx = coord.x - dragStartSvgX;
+    const dy = coord.y - dragStartSvgY;
+    currentState.pose.x = dragStartPoseX + dx;
+    currentState.pose.y = dragStartPoseY + dy;
+    draw();
+    e.preventDefault();
+  }
+
+  function onPointerUp(e) {
+    if (!dragging) return;
+    dragging = false;
+    stageEl.style.cursor = "";
+  }
+
+  // マウス
+  stageEl.addEventListener("mousedown", onPointerDown);
+  window.addEventListener("mousemove", onPointerMove);
+  window.addEventListener("mouseup", onPointerUp);
+  // タッチ
+  stageEl.addEventListener("touchstart", onPointerDown, { passive: false });
+  window.addEventListener("touchmove", onPointerMove, { passive: false });
+  window.addEventListener("touchend", onPointerUp);
+
+  // 人体パーツの上でカーソルをgrabに
+  stageEl.addEventListener("mouseover", (e) => {
+    if (interpreter._running) return;
+    if (isOnPictogram(e)) stageEl.style.cursor = "grab";
+  });
+  stageEl.addEventListener("mouseout", (e) => {
+    if (!dragging) stageEl.style.cursor = "";
+  });
+})();
+
+// --- 座標表示ツールチップ ---------------------------------------------------
 if (stageEl && coordTooltip) {
   stageEl.addEventListener("mouseenter", () => {
     coordTooltip.style.display = "block";
