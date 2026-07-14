@@ -495,17 +495,13 @@ clearLog();
 const stageEl = document.getElementById("pictogram-stage");
 const coordTooltip = document.getElementById("coord-tooltip");
 
-// --- ピクトグラムのドラッグ移動 -----------------------------------------
-// SVG上の人体（HEAD/BODYパーツ）をつまんで pose.x/y を変更できる。
-// プログラム実行中は無効。
+// --- ピクトグラム・アイテムのドラッグ移動 -----------------------------------------
 (function setupDrag() {
   let dragging = false;
-  let dragStartSvgX = 0;
-  let dragStartSvgY = 0;
-  let dragStartPoseX = 0;
-  let dragStartPoseY = 0;
+  let dragTarget = null; // 'pictogram' | { itemIndex: number }
+  let dragStartSvgX = 0, dragStartSvgY = 0;
+  let dragStartValX = 0, dragStartValY = 0;
 
-  // SVGの任意のイベント座標 → SVGビューボックス(0-400)座標に変換
   function toSvgCoord(e) {
     const svg = stageEl.querySelector("svg");
     if (!svg) return null;
@@ -518,26 +514,53 @@ const coordTooltip = document.getElementById("coord-tooltip");
     };
   }
 
-  // 人体パーツの上にいるか判定（HEAD or BODY）
   function isOnPictogram(e) {
-    const target = e.target;
-    if (!target) return false;
-    const part = target.getAttribute("data-part");
+    const part = e.target?.getAttribute("data-part");
     return part === "HEAD" || part === "BODY" || part === "TORSO";
   }
 
+  // クリックしたSVG要素がアイテムかどうか判定し、対応する items のインデックスを返す
+  function getItemIndex(e) {
+    let el = e.target;
+    while (el && el !== stageEl) {
+      const idxStr = el.getAttribute("data-index");
+      if (idxStr !== null) {
+        return parseInt(idxStr, 10);
+      }
+      el = el.parentElement;
+    }
+    return -1;
+  }
+
   function onPointerDown(e) {
-    if (interpreter._running) return; // 実行中はドラッグ不可
-    if (!isOnPictogram(e)) return;
+    if (interpreter._running) return;
     const coord = toSvgCoord(e);
     if (!coord) return;
-    dragging = true;
-    dragStartSvgX = coord.x;
-    dragStartSvgY = coord.y;
-    dragStartPoseX = currentState.pose.x || 0;
-    dragStartPoseY = currentState.pose.y || 0;
-    stageEl.style.cursor = "grabbing";
-    e.preventDefault();
+
+    // アイテムを優先チェック
+    const itemIdx = getItemIndex(e);
+    if (itemIdx >= 0) {
+      dragging = true;
+      dragTarget = { itemIndex: itemIdx };
+      dragStartSvgX = coord.x;
+      dragStartSvgY = coord.y;
+      dragStartValX = currentState.items[itemIdx].x;
+      dragStartValY = currentState.items[itemIdx].y;
+      stageEl.style.cursor = "grabbing";
+      e.preventDefault();
+      return;
+    }
+
+    if (isOnPictogram(e)) {
+      dragging = true;
+      dragTarget = "pictogram";
+      dragStartSvgX = coord.x;
+      dragStartSvgY = coord.y;
+      dragStartValX = currentState.pose.x || 0;
+      dragStartValY = currentState.pose.y || 0;
+      stageEl.style.cursor = "grabbing";
+      e.preventDefault();
+    }
   }
 
   function onPointerMove(e) {
@@ -546,33 +569,40 @@ const coordTooltip = document.getElementById("coord-tooltip");
     if (!coord) return;
     const dx = coord.x - dragStartSvgX;
     const dy = coord.y - dragStartSvgY;
-    currentState.pose.x = dragStartPoseX + dx;
-    currentState.pose.y = dragStartPoseY + dy;
+
+    if (dragTarget === "pictogram") {
+      currentState.pose.x = dragStartValX + dx;
+      currentState.pose.y = dragStartValY + dy;
+    } else if (dragTarget?.itemIndex >= 0) {
+      const item = currentState.items[dragTarget.itemIndex];
+      if (item) {
+        item.x = dragStartValX + dx;
+        item.y = dragStartValY + dy;
+      }
+    }
     draw();
     e.preventDefault();
   }
 
-  function onPointerUp(e) {
+  function onPointerUp() {
     if (!dragging) return;
     dragging = false;
+    dragTarget = null;
     stageEl.style.cursor = "";
   }
 
-  // マウス
   stageEl.addEventListener("mousedown", onPointerDown);
   window.addEventListener("mousemove", onPointerMove);
   window.addEventListener("mouseup", onPointerUp);
-  // タッチ
   stageEl.addEventListener("touchstart", onPointerDown, { passive: false });
   window.addEventListener("touchmove", onPointerMove, { passive: false });
   window.addEventListener("touchend", onPointerUp);
 
-  // 人体パーツの上でカーソルをgrabに
   stageEl.addEventListener("mouseover", (e) => {
     if (interpreter._running) return;
-    if (isOnPictogram(e)) stageEl.style.cursor = "grab";
+    if (isOnPictogram(e) || getItemIndex(e) >= 0) stageEl.style.cursor = "grab";
   });
-  stageEl.addEventListener("mouseout", (e) => {
+  stageEl.addEventListener("mouseout", () => {
     if (!dragging) stageEl.style.cursor = "";
   });
 })();

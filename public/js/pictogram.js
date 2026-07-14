@@ -277,13 +277,13 @@ export function renderSVG(pose, opts = {}) {
   // アイテムの描画
   let itemsSVG = "";
   if (opts.items && opts.items.length > 0) {
-    itemsSVG = opts.items.map(item => {
+    itemsSVG = opts.items.map((item, index) => {
       const template = ITEM_TEMPLATES[item.type];
       if (!template) return "";
       // ユーザーから渡される座標(item.x, item.y)は中心を(200,200)とした相対座標。
       const itemX = 200 + item.x;
       const itemY = 200 + item.y;
-      return `<g transform="translate(${itemX.toFixed(1)}, ${itemY.toFixed(1)}) scale(${item.scale || 1})" data-type="${item.type}">${template.svg}</g>`;
+      return `<g transform="translate(${itemX.toFixed(1)}, ${itemY.toFixed(1)}) scale(${item.scale || 1})" data-type="${item.type}" data-index="${index}">${template.svg}</g>`;
     }).join("");
   }
 
