@@ -379,6 +379,7 @@ export class Interpreter {
     if (mode === "UP") {
       this.penDown = false;
       this.walkPhase = undefined;
+      this.pose.BODY = 0;
     } else if (mode === "DOWN") {
       this.penDown = true;
       this.penPath.push({ x: this.pose.x, y: this.pose.y });
