@@ -194,6 +194,12 @@ WAIT 1.5
 EMOTION 普通 0.6
 ITEM CLEAR
 SP "片付けたよ"`,
+  itemAction: `// アイテム動作サンプル
+ITEM ボール -220 -85 2.0
+IMW ボール 220 0 3
+IK 右腕 15 -85
+IK 左腕 -15 -85
+SP "キャッチ"`,
   ik: `// IK動作サンプル：リンゴを掴む
 ITEM CLEAR
 ITEM リンゴ -100 -50 1.5
@@ -214,6 +220,9 @@ document.getElementById("btn-sample-graphics").addEventListener("click", () => {
 });
 document.getElementById("btn-sample-item")?.addEventListener("click", () => {
   codeInput.value = SAMPLES.items;
+});
+document.getElementById("btn-sample-item-action")?.addEventListener("click", () => {
+  codeInput.value = SAMPLES.itemAction;
 });
 document.getElementById("btn-sample-ik")?.addEventListener("click", () => {
   codeInput.value = SAMPLES.ik;
