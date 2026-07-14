@@ -7,6 +7,8 @@
  *                          RW <部位> <角度> <秒>  ... ウェイト付き回転アニメーション
  *                          M <x> <y>              ... 平行移動(瞬間)
  *                          MW <x> <y> <秒>         ... 平行移動アニメーション
+ *                          IM <種類> <dx> <dy>       ... アイテムの平行移動(瞬間)
+ *                          IMW <種類> <dx> <dy> <秒> ... アイテムの平行移動アニメーション
  *  ピクトグラフィックス系: PEN UP / PEN DOWN       ... ペンの上げ下げ
  *  共通命令: REPEAT <n> ... END                    ... 繰返し
  *           IF [式] ... END                       ... 条件分岐
@@ -166,7 +168,7 @@ export class Interpreter {
     t = t
       .replace(/[０-９]/g, (c) => String.fromCharCode(c.charCodeAt(0) - 0xfee0))
       .replace(/＋/g, "+")
-      .replace(/－/g, "-")
+      .replace(/[－−‐—–]/g, "-")
       .replace(/＊/g, "*")
       .replace(/／/g, "/")
       .replace(/＞/g, ">")
@@ -286,6 +288,12 @@ export class Interpreter {
           break;
         case "ITEM":
           this._opItem(args);
+          break;
+        case "IM":
+          this._opItemMove(args, false);
+          break;
+        case "IMW":
+          await this._opItemMove(args, true);
           break;
         case "IK":
           this._opIK(args, false);
@@ -442,6 +450,43 @@ export class Interpreter {
     this.items.push({ type: itemKey, x, y, scale });
     this.onCommandExecuted("ITEM", { type: itemKey, x, y, scale });
     this._emit();
+  }
+
+  _opItemMove(args, animate) {
+    if (args.length < 3) throw new Error("IM/IMW 種類 x y [秒] の形式で指定してください");
+    const itemKeyToken = args[0].replace(/^"|"$/g, "");
+    const itemKey = resolveItemName(itemKeyToken);
+    if (!itemKey) throw new Error(`不明なアイテム名です: ${itemKeyToken}`);
+    
+    // items配列の後ろから該当の種類のアイテムを探す
+    const idx = [...this.items].reverse().findIndex(i => i.type === itemKey);
+    if (idx < 0) throw new Error(`配置されていないアイテムです: ${itemKeyToken}`);
+    const actualIdx = this.items.length - 1 - idx;
+    const item = this.items[actualIdx];
+
+    const dx = this.evalExpr(args[1]);
+    const dy = this.evalExpr(args[2]);
+
+    this.onCommandExecuted(animate ? "IMW" : "IM", { type: itemKey, dx, dy });
+
+    if (!animate) {
+      item.x += dx;
+      item.y += dy;
+      this._emit();
+      return Promise.resolve();
+    }
+
+    const duration = args[3] !== undefined ? this.evalExpr(args[3]) : 1;
+    const startX = item.x;
+    const startY = item.y;
+    const targetX = startX + dx;
+    const targetY = startY + dy;
+
+    return this._animateValue(duration, (progress) => {
+      item.x = startX + (targetX - startX) * progress;
+      item.y = startY + (targetY - startY) * progress;
+      this._emit();
+    });
   }
 
   // --- インバース・キネマティクス (IK) ---

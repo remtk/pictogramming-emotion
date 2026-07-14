@@ -274,10 +274,12 @@ const REFERENCE = [
     ],
   },
   {
-    group: "アイテム配置命令",
+    group: "アイテム操作命令",
     items: [
       { code: "ITEM 種類 x y [倍率]", desc: "指定座標にアイテムを配置（リンゴ, 星, ハート, 剣, ボール）" },
       { code: "ITEM CLEAR", desc: "配置したアイテムをすべて消去する" },
+      { code: "IM 種類 x y", desc: "指定したアイテムを瞬時に平行移動する" },
+      { code: "IMW 種類 x y 秒", desc: "指定秒数をかけてアイテムを平行移動する" },
     ],
   },
   {
@@ -416,6 +418,10 @@ function handleCommandLog(cmd, details) {
   } else if (cmd === "ITEM") {
     const { type, x, y, scale } = details;
     addLogHistory(`アイテム「${type}」を (${x}, ${y}) に配置しました`, "info");
+  } else if (cmd === "IM" || cmd === "IMW") {
+    const { type, dx, dy } = details;
+    const length = Math.round(Math.sqrt(dx * dx + dy * dy));
+    addLogHistory(`アイテム「${type}」を移動しました (距離: ${length}px)`, "info");
   } else if (cmd === "ITEM_CLEAR") {
     addLogHistory(`すべてのアイテムを消去しました`, "info");
   }
