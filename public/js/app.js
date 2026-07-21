@@ -158,6 +158,56 @@ btnClear.addEventListener("click", () => {
   codeInput.focus();
 });
 
+// --- コード保存・呼び出し ---------------------------------------------------
+const CODE_SLOT_PREFIX = "pictogramming-code-slot-";
+
+function codeSlotKey(slot) {
+  return `${CODE_SLOT_PREFIX}${slot}`;
+}
+
+function updateCodeSlotStatus() {
+  for (let slot = 1; slot <= 3; slot++) {
+    const status = document.getElementById(`code-slot-status-${slot}`);
+    const loadBtn = document.querySelector(`[data-load-slot="${slot}"]`);
+    const savedCode = localStorage.getItem(codeSlotKey(slot));
+    const hasSavedCode = savedCode !== null && savedCode.length > 0;
+
+    if (status) {
+      status.textContent = hasSavedCode ? `スロット${slot}: 保存済み` : `スロット${slot}: 空`;
+      status.classList.toggle("saved", hasSavedCode);
+    }
+    if (loadBtn) {
+      loadBtn.disabled = !hasSavedCode;
+    }
+  }
+}
+
+document.querySelectorAll("[data-save-slot]").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    const slot = btn.dataset.saveSlot;
+    localStorage.setItem(codeSlotKey(slot), codeInput.value);
+    updateCodeSlotStatus();
+    appendConsole(`スロット${slot}にコードを保存しました`, "ok");
+  });
+});
+
+document.querySelectorAll("[data-load-slot]").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    const slot = btn.dataset.loadSlot;
+    const savedCode = localStorage.getItem(codeSlotKey(slot));
+    if (savedCode === null || savedCode.length === 0) {
+      appendConsole(`スロット${slot}は空です`, "warn");
+      updateCodeSlotStatus();
+      return;
+    }
+    codeInput.value = savedCode;
+    codeInput.focus();
+    appendConsole(`スロット${slot}からコードを呼び出しました`, "ok");
+  });
+});
+
+updateCodeSlotStatus();
+
 btnStop.disabled = true;
 
 // --- サンプルコード -------------------------------------------------------

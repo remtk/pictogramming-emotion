@@ -305,6 +305,44 @@ body {
   flex-wrap: wrap;
 }
 
+.code-save-panel {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.code-save-slot {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 6px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--paper-soft);
+}
+
+.slot-label {
+  min-width: 0;
+  color: var(--ink-soft);
+  font-size: 10px;
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.slot-label.saved {
+  color: var(--ink);
+}
+
+.btn.slot-btn {
+  padding: 4px 7px;
+  font-size: 10px;
+}
+
 .console-panel-inner {
   margin-top: 8px;
   background: var(--panel-dark-2);
