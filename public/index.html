@@ -44,6 +44,21 @@
   <!-- 中央パネル: コード入力 + コンソール -->
   <section class="panel code-panel">
     <h2 class="panel-title"><span class="dot"></span>プログラムコード記述領域</h2>
+    <div class="challenge-panel" id="challenge-panel">
+      <div class="challenge-topline">
+        <span class="challenge-count" id="challenge-count">問題 1/3</span>
+        <span class="challenge-result" id="challenge-result">未実行</span>
+      </div>
+      <div class="challenge-title" id="challenge-title"></div>
+      <div class="challenge-text" id="challenge-text"></div>
+      <div class="challenge-hint" id="challenge-hint" hidden></div>
+      <div class="challenge-actions">
+        <button class="btn ghost challenge-btn" id="btn-challenge-prev">前の問題</button>
+        <button class="btn ghost challenge-btn" id="btn-challenge-hint">ヒント</button>
+        <button class="btn ghost challenge-btn" id="btn-challenge-insert">例を入れる</button>
+        <button class="btn ghost challenge-btn" id="btn-challenge-next">次の問題</button>
+      </div>
+    </div>
     <div class="code-area-wrap">
       <textarea id="code-input" spellcheck="false" placeholder="// ここに命令を書きます
 R LUA -120

@@ -271,9 +271,72 @@ body {
   min-height: 0;
 }
 
+.challenge-panel {
+  flex: 0 0 auto;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--paper-soft);
+  padding: 8px;
+  margin-bottom: 8px;
+}
+
+.challenge-topline {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.challenge-count,
+.challenge-result {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--ink-soft);
+}
+
+.challenge-result.pass {
+  color: #2f8f46;
+}
+
+.challenge-result.fail {
+  color: var(--accent-angry);
+}
+
+.challenge-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1.25;
+}
+
+.challenge-text,
+.challenge-hint {
+  margin-top: 4px;
+  font-size: 11px;
+  line-height: 1.35;
+  color: var(--ink-soft);
+}
+
+.challenge-hint {
+  color: var(--ink);
+}
+
+.challenge-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 6px;
+}
+
+.btn.challenge-btn {
+  padding: 4px 8px;
+  font-size: 10px;
+}
+
 .code-area-wrap {
   position: relative;
-  flex: 0 0 clamp(150px, 30vh, 260px);
+  flex: 0 0 clamp(130px, 24vh, 230px);
   min-height: 0;
   display: flex;
 }

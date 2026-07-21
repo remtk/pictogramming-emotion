@@ -12,6 +12,15 @@ const btnRun = document.getElementById("btn-run");
 const btnStop = document.getElementById("btn-stop");
 const btnReset = document.getElementById("btn-reset");
 const btnClear = document.getElementById("btn-clear");
+const challengeCount = document.getElementById("challenge-count");
+const challengeResult = document.getElementById("challenge-result");
+const challengeTitle = document.getElementById("challenge-title");
+const challengeText = document.getElementById("challenge-text");
+const challengeHint = document.getElementById("challenge-hint");
+const btnChallengePrev = document.getElementById("btn-challenge-prev");
+const btnChallengeNext = document.getElementById("btn-challenge-next");
+const btnChallengeHint = document.getElementById("btn-challenge-hint");
+const btnChallengeInsert = document.getElementById("btn-challenge-insert");
 
 let currentState = {
   pose: createInitialPose(),
@@ -76,6 +85,7 @@ const interpreter = new Interpreter({
     if (typeof sendComprehensiveLog === "function") {
       sendComprehensiveLog(codeInput.value);
     }
+    evaluateCurrentChallenge();
   },
   onCommandExecuted: (cmd, details) => {
     handleCommandLog(cmd, details);
@@ -385,6 +395,107 @@ function escapeHtml(s) {
 }
 
 codeInput.value = SAMPLES.emotion;
+
+// --- 問題出題 ---------------------------------------------------------------
+const CHALLENGES = [
+  {
+    title: "喜びの表情にしよう",
+    text: "EMOTION命令を使って、ピクトグラムを喜びの状態にしてください。",
+    hint: "例: EMOTION JOY 0",
+    sample: `// 問題1: 喜びの表情にしよう
+EMOTION JOY 0`,
+    check: ({ state, code }) => state.emotion === "JOY" || /EMOTION\s+(JOY|喜び|よろこび)/i.test(code),
+    success: "正解です。喜びの感情にできています。",
+    failure: "まだ喜びになっていません。EMOTION JOY を使ってみましょう。",
+  },
+  {
+    title: "線で三角形を描こう",
+    text: "ペンを下ろして、移動とBODY回転を使い、三角形を描いてください。",
+    hint: "PEN DOWN、REPEAT 3、MW、R BODY 120 を組み合わせます。",
+    sample: `// 問題2: 線で三角形を描こう
+PEN DOWN
+REPEAT 3
+  MW 60 0 0.4
+  R BODY 120
+END
+PEN UP`,
+    check: ({ code, stats }) =>
+      /PEN\s+DOWN/i.test(code) &&
+      /R\s+BODY\s+120/i.test(code) &&
+      (stats.lineDrawCount >= 3 || /REPEAT\s+3/i.test(code)),
+    success: "正解です。三角形を描くための命令が使えています。",
+    failure: "PEN DOWN、3回の移動、R BODY 120 が入っているか確認しましょう。",
+  },
+  {
+    title: "セリフを表示しよう",
+    text: "SP命令を使って、ピクトグラムにひとこと話させてください。",
+    hint: "例: SP \"こんにちは\"",
+    sample: `// 問題3: セリフを表示しよう
+SP "こんにちは"`,
+    check: ({ code }) => /(^|\n)\s*SP\s+"/i.test(code),
+    success: "正解です。吹き出しを表示できています。",
+    failure: "SP \"文字\" の形でセリフを書いてみましょう。",
+  },
+];
+
+let currentChallengeIndex = 0;
+
+function setChallengeResult(text, status = "") {
+  if (!challengeResult) return;
+  challengeResult.textContent = text;
+  challengeResult.classList.toggle("pass", status === "pass");
+  challengeResult.classList.toggle("fail", status === "fail");
+}
+
+function renderChallenge() {
+  const challenge = CHALLENGES[currentChallengeIndex];
+  if (!challenge || !challengeTitle) return;
+
+  challengeCount.textContent = `問題 ${currentChallengeIndex + 1}/${CHALLENGES.length}`;
+  challengeTitle.textContent = challenge.title;
+  challengeText.textContent = challenge.text;
+  challengeHint.textContent = challenge.hint;
+  challengeHint.hidden = true;
+  btnChallengeHint.textContent = "ヒント";
+  btnChallengePrev.disabled = currentChallengeIndex === 0;
+  btnChallengeNext.disabled = currentChallengeIndex === CHALLENGES.length - 1;
+  setChallengeResult("未実行");
+}
+
+function evaluateCurrentChallenge() {
+  const challenge = CHALLENGES[currentChallengeIndex];
+  if (!challenge) return;
+  const passed = challenge.check({
+    code: codeInput.value,
+    state: currentState,
+    stats: currentRunStats,
+  });
+  setChallengeResult(passed ? "できました" : "もう少し", passed ? "pass" : "fail");
+  appendConsole(passed ? challenge.success : challenge.failure, passed ? "ok" : "warn");
+}
+
+btnChallengePrev?.addEventListener("click", () => {
+  currentChallengeIndex = Math.max(0, currentChallengeIndex - 1);
+  renderChallenge();
+});
+
+btnChallengeNext?.addEventListener("click", () => {
+  currentChallengeIndex = Math.min(CHALLENGES.length - 1, currentChallengeIndex + 1);
+  renderChallenge();
+});
+
+btnChallengeHint?.addEventListener("click", () => {
+  challengeHint.hidden = !challengeHint.hidden;
+  btnChallengeHint.textContent = challengeHint.hidden ? "ヒント" : "ヒント非表示";
+});
+
+btnChallengeInsert?.addEventListener("click", () => {
+  codeInput.value = CHALLENGES[currentChallengeIndex].sample;
+  codeInput.focus();
+  setChallengeResult("未実行");
+});
+
+renderChallenge();
 
 // --- ログデータ管理 --------------------------------------------------------
 const sessionId = Math.random().toString(36).substring(2, 10);
