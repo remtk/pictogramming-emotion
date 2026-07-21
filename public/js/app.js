@@ -536,11 +536,6 @@ const btnLogTrigger = document.getElementById("btn-log-trigger");
 const btnModalClose = document.getElementById("btn-modal-close");
 const btnModalCloseFooter = document.getElementById("btn-modal-close-footer");
 const btnLogClear = document.getElementById("btn-log-clear");
-const btnLogDownload = document.getElementById("btn-log-download");
-
-btnLogDownload?.addEventListener("click", () => {
-  window.location.href = "/api/logs/csv";
-});
 
 btnLogTrigger.addEventListener("click", () => {
   updateLogUI();
