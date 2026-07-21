@@ -184,6 +184,14 @@ REPEAT 3
 END
 PEN UP
 EMOTION 喜び`,
+  graphics2: `// 図形サンプル2
+PEN DOWN
+REPEAT 8
+  MW 120 0 0.6
+  R BODY 135
+END
+PEN UP
+EMOTION 喜び`,
   items: `// アイテム配置サンプル：リンゴと星を配置
 ITEM CLEAR
 ITEM リンゴ -80 -20 1.5
@@ -200,13 +208,12 @@ IMW ボール 220 0 3
 IK 右腕 15 -85
 IK 左腕 -15 -85
 SP "キャッチ"`,
-  ik: `// IK動作サンプル：リンゴを掴む
+  ik: `//ボールキャッチ
 ITEM CLEAR
-ITEM リンゴ -100 -50 1.5
-WAIT 0.5
-IKW 左腕 -100 -50 1
-EMOTION 喜び 0.5
-SP "とった！"`,
+ITEM ボール 0 -85 2.0
+IK 右腕 15 -85
+IK 左腕 -15 -85
+SP "キャッチ"`,
 };
 
 document.getElementById("btn-sample-basic").addEventListener("click", () => {
@@ -217,6 +224,9 @@ document.getElementById("btn-sample-emotion").addEventListener("click", () => {
 });
 document.getElementById("btn-sample-graphics").addEventListener("click", () => {
   codeInput.value = SAMPLES.graphics;
+});
+document.getElementById("btn-sample-graphics2")?.addEventListener("click", () => {
+  codeInput.value = SAMPLES.graphics2;
 });
 document.getElementById("btn-sample-item")?.addEventListener("click", () => {
   codeInput.value = SAMPLES.items;
