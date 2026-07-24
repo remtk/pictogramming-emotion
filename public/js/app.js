@@ -479,6 +479,14 @@ function evaluateCurrentChallenge() {
   const code = codeInput.value;
   if (challenge.kind === "joy") {
     passed = currentState.emotion === "JOY" || /EMOTION\s+(JOY|喜び|よろこび)/i.test(code);
+  } else if (challenge.kind === "sad") {
+    passed = currentState.emotion === "SAD" || /EMOTION\s+(SAD|悲しみ|かなしみ)/i.test(code);
+  } else if (challenge.kind === "angry") {
+    passed = currentState.emotion === "ANGRY" || /EMOTION\s+(ANGRY|怒り|いかり)/i.test(code);
+  } else if (challenge.kind === "surprise") {
+    passed = currentState.emotion === "SURPRISE" || /EMOTION\s+(SURPRISE|驚き|おどろき)/i.test(code);
+  } else if (challenge.kind === "normal") {
+    passed = currentState.emotion === "NORMAL" || /EMOTION\s+(NORMAL|普通|ふつう)/i.test(code);
   } else if (challenge.kind === "triangle") {
     passed = /PEN\s+DOWN/i.test(code) && /R\s+BODY\s+120/i.test(code) && (currentRunStats.lineDrawCount >= 3 || /REPEAT\s+3/i.test(code));
   } else if (challenge.kind === "speech") {

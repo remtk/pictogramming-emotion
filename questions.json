@@ -4,7 +4,7 @@
     "text": "EMOTION命令を使って、ピクトグラムを悲しみの状態にしてください。",
     "hint": "例: EMOTION SAD 0",
     "sample": "// 問題1: 喜びの表情にしよう\nEMOTION SAD 0",
-    "kind": "joy"
+    "kind": "any"
   },
   {
     "title": "線で三角形を描こう",
