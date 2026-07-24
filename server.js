@@ -11,7 +11,7 @@ const path = require("path");
 const PORT = process.env.PORT || 3000;
 const ROOT = path.join(__dirname, "public");
 const LOG_FILE = path.join(__dirname, "logs.csv");
-const QUESTIONS_FILE = path.join(__dirname, "questions.json"); // 問題データの保存先
+const QUESTIONS_FILE = path.join(__dirname, "public", "questions.json"); // 問題データの保存先
 
 // ==========================================
 // 管理者設定: Google Apps Script (GAS) WebアプリURL
@@ -111,20 +111,6 @@ const server = http.createServer((req, res) => {
     } else {
       res.writeHead(404, { "Content-Type": "text/plain; charset=utf-8" });
       res.end("Log file not found");
-    }
-    return;
-  }
-
-  // APIエンドポイント: 問題を取得（全ユーザー共通）
-  if (req.method === "GET" && reqPath === "/api/challenges") {
-    if (fs.existsSync(QUESTIONS_FILE)) {
-      const data = fs.readFileSync(QUESTIONS_FILE, "utf-8");
-      res.writeHead(200, { "Content-Type": "application/json; charset=utf-8" });
-      res.end(data);
-    } else {
-      // ファイルがなければ空願を返す（アプリ側の初期値が使われる）
-      res.writeHead(200, { "Content-Type": "application/json; charset=utf-8" });
-      res.end(JSON.stringify([]));
     }
     return;
   }

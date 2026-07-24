@@ -533,7 +533,8 @@ let isAdminMode = false;
 // 起動時にサーバーから問題を読み込む
 async function loadChallengesFromStorage() {
   try {
-    const res = await fetch("/api/challenges");
+    const res = await fetch("/questions.json");
+    if (!res.ok) return; // 404の場合は初期値のままにする
     const data = await res.json();
     if (!Array.isArray(data) || data.length === 0) return; // サーバーにまだない場合は初期値をそのまま使う
     data.forEach((s, i) => {
