@@ -1,6 +1,6 @@
 [
   {
-    "title": "悲しみの表情にしよう",
+    "title": "aaaaaaaaa",
     "text": "EMOTION命令を使って、ピクトグラムを悲しみの状態にしてください。",
     "hint": "例: EMOTION SAD 0",
     "sample": "// 問題1: 喜びの表情にしよう\nEMOTION SAD 0",
