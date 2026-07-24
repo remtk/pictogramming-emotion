@@ -21,6 +21,15 @@ const btnChallengePrev = document.getElementById("btn-challenge-prev");
 const btnChallengeNext = document.getElementById("btn-challenge-next");
 const btnChallengeHint = document.getElementById("btn-challenge-hint");
 const btnChallengeInsert = document.getElementById("btn-challenge-insert");
+const btnChallengeAdmin = document.getElementById("btn-challenge-admin");
+const challengeEditor = document.getElementById("challenge-editor");
+const challengeEditTitle = document.getElementById("challenge-edit-title");
+const challengeEditText = document.getElementById("challenge-edit-text");
+const challengeEditHint = document.getElementById("challenge-edit-hint");
+const challengeEditSample = document.getElementById("challenge-edit-sample");
+const challengeEditKind = document.getElementById("challenge-edit-kind");
+const btnChallengeSave = document.getElementById("btn-challenge-save");
+const btnChallengeReset = document.getElementById("btn-challenge-reset");
 
 let currentState = {
   pose: createInitialPose(),
@@ -465,23 +474,33 @@ function renderChallenge() {
 function evaluateCurrentChallenge() {
   const challenge = CHALLENGES[currentChallengeIndex];
   if (!challenge) return;
-  const passed = challenge.check({
-    code: codeInput.value,
-    state: currentState,
-    stats: currentRunStats,
-  });
+
+  let passed = false;
+  const code = codeInput.value;
+  if (challenge.kind === "joy") {
+    passed = currentState.emotion === "JOY" || /EMOTION\s+(JOY|喜び|よろこび)/i.test(code);
+  } else if (challenge.kind === "triangle") {
+    passed = /PEN\s+DOWN/i.test(code) && /R\s+BODY\s+120/i.test(code) && (currentRunStats.lineDrawCount >= 3 || /REPEAT\s+3/i.test(code));
+  } else if (challenge.kind === "speech") {
+    passed = /(^|\n)\s*SP\s+"/i.test(code);
+  } else {
+    passed = true; // "any"
+  }
+
   setChallengeResult(passed ? "できました" : "もう少し", passed ? "pass" : "fail");
-  appendConsole(passed ? challenge.success : challenge.failure, passed ? "ok" : "warn");
+  appendConsole(passed ? (challenge.success || "正解です。") : (challenge.failure || "もう一度確認してみましょう。"), passed ? "ok" : "warn");
 }
 
 btnChallengePrev?.addEventListener("click", () => {
   currentChallengeIndex = Math.max(0, currentChallengeIndex - 1);
   renderChallenge();
+  if (!challengeEditor.hidden && isAdminMode) openChallengeEditor();
 });
 
 btnChallengeNext?.addEventListener("click", () => {
   currentChallengeIndex = Math.min(CHALLENGES.length - 1, currentChallengeIndex + 1);
   renderChallenge();
+  if (!challengeEditor.hidden && isAdminMode) openChallengeEditor();
 });
 
 btnChallengeHint?.addEventListener("click", () => {
@@ -496,6 +515,111 @@ btnChallengeInsert?.addEventListener("click", () => {
 });
 
 renderChallenge();
+
+// --- 問題編集（管理者モード） -----------------------------------------------
+// 合言葉で管理者モードを解除し、問題を自由に編集・保存できる。
+// 保存先はサーバーの questions.json → 全ユーザーに一括反映される。
+const ADMIN_PASSWORD = "teacher"; // ここを変えると合言葉を変更できる
+let isAdminMode = false;
+
+// 起動時にサーバーから問題を読み込む
+async function loadChallengesFromStorage() {
+  try {
+    const res = await fetch("/api/challenges");
+    const data = await res.json();
+    if (!Array.isArray(data) || data.length === 0) return; // サーバーにまだない場合は初期値をそのまま使う
+    data.forEach((s, i) => {
+      if (!CHALLENGES[i]) return;
+      if (s.title)  CHALLENGES[i].title  = s.title;
+      if (s.text)   CHALLENGES[i].text   = s.text;
+      if (s.hint)   CHALLENGES[i].hint   = s.hint;
+      if (s.sample) CHALLENGES[i].sample = s.sample;
+      if (s.kind)   CHALLENGES[i].kind   = s.kind;
+    });
+  } catch (e) {
+    console.warn("問題の読み込みに失敗しました", e);
+  }
+}
+
+// サーバーに問題を保存（全ユーザーに反映される）
+async function saveChallengesToStorage() {
+  const data = CHALLENGES.map(c => ({
+    title: c.title, text: c.text, hint: c.hint, sample: c.sample, kind: c.kind || "any",
+  }));
+  const res = await fetch("/api/challenges", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error("Server error");
+}
+
+function openChallengeEditor() {
+  const c = CHALLENGES[currentChallengeIndex];
+  if (!c) return;
+  challengeEditTitle.value  = c.title;
+  challengeEditText.value   = c.text;
+  challengeEditHint.value   = c.hint;
+  challengeEditSample.value = c.sample;
+  challengeEditKind.value   = c.kind || "any";
+  challengeEditor.hidden = false;
+  btnChallengeAdmin.textContent = "🔓 編集中";
+}
+
+function closeChallengeEditor() {
+  challengeEditor.hidden = true;
+  btnChallengeAdmin.textContent = "🔒 編集ロック解除";
+}
+
+btnChallengeAdmin?.addEventListener("click", () => {
+  if (isAdminMode) {
+    challengeEditor.hidden ? openChallengeEditor() : closeChallengeEditor();
+    return;
+  }
+  const input = prompt("管理者パスワードを入力してください");
+  if (input === null) return;
+  if (input !== ADMIN_PASSWORD) { alert("パスワードが違います"); return; }
+  isAdminMode = true;
+  appendConsole("管理者モードで問題を編集できます", "ok");
+  openChallengeEditor();
+});
+
+btnChallengeSave?.addEventListener("click", async () => {
+  if (!isAdminMode) return;
+  const c = CHALLENGES[currentChallengeIndex];
+  c.title  = challengeEditTitle.value;
+  c.text   = challengeEditText.value;
+  c.hint   = challengeEditHint.value;
+  c.sample = challengeEditSample.value;
+  c.kind   = challengeEditKind.value;
+  try {
+    await saveChallengesToStorage();
+    renderChallenge();
+    closeChallengeEditor(); // 保存成功時にエディタを閉じる
+    appendConsole(`問題 ${currentChallengeIndex + 1} を保存しました（全ユーザーに反映）`, "ok");
+  } catch (e) {
+    appendConsole("保存に失敗しました。サーバーが起動しているか確認してください。", "error");
+  }
+});
+
+btnChallengeReset?.addEventListener("click", async () => {
+  if (!isAdminMode) return;
+  if (!confirm("問題を初期状態に戻しますか？サーバーの questions.json が削除され、全ユーザーの問題が初期値に戻ります。")) return;
+  try {
+    // サーバーに空配列を送ることでリセット（アプリ側のデフォルトが使われる）
+    await fetch("/api/challenges", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify([]),
+    });
+    location.reload();
+  } catch (e) {
+    appendConsole("リセットに失敗しました", "error");
+  }
+});
+
+// 起動時にサーバーから問題を読み込み、再描画
+loadChallengesFromStorage().then(() => renderChallenge());
 
 // --- ログデータ管理 --------------------------------------------------------
 const sessionId = Math.random().toString(36).substring(2, 10);

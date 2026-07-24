@@ -334,6 +334,40 @@ body {
   font-size: 10px;
 }
 
+.challenge-editor {
+  display: grid;
+  gap: 5px;
+  margin-top: 7px;
+  padding-top: 7px;
+  border-top: 1px solid var(--line);
+}
+
+.challenge-editor[hidden] {
+  display: none;
+}
+
+.challenge-input {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #fff;
+  color: var(--ink);
+  padding: 5px 7px;
+  font-family: var(--font-body);
+  font-size: 11px;
+  line-height: 1.35;
+}
+
+.challenge-code-input {
+  font-family: var(--font-mono);
+}
+
+.challenge-editor-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
 .code-area-wrap {
   position: relative;
   flex: 0 0 clamp(130px, 24vh, 230px);

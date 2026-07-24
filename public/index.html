@@ -57,6 +57,27 @@
         <button class="btn ghost challenge-btn" id="btn-challenge-hint">ヒント</button>
         <button class="btn ghost challenge-btn" id="btn-challenge-insert">例を入れる</button>
         <button class="btn ghost challenge-btn" id="btn-challenge-next">次の問題</button>
+        <button class="btn ghost challenge-btn" id="btn-challenge-admin">編集ロック解除</button>
+      </div>
+      <div class="challenge-editor" id="challenge-editor" hidden>
+        <input class="challenge-input" id="challenge-edit-title" type="text" placeholder="問題タイトル">
+        <textarea class="challenge-input" id="challenge-edit-text" rows="2" placeholder="問題文"></textarea>
+        <textarea class="challenge-input" id="challenge-edit-hint" rows="2" placeholder="ヒント"></textarea>
+        <textarea class="challenge-input challenge-code-input" id="challenge-edit-sample" rows="4" placeholder="例コード"></textarea>
+        <select class="challenge-input" id="challenge-edit-kind">
+          <option value="joy">判定: 喜びになっている</option>
+          <option value="sad">判定: 悲しみになっている</option>
+          <option value="angry">判定: 怒りになっている</option>
+          <option value="surprise">判定: 驚きになっている</option>
+          <option value="normal">判定: 普通になっている</option>
+          <option value="triangle">判定: 三角形の命令を使っている</option>
+          <option value="speech">判定: SPでセリフを表示している</option>
+          <option value="any">判定: 実行できればOK</option>
+        </select>
+        <div class="challenge-editor-actions">
+          <button class="btn ghost challenge-btn" id="btn-challenge-save">この問題を保存</button>
+          <button class="btn ghost challenge-btn" id="btn-challenge-reset">初期問題に戻す</button>
+        </div>
       </div>
     </div>
     <div class="code-area-wrap">

@@ -1,0 +1,23 @@
+[
+  {
+    "title": "悲しみの表情にしよう",
+    "text": "EMOTION命令を使って、ピクトグラムを悲しみの状態にしてください。",
+    "hint": "例: EMOTION SAD 0",
+    "sample": "// 問題1: 喜びの表情にしよう\nEMOTION SAD 0",
+    "kind": "joy"
+  },
+  {
+    "title": "線で三角形を描こう",
+    "text": "ペンを下ろして、移動とBODY回転を使い、三角形を描いてください。",
+    "hint": "PEN DOWN、REPEAT 3、MW、R BODY 120 を組み合わせます。",
+    "sample": "// 問題2: 線で三角形を描こう\nPEN DOWN\nREPEAT 3\n  MW 60 0 0.4\n  R BODY 120\nEND\nPEN UP",
+    "kind": "any"
+  },
+  {
+    "title": "セリフを表示しよう",
+    "text": "SP命令を使って、ピクトグラムにひとこと話させてください。",
+    "hint": "例: SP \"こんにちは\"",
+    "sample": "// 問題3: セリフを表示しよう\nSP \"こんにちは\"",
+    "kind": "any"
+  }
+]

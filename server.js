@@ -11,6 +11,7 @@ const path = require("path");
 const PORT = process.env.PORT || 3000;
 const ROOT = path.join(__dirname, "public");
 const LOG_FILE = path.join(__dirname, "logs.csv");
+const QUESTIONS_FILE = path.join(__dirname, "questions.json"); // 問題データの保存先
 
 // ==========================================
 // 管理者設定: Google Apps Script (GAS) WebアプリURL
@@ -111,6 +112,39 @@ const server = http.createServer((req, res) => {
       res.writeHead(404, { "Content-Type": "text/plain; charset=utf-8" });
       res.end("Log file not found");
     }
+    return;
+  }
+
+  // APIエンドポイント: 問題を取得（全ユーザー共通）
+  if (req.method === "GET" && reqPath === "/api/challenges") {
+    if (fs.existsSync(QUESTIONS_FILE)) {
+      const data = fs.readFileSync(QUESTIONS_FILE, "utf-8");
+      res.writeHead(200, { "Content-Type": "application/json; charset=utf-8" });
+      res.end(data);
+    } else {
+      // ファイルがなければ空願を返す（アプリ側の初期値が使われる）
+      res.writeHead(200, { "Content-Type": "application/json; charset=utf-8" });
+      res.end(JSON.stringify([]));
+    }
+    return;
+  }
+
+  // APIエンドポイント: 問題を保存（管理者のみ、保存すると全ユーザーに反映）
+  if (req.method === "POST" && reqPath === "/api/challenges") {
+    let body = "";
+    req.on("data", chunk => { body += chunk.toString(); });
+    req.on("end", () => {
+      try {
+        const data = JSON.parse(body);
+        if (!Array.isArray(data)) throw new Error("Invalid format");
+        fs.writeFileSync(QUESTIONS_FILE, JSON.stringify(data, null, 2));
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ success: true }));
+      } catch (e) {
+        res.writeHead(400, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ error: e.message }));
+      }
+    });
     return;
   }
 
