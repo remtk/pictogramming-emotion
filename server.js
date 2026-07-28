@@ -69,25 +69,35 @@ const server = http.createServer((req, res) => {
             lines, length, code: data.code || ""
           });
 
-          const reqOpts = {
-            method: "POST",
-            headers: {
-              "Content-Type": "text/plain", // GASはapplication/jsonだとCORSエラーになる場合があるためtext/plainを利用
-              "Content-Length": Buffer.byteLength(reqBody)
-            }
-          };
+          function sendToGAS(url, body, redirectCount = 0) {
+            if (redirectCount > 5) return; // 無限リダイレクト防止
+            const urlObj = new URL(url);
+            const reqOpts = {
+              hostname: urlObj.hostname,
+              path: urlObj.pathname + urlObj.search,
+              method: "POST",
+              headers: {
+                "Content-Type": "text/plain",
+                "Content-Length": Buffer.byteLength(body)
+              }
+            };
+            const gasReq = https.request(reqOpts, (gasRes) => {
+              // GASは302リダイレクトを返すことがあるので追いかける
+              if ((gasRes.statusCode === 301 || gasRes.statusCode === 302 || gasRes.statusCode === 307 || gasRes.statusCode === 308) && gasRes.headers.location) {
+                gasRes.resume(); // レスポンスを消費
+                sendToGAS(gasRes.headers.location, body, redirectCount + 1);
+              } else {
+                gasRes.resume(); // レスポンスを消費
+              }
+            });
+            gasReq.on("error", (e) => {
+              console.error("Failed to send log to GAS:", e.message);
+            });
+            gasReq.write(body);
+            gasReq.end();
+          }
 
-          const gasReq = https.request(GAS_WEBHOOK_URL, reqOpts, (gasRes) => {
-            // リダイレクトされる場合があるが、送信自体は完了しているため詳細なハンドリングは省略
-            // console.log(`GAS webhook response: ${gasRes.statusCode}`);
-          });
-
-          gasReq.on("error", (e) => {
-            console.error("Failed to send log to GAS:", e);
-          });
-
-          gasReq.write(reqBody);
-          gasReq.end();
+          sendToGAS(GAS_WEBHOOK_URL, reqBody);
         }
 
         res.writeHead(200, { "Content-Type": "application/json" });
@@ -111,6 +121,19 @@ const server = http.createServer((req, res) => {
     } else {
       res.writeHead(404, { "Content-Type": "text/plain; charset=utf-8" });
       res.end("Log file not found");
+    }
+    return;
+  }
+
+  // APIエンドポイント: 問題を取得（全ユーザー共通）
+  if (req.method === "GET" && reqPath === "/api/challenges") {
+    if (fs.existsSync(QUESTIONS_FILE)) {
+      const data = fs.readFileSync(QUESTIONS_FILE, "utf-8");
+      res.writeHead(200, { "Content-Type": "application/json; charset=utf-8" });
+      res.end(data);
+    } else {
+      res.writeHead(200, { "Content-Type": "application/json; charset=utf-8" });
+      res.end(JSON.stringify([]));
     }
     return;
   }
