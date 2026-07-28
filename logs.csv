@@ -1418,3 +1418,35 @@ REPEAT 3
 END
 PEN UP
 EMOTION 喜び"
+2026-07-28T04:17:28.073Z,glc6mcdr,RUN_PROGRAM,1,1,0,1,1,0,0,"// 感情サンプル：喜び→驚き→悲しみと遷移する
+EMOTION 喜び 0.8
+SP ""やったー！""
+WAIT 1
+EMOTION 驚き 0.5
+SP ""えっ！？""
+WAIT 1
+EMOTION 悲しみ 1
+SP ""そんな…""
+WAIT 1
+EMOTION 普通 0.6"
+2026-07-28T04:18:30.426Z,glc6mcdr,RUN_PROGRAM,1,0,0,0,0,0,0,"// 感情サンプル：喜び→驚き→悲しみと遷移する
+EMOTION 喜び 0.8
+SP ""やったー！""
+WAIT 1
+EMOTION 驚き 0.5
+SP ""えっ！？""
+WAIT 1
+EMOTION 悲しみ 1
+SP ""そんな…""
+WAIT 1
+EMOTION 普通 0.6"
+2026-07-28T04:18:39.903Z,glc6mcdr,RUN_PROGRAM,1,0,0,0,1,0,0,"// アイテム配置サンプル：リンゴと星を配置
+ITEM CLEAR
+ITEM リンゴ -80 -20 1.5
+ITEM 星 80 -40 2.0
+EMOTION 喜び 0.8
+SP ""わーい！""
+WAIT 1.5
+EMOTION 普通 0.6
+ITEM CLEAR
+SP ""片付けたよ"""

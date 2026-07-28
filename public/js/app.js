@@ -551,9 +551,9 @@ async function loadChallengesFromStorage() {
     }
   } catch (e) { /* GAS失敗は無視 */ }
 
-  // 2. ローカルサーバーから読み込み試み
+  // 2. ローカルサーバー/静的ファイルから読み込み試み
   try {
-    const res = await fetch("/api/challenges");
+    const res = await fetch("/questions.json?t=" + new Date().getTime());
     if (res.ok) {
       const data = await res.json();
       if (Array.isArray(data) && data.length > 0) {
