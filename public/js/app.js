@@ -530,37 +530,74 @@ renderChallenge();
 const ADMIN_PASSWORD = "teacher"; // ここを変えると合言葉を変更できる
 let isAdminMode = false;
 
-// 起動時にサーバーから問題を読み込む
+// 起動時に問題を読み込む。GAS → ローカルサーバー → localStorage の順にフォールバック
 async function loadChallengesFromStorage() {
+  // 1. GASから読み込み試み
+  try {
+    const res = await fetch(GAS_URL + "?action=getChallenges");
+    if (res.ok) {
+      const data = await res.json();
+      if (Array.isArray(data) && data.length > 0) {
+        data.forEach((s, i) => {
+          if (!CHALLENGES[i]) return;
+          if (s.title)  CHALLENGES[i].title  = s.title;
+          if (s.text)   CHALLENGES[i].text   = s.text;
+          if (s.hint)   CHALLENGES[i].hint   = s.hint;
+          if (s.sample) CHALLENGES[i].sample = s.sample;
+          if (s.kind)   CHALLENGES[i].kind   = s.kind;
+        });
+        return; // GASから読み込み成功
+      }
+    }
+  } catch (e) { /* GAS失敗は無視 */ }
+
+  // 2. ローカルサーバーから読み込み試み
   try {
     const res = await fetch("/api/challenges");
-    if (!res.ok) return;
-    const data = await res.json();
-    if (!Array.isArray(data) || data.length === 0) return; // サーバーにまだない場合は初期値をそのまま使う
-    data.forEach((s, i) => {
-      if (!CHALLENGES[i]) return;
-      if (s.title)  CHALLENGES[i].title  = s.title;
-      if (s.text)   CHALLENGES[i].text   = s.text;
-      if (s.hint)   CHALLENGES[i].hint   = s.hint;
-      if (s.sample) CHALLENGES[i].sample = s.sample;
-      if (s.kind)   CHALLENGES[i].kind   = s.kind;
-    });
-  } catch (e) {
-    console.warn("問題の読み込みに失敗しました", e);
-  }
+    if (res.ok) {
+      const data = await res.json();
+      if (Array.isArray(data) && data.length > 0) {
+        data.forEach((s, i) => {
+          if (!CHALLENGES[i]) return;
+          if (s.title)  CHALLENGES[i].title  = s.title;
+          if (s.text)   CHALLENGES[i].text   = s.text;
+          if (s.hint)   CHALLENGES[i].hint   = s.hint;
+          if (s.sample) CHALLENGES[i].sample = s.sample;
+          if (s.kind)   CHALLENGES[i].kind   = s.kind;
+        });
+        return;
+      }
+    }
+  } catch (e) { /* ローカルサーバー失敗は無視 */ }
 }
 
-// サーバーに問題を保存（全ユーザーに反映される）
+// 問題を保存。GASとローカルサーバーの両方に送る
 async function saveChallengesToStorage() {
   const data = CHALLENGES.map(c => ({
     title: c.title, text: c.text, hint: c.hint, sample: c.sample, kind: c.kind || "any",
   }));
-  const res = await fetch("/api/challenges", {
+  const payload = JSON.stringify({ action: "saveChallenges", challenges: data });
+
+  // GASに保存（no-corsなのでレスポンスは読めないがサーバー側に保存される）
+  fetch(GAS_URL, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data),
-  });
-  if (!res.ok) throw new Error("Server error");
+    mode: "no-cors",
+    headers: { "Content-Type": "text/plain" },
+    body: payload,
+  }).catch(() => {});
+
+  // ローカルサーバーにも保存試み
+  try {
+    const res = await fetch("/api/challenges", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+    if (res.ok) return; // ローカル保存成功
+  } catch (e) { /* ローカルサーバーがない場合 */ }
+
+  // netlify環境ではローカルサーバーがないのでGASのno-cors送信のみになる。
+  // GAS側で saveChallenges アクションを実装する必要がある。
 }
 
 function openChallengeEditor() {
@@ -689,17 +726,29 @@ function addLogHistory(text, type = "info") {
   runLog.history.push({ time, text, type });
 }
 
+// GASへ直接送信するURL（netlifyかローカルサーバーどちらからでも動く）
+const GAS_URL = "https://script.google.com/macros/s/AKfycbz_1wXsaydCFO5g_SffaOK_DGoBdq4BLjwXIjCcBVbgCLb-Y6cDq1IEaIpHW9vIb3Zp/exec";
+
 function sendComprehensiveLog(code) {
+  const payload = JSON.stringify({
+    sessionId,
+    action: "RUN_PROGRAM",
+    stats: currentRunStats,
+    code,
+  });
+  // GASはCORS制限を回避するため no-corsで送る（レスポンスは読めないが送信は完了する）
+  fetch(GAS_URL, {
+    method: "POST",
+    mode: "no-cors",
+    headers: { "Content-Type": "text/plain" },
+    body: payload,
+  }).catch(err => console.warn("GASログ送信失敗:", err));
+  // ローカルサーバーが起動中ならそちらにも送る（CSVバックアップ）
   fetch("/api/logs", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      sessionId: sessionId,
-      action: "RUN_PROGRAM",
-      stats: currentRunStats,
-      code: code
-    })
-  }).catch(err => console.error("Failed to send log:", err));
+    body: JSON.stringify({ sessionId, action: "RUN_PROGRAM", stats: currentRunStats, code }),
+  }).catch(() => {}); // netlify環境では失敗するのでエラーは無視
 }
 
 function handleCommandLog(cmd, details) {
