@@ -19,5 +19,12 @@
     "hint": "例: SP \"こんにちは\"",
     "sample": "// 問題3: セリフを表示しよう\nSP \"こんにちは\"",
     "kind": "any"
+  },
+  {
+    "title": "testtest",
+    "text": "test",
+    "hint": "test",
+    "sample": "test",
+    "kind": "any"
   }
 ]
