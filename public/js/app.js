@@ -22,6 +22,8 @@ const btnChallengeNext = document.getElementById("btn-challenge-next");
 const btnChallengeHint = document.getElementById("btn-challenge-hint");
 const btnChallengeInsert = document.getElementById("btn-challenge-insert");
 const btnChallengeAdmin = document.getElementById("btn-challenge-admin");
+const btnChallengeSubmit = document.getElementById("btn-challenge-submit");
+const btnChallengeAdd = document.getElementById("btn-challenge-add");
 const challengeEditor = document.getElementById("challenge-editor");
 const challengeEditTitle = document.getElementById("challenge-edit-title");
 const challengeEditText = document.getElementById("challenge-edit-text");
@@ -529,6 +531,7 @@ renderChallenge();
 // 保存先はサーバーの questions.json → 全ユーザーに一括反映される。
 const ADMIN_PASSWORD = "teacher"; // ここを変えると合言葉を変更できる
 let isAdminMode = false;
+let isCreateMode = false;
 
 // 起動時に問題を読み込む。GAS → ローカルサーバー → localStorage の順にフォールバック
 async function loadChallengesFromStorage() {
@@ -601,25 +604,93 @@ async function saveChallengesToStorage() {
 }
 
 function openChallengeEditor() {
-  const c = CHALLENGES[currentChallengeIndex];
-  if (!c) return;
-  challengeEditTitle.value  = c.title;
-  challengeEditText.value   = c.text;
-  challengeEditHint.value   = c.hint;
-  challengeEditSample.value = c.sample;
-  challengeEditKind.value   = c.kind || "any";
+  console.log("openChallengeEditor called. isCreateMode:", isCreateMode, "isAdminMode:", isAdminMode);
+  if (isCreateMode) {
+    challengeEditTitle.value  = "";
+    challengeEditText.value   = "";
+    challengeEditHint.value   = "";
+    challengeEditSample.value = "";
+    challengeEditKind.value   = "any";
+    btnChallengeSave.style.display = "none";
+    btnChallengeReset.style.display = "none";
+    btnChallengeAdd.style.display = "";
+    btnChallengeSubmit.textContent = "入力をやめる";
+  } else if (isAdminMode) {
+    const c = CHALLENGES[currentChallengeIndex];
+    if (c) {
+      challengeEditTitle.value  = c.title;
+      challengeEditText.value   = c.text;
+      challengeEditHint.value   = c.hint;
+      challengeEditSample.value = c.sample;
+      challengeEditKind.value   = c.kind || "any";
+    }
+    btnChallengeSave.style.display = "";
+    btnChallengeReset.style.display = "";
+    btnChallengeAdd.style.display = "none";
+    btnChallengeAdmin.textContent = "🔓 編集中";
+  }
   challengeEditor.hidden = false;
-  btnChallengeAdmin.textContent = "🔓 編集中";
+  console.log("challengeEditor.hidden is now", challengeEditor.hidden);
 }
 
 function closeChallengeEditor() {
   challengeEditor.hidden = true;
-  btnChallengeAdmin.textContent = "🔒 編集ロック解除";
+  if (isCreateMode) {
+    btnChallengeSubmit.textContent = "問題を作成";
+    isCreateMode = false;
+  }
+  if (isAdminMode) {
+    btnChallengeAdmin.textContent = "🔒 編集ロック解除";
+  }
 }
+
+btnChallengeSubmit?.addEventListener("click", () => {
+  console.log("btnChallengeSubmit clicked! challengeEditor.hidden =", challengeEditor.hidden);
+  if (challengeEditor.hidden) {
+    if (isAdminMode) closeChallengeEditor();
+    isCreateMode = true;
+    openChallengeEditor();
+  } else if (isCreateMode) {
+    closeChallengeEditor();
+  } else if (isAdminMode) {
+    closeChallengeEditor();
+    isCreateMode = true;
+    openChallengeEditor();
+  }
+});
+
+btnChallengeAdd?.addEventListener("click", async () => {
+  if (!isCreateMode) return;
+  const newChallenge = {
+    title: challengeEditTitle.value || "無題",
+    text: challengeEditText.value || "",
+    hint: challengeEditHint.value || "",
+    sample: challengeEditSample.value || "",
+    kind: challengeEditKind.value || "any",
+  };
+  CHALLENGES.push(newChallenge);
+  currentChallengeIndex = CHALLENGES.length - 1;
+  try {
+    await saveChallengesToStorage();
+    renderChallenge();
+    closeChallengeEditor();
+    appendConsole("新しい問題を登録しました", "ok");
+  } catch (e) {
+    appendConsole("保存に失敗しました。", "error");
+  }
+});
 
 btnChallengeAdmin?.addEventListener("click", () => {
   if (isAdminMode) {
-    challengeEditor.hidden ? openChallengeEditor() : closeChallengeEditor();
+    if (challengeEditor.hidden) {
+      if (isCreateMode) closeChallengeEditor();
+      openChallengeEditor();
+    } else if (!isCreateMode) {
+      closeChallengeEditor();
+    } else {
+      closeChallengeEditor();
+      openChallengeEditor();
+    }
     return;
   }
   const input = prompt("管理者パスワードを入力してください");
@@ -627,6 +698,7 @@ btnChallengeAdmin?.addEventListener("click", () => {
   if (input !== ADMIN_PASSWORD) { alert("パスワードが違います"); return; }
   isAdminMode = true;
   appendConsole("管理者モードで問題を編集できます", "ok");
+  if (isCreateMode) closeChallengeEditor();
   openChallengeEditor();
 });
 

@@ -1450,3 +1450,14 @@ WAIT 1.5
 EMOTION 普通 0.6
 ITEM CLEAR
 SP ""片付けたよ"""
+2026-08-25T05:03:13.477Z,kor8ry0a,RUN_PROGRAM,0,0,0,0,0,0,0,"// 諢滓ュ繧ｵ繝ｳ繝励Ν・壼万縺ｳ竊帝ｩ壹″竊呈ご縺励∩縺ｨ驕ｷ遘ｻ縺吶ｋ
+EMOTION 蝟懊・ 0.8
+SP ""繧・▲縺溘・・・
+WAIT 1
+EMOTION 鬩壹″ 0.5
+SP ""縺医▲・・ｼ・
+WAIT 1
+EMOTION 謔ｲ縺励∩ 1
+SP ""縺昴ｓ縺ｪ窶ｦ""
+WAIT 1
+EMOTION 譎ｮ騾・0.6"
