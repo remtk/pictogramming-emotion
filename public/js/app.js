@@ -20,7 +20,6 @@ const challengeHint = document.getElementById("challenge-hint");
 const btnChallengePrev = document.getElementById("btn-challenge-prev");
 const btnChallengeNext = document.getElementById("btn-challenge-next");
 const btnChallengeHint = document.getElementById("btn-challenge-hint");
-const btnChallengeInsert = document.getElementById("btn-challenge-insert");
 const btnChallengeAdmin = document.getElementById("btn-challenge-admin");
 const btnChallengeSubmit = document.getElementById("btn-challenge-submit");
 const btnChallengeAdd = document.getElementById("btn-challenge-add");
@@ -32,6 +31,12 @@ const challengeEditSample = document.getElementById("challenge-edit-sample");
 const challengeEditKind = document.getElementById("challenge-edit-kind");
 const btnChallengeSave = document.getElementById("btn-challenge-save");
 const btnChallengeReset = document.getElementById("btn-challenge-reset");
+const challengeAdminModal = document.getElementById("challenge-admin-modal");
+const btnChallengeModalClose = document.getElementById("btn-challenge-modal-close");
+
+if (btnChallengeModalClose) {
+  btnChallengeModalClose.addEventListener("click", closeChallengeEditor);
+}
 
 let currentState = {
   pose: createInitialPose(),
@@ -445,6 +450,10 @@ function evaluateCurrentChallenge() {
     passed = /PEN\s+DOWN/i.test(code) && /R\s+BODY\s+120/i.test(code) && (currentRunStats.lineDrawCount >= 3 || /REPEAT\s+3/i.test(code));
   } else if (challenge.kind === "speech") {
     passed = /(^|\n)\s*SP\s+"/i.test(code);
+  } else if (challenge.kind === "contains_code") {
+    const userCodeStr = code.replace(/\s+/g, "");
+    const targetCodeStr = (challenge.sample || "").replace(/\s+/g, "");
+    passed = targetCodeStr.length > 0 && userCodeStr.includes(targetCodeStr);
   } else {
     passed = true; // "any"
   }
@@ -456,24 +465,18 @@ function evaluateCurrentChallenge() {
 btnChallengePrev?.addEventListener("click", () => {
   currentChallengeIndex = Math.max(0, currentChallengeIndex - 1);
   renderChallenge();
-  if (!challengeEditor.hidden && isAdminMode) openChallengeEditor();
+  if (challengeAdminModal.classList.contains("active") && isAdminMode) openChallengeEditor();
 });
 
 btnChallengeNext?.addEventListener("click", () => {
   currentChallengeIndex = Math.min(CHALLENGES.length - 1, currentChallengeIndex + 1);
   renderChallenge();
-  if (!challengeEditor.hidden && isAdminMode) openChallengeEditor();
+  if (challengeAdminModal.classList.contains("active") && isAdminMode) openChallengeEditor();
 });
 
 btnChallengeHint?.addEventListener("click", () => {
   challengeHint.hidden = !challengeHint.hidden;
   btnChallengeHint.textContent = challengeHint.hidden ? "ヒント" : "ヒント非表示";
-});
-
-btnChallengeInsert?.addEventListener("click", () => {
-  codeInput.value = CHALLENGES[currentChallengeIndex].sample;
-  codeInput.focus();
-  setChallengeResult("未実行");
 });
 
 renderChallenge();
@@ -581,12 +584,11 @@ function openChallengeEditor() {
     btnChallengeAdd.style.display = "none";
     btnChallengeAdmin.textContent = "🔓 編集中";
   }
-  challengeEditor.hidden = false;
-  console.log("challengeEditor.hidden is now", challengeEditor.hidden);
+  challengeAdminModal.classList.add("active");
 }
 
 function closeChallengeEditor() {
-  challengeEditor.hidden = true;
+  challengeAdminModal.classList.remove("active");
   if (isCreateMode) {
     btnChallengeSubmit.textContent = "問題を作成";
     isCreateMode = false;
@@ -597,8 +599,8 @@ function closeChallengeEditor() {
 }
 
 btnChallengeSubmit?.addEventListener("click", () => {
-  console.log("btnChallengeSubmit clicked! challengeEditor.hidden =", challengeEditor.hidden);
-  if (challengeEditor.hidden) {
+  const isHidden = !challengeAdminModal.classList.contains("active");
+  if (isHidden) {
     if (isAdminMode) closeChallengeEditor();
     isCreateMode = true;
     openChallengeEditor();
@@ -634,7 +636,8 @@ btnChallengeAdd?.addEventListener("click", async () => {
 
 btnChallengeAdmin?.addEventListener("click", () => {
   if (isAdminMode) {
-    if (challengeEditor.hidden) {
+    const isHidden = !challengeAdminModal.classList.contains("active");
+    if (isHidden) {
       if (isCreateMode) closeChallengeEditor();
       openChallengeEditor();
     } else if (!isCreateMode) {
