@@ -33,6 +33,8 @@ const btnChallengeSave = document.getElementById("btn-challenge-save");
 const btnChallengeReset = document.getElementById("btn-challenge-reset");
 const challengeAdminModal = document.getElementById("challenge-admin-modal");
 const btnChallengeModalClose = document.getElementById("btn-challenge-modal-close");
+const btnAIGenerate = document.getElementById("btn-ai-generate");
+const aiDifficulty = document.getElementById("ai-difficulty");
 
 if (btnChallengeModalClose) {
   btnChallengeModalClose.addEventListener("click", closeChallengeEditor);
@@ -631,6 +633,44 @@ btnChallengeAdd?.addEventListener("click", async () => {
     appendConsole("新しい問題を登録しました", "ok");
   } catch (e) {
     appendConsole("保存に失敗しました。", "error");
+  }
+});
+
+btnAIGenerate?.addEventListener("click", async () => {
+  const originalText = btnAIGenerate.textContent;
+  btnAIGenerate.textContent = "⏳ AIが作成中...";
+  btnAIGenerate.disabled = true;
+
+  try {
+    const diff = aiDifficulty.value;
+    // まずローカル server.js を使い、無い場合のみ GAS にフォールバック
+    let data = null;
+    try {
+      const localRes = await fetch("/api/generate-challenge?difficulty=" + encodeURIComponent(diff));
+      if (localRes.ok) data = await localRes.json();
+      else {
+        const errBody = await localRes.json().catch(() => ({}));
+        throw new Error(errBody.error || "local generate failed");
+      }
+    } catch (localErr) {
+      const gasRes = await fetch(GAS_URL + "?action=generateChallenge&difficulty=" + encodeURIComponent(diff));
+      if (!gasRes.ok) throw localErr;
+      data = await gasRes.json();
+    }
+
+    if (data.error) throw new Error(data.error);
+    challengeEditTitle.value = data.title || "";
+    challengeEditText.value = data.text || "";
+    challengeEditHint.value = data.hint || "";
+    challengeEditSample.value = data.sample || "";
+    challengeEditKind.value = data.kind || "contains_code";
+    appendConsole("AIが問題を生成しました！", "ok");
+  } catch (err) {
+    console.error("AI Generate Error:", err);
+    appendConsole("AI生成に失敗しました。.env の GEMINI_API_KEY を確認してください。", "error");
+  } finally {
+    btnAIGenerate.textContent = originalText;
+    btnAIGenerate.disabled = false;
   }
 });
 

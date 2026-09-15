@@ -139,6 +139,14 @@ EMOTION 喜び"></textarea>
       <button id="btn-challenge-modal-close" class="modal-close-btn">&times;</button>
     </div>
     <div class="modal-body" id="challenge-editor">
+      <div style="display:flex; gap:8px; margin-bottom:12px; align-items:center; background:var(--paper-soft); padding:10px; border-radius:8px; border:1px solid var(--line);">
+        <select class="challenge-input" id="ai-difficulty" style="margin:0; width:140px;">
+          <option value="1">難易度: 初級</option>
+          <option value="2">難易度: 中級</option>
+          <option value="3">難易度: 上級</option>
+        </select>
+        <button class="btn primary" id="btn-ai-generate" style="flex:1;">🤖 AIで問題を自動生成</button>
+      </div>
       <input class="challenge-input" id="challenge-edit-title" type="text" placeholder="問題タイトル">
       <textarea class="challenge-input" id="challenge-edit-text" rows="2" placeholder="問題文"></textarea>
       <textarea class="challenge-input" id="challenge-edit-hint" rows="2" placeholder="ヒント"></textarea>

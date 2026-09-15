@@ -13,6 +13,24 @@ const ROOT = path.join(__dirname, "public");
 const LOG_FILE = path.join(__dirname, "logs.csv");
 const QUESTIONS_FILE = path.join(__dirname, "public", "questions.json"); // 問題データの保存先
 
+// .env から GEMINI_API_KEY などを読む（dotenv不要）
+(function loadEnvFile() {
+  const envPath = path.join(__dirname, ".env");
+  if (!fs.existsSync(envPath)) return;
+  for (const raw of fs.readFileSync(envPath, "utf-8").split(/\r?\n/)) {
+    const line = raw.trim();
+    if (!line || line.startsWith("#")) continue;
+    const eq = line.indexOf("=");
+    if (eq < 1) continue;
+    const key = line.slice(0, eq).trim();
+    let value = line.slice(eq + 1).trim();
+    if ((value.startsWith('"') && value.endsWith('"')) || (value.startsWith("'") && value.endsWith("'"))) {
+      value = value.slice(1, -1);
+    }
+    if (process.env[key] === undefined) process.env[key] = value;
+  }
+})();
+
 // ==========================================
 // 管理者設定: Google Apps Script (GAS) WebアプリURL
 // 発行されたURLを以下の変数に貼り付けてください（空文字の場合はローカル保存のみ）
@@ -138,6 +156,22 @@ const server = http.createServer((req, res) => {
     return;
   }
 
+  // APIエンドポイント: AI自動作問（Gemini）。GASを使わずローカルで動かす
+  if (req.method === "GET" && reqPath === "/api/generate-challenge") {
+    const qs = new URL(req.url, "http://localhost").searchParams;
+    generateChallengeWithGemini(qs.get("difficulty") || "1")
+      .then((challenge) => {
+        res.writeHead(200, { "Content-Type": "application/json; charset=utf-8" });
+        res.end(JSON.stringify(challenge));
+      })
+      .catch((err) => {
+        console.error("AI generate failed:", err.message);
+        res.writeHead(500, { "Content-Type": "application/json; charset=utf-8" });
+        res.end(JSON.stringify({ error: err.message }));
+      });
+    return;
+  }
+
   // APIエンドポイント: 問題を保存（管理者のみ、保存すると全ユーザーに反映）
   if (req.method === "POST" && reqPath === "/api/challenges") {
     let body = "";
@@ -180,6 +214,113 @@ const server = http.createServer((req, res) => {
   });
 });
 
+function httpsJson(url, { method = "GET", body, headers } = {}) {
+  return new Promise((resolve, reject) => {
+    const urlObj = new URL(url);
+    const reqOpts = {
+      hostname: urlObj.hostname,
+      path: urlObj.pathname + urlObj.search,
+      method,
+      headers: headers || {},
+      timeout: 30000, // 30秒でタイムアウト
+    };
+    const req = https.request(reqOpts, (res) => {
+      let data = "";
+      res.on("data", (chunk) => { data += chunk; });
+      res.on("end", () => {
+        if (res.statusCode < 200 || res.statusCode >= 300) {
+          console.error(`Gemini HTTP ${res.statusCode}:`, data.slice(0, 500));
+          reject(new Error(`Gemini HTTP ${res.statusCode}: ${data.slice(0, 400)}`));
+          return;
+        }
+        try {
+          resolve(JSON.parse(data));
+        } catch (e) {
+          reject(new Error("Geminiの応答がJSONではありません: " + data.slice(0, 200)));
+        }
+      });
+    });
+    req.on("timeout", () => {
+      req.destroy();
+      reject(new Error("Gemini APIリクエストがタイムアウトしました（30秒）"));
+    });
+    req.on("error", reject);
+    if (body) req.write(body);
+    req.end();
+  });
+}
+
+function buildGeneratePrompt(diffText) {
+  return `あなたはプログラミング学習アプリ「ピクトグラミング+」の問題作成アシスタントです。
+以下の独自言語仕様に従って、${diffText}レベルのプログラミング問題を1つ作成し、JSONのみを出力してください。
+
+[言語仕様]
+・EMOTION [感情] [秒]: 感情表現（JOY/喜び, SAD/悲しみ, ANGRY/怒り, SURPRISE/驚き, NORMAL/普通）
+・SP "セリフ": 吹き出し
+・PEN DOWN / PEN UP: 線の描画
+・R [部位] [角度]: 部位の瞬間回転（BODY, LUA, LLA, RUA, RLA, LUL, LLL, RUL, RLL）
+・RW [部位] [角度] [秒]: 回転アニメーション
+・M x y / MW x y 秒: 平行移動
+・WAIT 秒: 待機
+・REPEAT n ... END: 繰り返し
+
+[難易度の目安]
+・初級: 単純な1〜3行（感情を変える、セリフを言うだけ）
+・中級: 複数命令の順次処理（腕を動かしてから感情を変える等）
+・上級: REPEATや図形描画を組み合わせる
+
+[出力JSON] （これ以外のテキストは出力しない）
+{
+  "title": "問題のタイトル",
+  "text": "ユーザーへの問題文",
+  "hint": "ヒント",
+  "sample": "正解コード（改行を含む）",
+  "kind": "contains_code"
+}`;
+}
+
+async function generateChallengeWithGemini(diffLevel) {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) {
+    throw new Error("GEMINI_API_KEY が未設定です。プロジェクト直下の .env に書いてください。");
+  }
+
+  let diffText = "初級";
+  if (String(diffLevel) === "2") diffText = "中級";
+  if (String(diffLevel) === "3") diffText = "上級";
+
+  const body = JSON.stringify({
+    contents: [{ parts: [{ text: buildGeneratePrompt(diffText) }] }],
+    generationConfig: { temperature: 0.8, responseMimeType: "application/json" },
+  });
+
+  const model = process.env.GEMINI_MODEL || "gemini-3.6-flash";
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(apiKey)}`;
+  const json = await httpsJson(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Content-Length": Buffer.byteLength(body),
+    },
+    body,
+  });
+
+  if (json.error) throw new Error(json.error.message || "Gemini API error");
+  let text = json.candidates?.[0]?.content?.parts?.[0]?.text || "";
+  text = text.replace(/```json/g, "").replace(/```/g, "").trim();
+  const result = JSON.parse(text);
+  return {
+    title: result.title || "無題",
+    text: result.text || "",
+    hint: result.hint || "",
+    sample: result.sample || "",
+    kind: result.kind || "contains_code",
+  };
+}
+
 server.listen(PORT, () => {
   console.log(`Pictogramming Emotion Edition: http://localhost:${PORT}`);
+  if (!process.env.GEMINI_API_KEY) {
+    console.log("AI作問: .env に GEMINI_API_KEY を書くと /api/generate-challenge が使えます");
+  }
 });
