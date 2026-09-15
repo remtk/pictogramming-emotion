@@ -17,7 +17,7 @@ const QUESTIONS_FILE = path.join(__dirname, "public", "questions.json"); // 問�
 // 管理者設定: Google Apps Script (GAS) WebアプリURL
 // 発行されたURLを以下の変数に貼り付けてください（空文字の場合はローカル保存のみ）
 // ==========================================
-const GAS_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbz_1wXsaydCFO5g_SffaOK_DGoBdq4BLjwXIjCcBVbgCLb-Y6cDq1IEaIpHW9vIb3Zp/exec"; 
+const GAS_WEBHOOK_URL = ""; 
 
 // ログファイルが存在しない場合はヘッダを作成
 if (!fs.existsSync(LOG_FILE)) {
