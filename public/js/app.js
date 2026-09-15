@@ -754,18 +754,26 @@ function addLogHistory(text, type = "info") {
 const GAS_URL = "https://script.google.com/macros/s/AKfycbz_1wXsaydCFO5g_SffaOK_DGoBdq4BLjwXIjCcBVbgCLb-Y6cDq1IEaIpHW9vIb3Zp/exec";
 
 function sendComprehensiveLog(code) {
-  const payload = JSON.stringify({
-    sessionId,
+  const gasPayload = JSON.stringify({
+    timestamp: new Date().toISOString(),
+    session: sessionId,
     action: "RUN_PROGRAM",
-    stats: currentRunStats,
-    code,
+    joy: currentRunStats.emotions?.JOY || 0,
+    sad: currentRunStats.emotions?.SAD || 0,
+    angry: currentRunStats.emotions?.ANGRY || 0,
+    surprise: currentRunStats.emotions?.SURPRISE || 0,
+    normal: currentRunStats.emotions?.NORMAL || 0,
+    lines: currentRunStats.lineDrawCount || 0,
+    length: currentRunStats.lineDrawLength || 0,
+    code: code || ""
   });
+
   // GASはCORS制限を回避するため no-corsで送る（レスポンスは読めないが送信は完了する）
   fetch(GAS_URL, {
     method: "POST",
     mode: "no-cors",
     headers: { "Content-Type": "text/plain" },
-    body: payload,
+    body: gasPayload,
   }).catch(err => console.warn("GASログ送信失敗:", err));
   // ローカルサーバーが起動中ならそちらにも送る（CSVバックアップ）
   fetch("/api/logs", {
