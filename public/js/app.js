@@ -31,6 +31,7 @@ const challengeEditSample = document.getElementById("challenge-edit-sample");
 const challengeEditKind = document.getElementById("challenge-edit-kind");
 const btnChallengeSave = document.getElementById("btn-challenge-save");
 const btnChallengeReset = document.getElementById("btn-challenge-reset");
+const btnChallengeDelete = document.getElementById("btn-challenge-delete");
 const challengeAdminModal = document.getElementById("challenge-admin-modal");
 const btnChallengeModalClose = document.getElementById("btn-challenge-modal-close");
 const btnAIGenerate = document.getElementById("btn-ai-generate");
@@ -366,14 +367,15 @@ function escapeHtml(s) {
 
 codeInput.value = SAMPLES.emotion;
 
-// --- 問題出題 ---------------------------------------------------------------
-const CHALLENGES = [
+// --- デフォルト問題の定義 ----------------------------------------------------
+const DEFAULT_CHALLENGES = [
   {
     title: "喜びの表情にしよう",
     text: "EMOTION命令を使って、ピクトグラムを喜びの状態にしてください。",
     hint: "例: EMOTION JOY 0",
     sample: `// 問題1: 喜びの表情にしよう
 EMOTION JOY 0`,
+    kind: "joy",
     check: ({ state, code }) => state.emotion === "JOY" || /EMOTION\s+(JOY|喜び|よろこび)/i.test(code),
     success: "正解です。喜びの感情にできています。",
     failure: "まだ喜びになっていません。EMOTION JOY を使ってみましょう。",
@@ -389,6 +391,7 @@ REPEAT 3
   R BODY 120
 END
 PEN UP`,
+    kind: "triangle",
     check: ({ code, stats }) =>
       /PEN\s+DOWN/i.test(code) &&
       /R\s+BODY\s+120/i.test(code) &&
@@ -402,11 +405,14 @@ PEN UP`,
     hint: "例: SP \"こんにちは\"",
     sample: `// 問題3: セリフを表示しよう
 SP "こんにちは"`,
+    kind: "speech",
     check: ({ code }) => /(^|\n)\s*SP\s+"/i.test(code),
     success: "正解です。吹き出しを表示できています。",
     failure: "SP \"文字\" の形でセリフを書いてみましょう。",
   },
 ];
+
+const CHALLENGES = DEFAULT_CHALLENGES.map(c => ({ ...c }));
 
 let currentChallengeIndex = 0;
 
@@ -490,6 +496,25 @@ const ADMIN_PASSWORD = "teacher"; // ここを変えると合言葉を変更で�
 let isAdminMode = false;
 let isCreateMode = false;
 
+function applyChallengesData(data) {
+  if (!Array.isArray(data) || data.length === 0) return false;
+  CHALLENGES.length = 0;
+  data.forEach((s, i) => {
+    const def = DEFAULT_CHALLENGES[i];
+    CHALLENGES.push({
+      title: s.title || (def ? def.title : `問題 ${i + 1}`),
+      text: s.text || (def ? def.text : ""),
+      hint: s.hint || (def ? def.hint : ""),
+      sample: s.sample || (def ? def.sample : ""),
+      kind: s.kind || (def ? def.kind : "any"),
+      check: def ? def.check : undefined,
+      success: def ? def.success : undefined,
+      failure: def ? def.failure : undefined,
+    });
+  });
+  return true;
+}
+
 // 起動時に問題を読み込む。GAS → ローカルサーバー → localStorage の順にフォールバック
 async function loadChallengesFromStorage() {
   // 1. GASから読み込み試み
@@ -497,17 +522,7 @@ async function loadChallengesFromStorage() {
     const res = await fetch(GAS_URL + "?action=getChallenges");
     if (res.ok) {
       const data = await res.json();
-      if (Array.isArray(data) && data.length > 0) {
-        data.forEach((s, i) => {
-          if (!CHALLENGES[i]) return;
-          if (s.title)  CHALLENGES[i].title  = s.title;
-          if (s.text)   CHALLENGES[i].text   = s.text;
-          if (s.hint)   CHALLENGES[i].hint   = s.hint;
-          if (s.sample) CHALLENGES[i].sample = s.sample;
-          if (s.kind)   CHALLENGES[i].kind   = s.kind;
-        });
-        return; // GASから読み込み成功
-      }
+      if (applyChallengesData(data)) return;
     }
   } catch (e) { /* GAS失敗は無視 */ }
 
@@ -516,17 +531,7 @@ async function loadChallengesFromStorage() {
     const res = await fetch("/questions.json?t=" + new Date().getTime());
     if (res.ok) {
       const data = await res.json();
-      if (Array.isArray(data) && data.length > 0) {
-        data.forEach((s, i) => {
-          if (!CHALLENGES[i]) return;
-          if (s.title)  CHALLENGES[i].title  = s.title;
-          if (s.text)   CHALLENGES[i].text   = s.text;
-          if (s.hint)   CHALLENGES[i].hint   = s.hint;
-          if (s.sample) CHALLENGES[i].sample = s.sample;
-          if (s.kind)   CHALLENGES[i].kind   = s.kind;
-        });
-        return;
-      }
+      if (applyChallengesData(data)) return;
     }
   } catch (e) { /* ローカルサーバー失敗は無視 */ }
 }
@@ -570,19 +575,21 @@ function openChallengeEditor() {
     challengeEditKind.value   = "any";
     btnChallengeSave.style.display = "none";
     btnChallengeReset.style.display = "none";
+    if (btnChallengeDelete) btnChallengeDelete.style.display = "none";
     btnChallengeAdd.style.display = "";
     btnChallengeSubmit.textContent = "入力をやめる";
   } else if (isAdminMode) {
     const c = CHALLENGES[currentChallengeIndex];
     if (c) {
-      challengeEditTitle.value  = c.title;
-      challengeEditText.value   = c.text;
-      challengeEditHint.value   = c.hint;
-      challengeEditSample.value = c.sample;
+      challengeEditTitle.value  = c.title || "";
+      challengeEditText.value   = c.text || "";
+      challengeEditHint.value   = c.hint || "";
+      challengeEditSample.value = c.sample || "";
       challengeEditKind.value   = c.kind || "any";
     }
     btnChallengeSave.style.display = "";
     btnChallengeReset.style.display = "";
+    if (btnChallengeDelete) btnChallengeDelete.style.display = "";
     btnChallengeAdd.style.display = "none";
     btnChallengeAdmin.textContent = "🔓 編集中";
   }
@@ -717,17 +724,54 @@ btnChallengeSave?.addEventListener("click", async () => {
 
 btnChallengeReset?.addEventListener("click", async () => {
   if (!isAdminMode) return;
-  if (!confirm("問題を初期状態に戻しますか？サーバーの questions.json が削除され、全ユーザーの問題が初期値に戻ります。")) return;
+  const challengeNum = currentChallengeIndex + 1;
+  if (!confirm(`問題 ${challengeNum} を初期状態（デフォルト内容）に戻しますか？`)) return;
+
+  const defaultItem = DEFAULT_CHALLENGES[currentChallengeIndex];
+  if (defaultItem) {
+    CHALLENGES[currentChallengeIndex] = { ...defaultItem };
+  } else {
+    CHALLENGES[currentChallengeIndex] = {
+      title: `問題 ${challengeNum}`,
+      text: "",
+      hint: "",
+      sample: "",
+      kind: "any",
+    };
+  }
+
   try {
-    // サーバーに空配列を送ることでリセット（アプリ側のデフォルトが使われる）
-    await fetch("/api/challenges", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify([]),
-    });
-    location.reload();
+    await saveChallengesToStorage();
+    renderChallenge();
+    closeChallengeEditor();
+    appendConsole(`問題 ${challengeNum} をリセットしました`, "ok");
   } catch (e) {
     appendConsole("リセットに失敗しました", "error");
+  }
+});
+
+btnChallengeDelete?.addEventListener("click", async () => {
+  if (!isAdminMode) return;
+  if (CHALLENGES.length <= 1) {
+    alert("これ以上問題を削除できません。最低1つの問題が必要です。");
+    return;
+  }
+  const challengeNum = currentChallengeIndex + 1;
+  const currentTitle = CHALLENGES[currentChallengeIndex]?.title || "";
+  if (!confirm(`問題 ${challengeNum}（${currentTitle}）を削除しますか？`)) return;
+
+  CHALLENGES.splice(currentChallengeIndex, 1);
+  if (currentChallengeIndex >= CHALLENGES.length) {
+    currentChallengeIndex = CHALLENGES.length - 1;
+  }
+
+  try {
+    await saveChallengesToStorage();
+    renderChallenge();
+    closeChallengeEditor();
+    appendConsole(`問題 ${challengeNum} を削除しました（残 ${CHALLENGES.length} 問）`, "ok");
+  } catch (e) {
+    appendConsole("削除に失敗しました", "error");
   }
 });
 
