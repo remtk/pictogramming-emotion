@@ -1,4 +1,4 @@
-import { renderSVG, EMOTIONS, createInitialPose } from "./pictogram.js";
+import { renderSVG, EMOTIONS, createInitialPose, normalizeCode } from "./pictogram.js";
 import { Interpreter } from "./interpreter.js";
 
 const stage = document.getElementById("pictogram-stage");
@@ -438,32 +438,63 @@ function renderChallenge() {
   setChallengeResult("未実行");
 }
 
-function evaluateCurrentChallenge() {
+async function evaluateCurrentChallenge() {
   const challenge = CHALLENGES[currentChallengeIndex];
   if (!challenge) return;
 
   let passed = false;
-  const code = codeInput.value;
+  const rawUserCode = codeInput.value || "";
+  const normUserCode = normalizeCode(rawUserCode).replace(/\s+/g, "");
+
+  // 正解サンプルコードが存在する場合、非同期なしシミュレーションで目標の最終状態を算出
+  let targetState = null;
+  let normSampleCode = "";
+  if (challenge.sample) {
+    try {
+      targetState = await Interpreter.simulate(challenge.sample);
+    } catch (e) {}
+    normSampleCode = normalizeCode(challenge.sample).replace(/\s+/g, "");
+  }
+
+  // 1. ポーズ（回転角度）と感情の状態一致チェック
+  let isStateMatched = false;
+  if (targetState && currentState.pose) {
+    const poseKeys = ["BODY", "LUA", "LLA", "RUA", "RLA", "LUL", "LLL", "RUL", "RLL"];
+    const isPoseEqual = poseKeys.every((key) => {
+      const uAngle = currentState.pose[key] || 0;
+      const tAngle = targetState.pose[key] || 0;
+      return Math.abs(uAngle - tAngle) < 1; // 誤差1度未満
+    });
+    const isEmotionEqual = !targetState.emotion || currentState.emotion === targetState.emotion;
+    isStateMatched = isPoseEqual && isEmotionEqual;
+  }
+
+  // 2. 表記ゆれ統一（「体」→「BODY」など）後のコード比較チェック
+  let isCodeMatched = false;
+  if (normSampleCode.length > 0) {
+    isCodeMatched = normUserCode.includes(normSampleCode);
+  }
+
   if (challenge.kind === "joy") {
-    passed = currentState.emotion === "JOY" || /EMOTION\s+(JOY|喜び|よろこび)/i.test(code);
+    passed = currentState.emotion === "JOY" || /EMOTION\s+(JOY|喜び|よろこび)/i.test(rawUserCode);
   } else if (challenge.kind === "sad") {
-    passed = currentState.emotion === "SAD" || /EMOTION\s+(SAD|悲しみ|かなしみ)/i.test(code);
+    passed = currentState.emotion === "SAD" || /EMOTION\s+(SAD|悲しみ|かなしみ)/i.test(rawUserCode);
   } else if (challenge.kind === "angry") {
-    passed = currentState.emotion === "ANGRY" || /EMOTION\s+(ANGRY|怒り|いかり)/i.test(code);
+    passed = currentState.emotion === "ANGRY" || /EMOTION\s+(ANGRY|怒り|いかり)/i.test(rawUserCode);
   } else if (challenge.kind === "surprise") {
-    passed = currentState.emotion === "SURPRISE" || /EMOTION\s+(SURPRISE|驚き|おどろき)/i.test(code);
+    passed = currentState.emotion === "SURPRISE" || /EMOTION\s+(SURPRISE|驚き|おどろき)/i.test(rawUserCode);
   } else if (challenge.kind === "normal") {
-    passed = currentState.emotion === "NORMAL" || /EMOTION\s+(NORMAL|普通|ふつう)/i.test(code);
+    passed = currentState.emotion === "NORMAL" || /EMOTION\s+(NORMAL|普通|ふつう)/i.test(rawUserCode);
   } else if (challenge.kind === "triangle") {
-    passed = /PEN\s+DOWN/i.test(code) && /R\s+BODY\s+120/i.test(code) && (currentRunStats.lineDrawCount >= 3 || /REPEAT\s+3/i.test(code));
+    passed = isStateMatched || (/PEN\s+DOWN/i.test(rawUserCode) && (currentRunStats.lineDrawCount >= 3 || /REPEAT\s+3/i.test(rawUserCode)));
   } else if (challenge.kind === "speech") {
-    passed = /(^|\n)\s*SP\s+"/i.test(code);
+    passed = /(^|\n)\s*SP\s+"/i.test(rawUserCode);
   } else if (challenge.kind === "contains_code") {
-    const userCodeStr = code.replace(/\s+/g, "");
-    const targetCodeStr = (challenge.sample || "").replace(/\s+/g, "");
-    passed = targetCodeStr.length > 0 && userCodeStr.includes(targetCodeStr);
+    // 最終ポーズ・感情の一致 OR 表記ゆれ統一後のコード一致のいずれかで合格
+    passed = isStateMatched || isCodeMatched;
   } else {
-    passed = true; // "any"
+    // "any" 等: 状態一致、またはコード一致、または単に実行完了
+    passed = isStateMatched || (normSampleCode.length > 0 ? isCodeMatched : true);
   }
 
   setChallengeResult(passed ? "できました" : "もう少し", passed ? "pass" : "fail");

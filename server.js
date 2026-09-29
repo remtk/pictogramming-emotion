@@ -294,28 +294,42 @@ async function generateChallengeWithGemini(diffLevel) {
     generationConfig: { temperature: 0.8, responseMimeType: "application/json" },
   });
 
-  const model = process.env.GEMINI_MODEL || "gemini-3.6-flash";
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(apiKey)}`;
-  const json = await httpsJson(url, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "Content-Length": Buffer.byteLength(body),
-    },
-    body,
-  });
+  const primaryModel = process.env.GEMINI_MODEL || "gemini-3.5-flash";
+  const fallbackModels = [primaryModel, "gemini-flash-latest", "gemini-3.1-flash-lite"];
 
-  if (json.error) throw new Error(json.error.message || "Gemini API error");
-  let text = json.candidates?.[0]?.content?.parts?.[0]?.text || "";
-  text = text.replace(/```json/g, "").replace(/```/g, "").trim();
-  const result = JSON.parse(text);
-  return {
-    title: result.title || "無題",
-    text: result.text || "",
-    hint: result.hint || "",
-    sample: result.sample || "",
-    kind: result.kind || "contains_code",
-  };
+  let lastError = null;
+  for (const model of fallbackModels) {
+    try {
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(apiKey)}`;
+      const json = await httpsJson(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Content-Length": Buffer.byteLength(body),
+        },
+        body,
+      });
+
+      if (json.error) {
+        throw new Error(json.error.message || `Gemini API error (${model})`);
+      }
+      let text = json.candidates?.[0]?.content?.parts?.[0]?.text || "";
+      text = text.replace(/```json/g, "").replace(/```/g, "").trim();
+      const result = JSON.parse(text);
+      return {
+        title: result.title || "無題",
+        text: result.text || "",
+        hint: result.hint || "",
+        sample: result.sample || "",
+        kind: result.kind || "contains_code",
+      };
+    } catch (err) {
+      lastError = err;
+      console.warn(`Gemini model ${model} failed: ${err.message}. Trying next model...`);
+    }
+  }
+
+  throw lastError || new Error("Gemini APIのリクエストに失敗しました。");
 }
 
 server.listen(PORT, () => {

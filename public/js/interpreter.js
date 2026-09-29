@@ -631,6 +631,7 @@ export class Interpreter {
   }
 
   _sleep(ms) {
+    if (this._fastMode) return Promise.resolve();
     return new Promise((resolve) => {
       const start = performance.now();
       const step = () => {
@@ -642,6 +643,21 @@ export class Interpreter {
       };
       requestAnimationFrame(step);
     });
+  }
+
+  /**
+   * アニメーションなしで超高速シミュレーションを行い、最終結果の状態（ポーズ・感情等）を返す
+   */
+  static async simulate(code) {
+    const interpreter = new Interpreter({});
+    interpreter._fastMode = true;
+    await interpreter.run(code);
+    return {
+      pose: { ...interpreter.pose },
+      emotion: interpreter.emotion,
+      penDown: interpreter.penDown,
+      items: [...interpreter.items],
+    };
   }
 }
 

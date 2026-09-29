@@ -498,3 +498,40 @@ function renderAura(hx, hy, emotion) {
   if (emotion.key === "NORMAL") return "";
   return `<circle class="emotion-aura" cx="${hx.toFixed(1)}" cy="${hy.toFixed(1)}" r="${DIMS.headR + 10}" fill="none" stroke="${emotion.color}" stroke-width="3" opacity="0.55"/>`;
 }
+
+/**
+ * コードの表記ゆれ（「体」→「BODY」、「喜び」→「JOY」、大文字小文字など）を自動統一する正規化関数
+ */
+export function normalizeCode(code) {
+  if (!code || typeof code !== "string") return "";
+  const lines = code.split(/\r?\n/);
+  const normalizedLines = [];
+
+  for (let line of lines) {
+    const commentIdx = line.indexOf("//");
+    if (commentIdx >= 0) line = line.slice(0, commentIdx);
+    line = line.replace(/\u3000/g, " ").trim();
+    if (!line) continue;
+
+    const tokens = line.match(/"[^"]*"|\S+/g) || [];
+    const normalizedTokens = tokens.map((token) => {
+      if (token.startsWith('"') && token.endsWith('"')) {
+        return token;
+      }
+      const partKey = resolvePartName(token);
+      if (partKey) return partKey;
+
+      const emotionKey = resolveEmotionName(token);
+      if (emotionKey) return emotionKey;
+
+      const itemKey = resolveItemName(token);
+      if (itemKey) return itemKey;
+
+      return token.toUpperCase();
+    });
+
+    normalizedLines.push(normalizedTokens.join(" "));
+  }
+
+  return normalizedLines.join("\n");
+}
