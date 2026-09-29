@@ -438,6 +438,108 @@ function renderChallenge() {
   setChallengeResult("未実行");
 }
 
+function checkTraceMatch(targetTrace, userTrace) {
+  if (!targetTrace || targetTrace.length === 0) return true;
+  if (!userTrace || userTrace.length === 0) return false;
+
+  let uIdx = 0;
+  for (const tItem of targetTrace) {
+    let found = false;
+    while (uIdx < userTrace.length) {
+      const uItem = userTrace[uIdx];
+      uIdx++;
+      if (tItem.type === uItem.type) {
+        if (tItem.type === "ROTATE") {
+          if (tItem.part === uItem.part) { found = true; break; }
+        } else if (tItem.type === "MOVE") {
+          found = true; break;
+        } else if (tItem.type === "SPEAK") {
+          found = true; break;
+        } else if (tItem.type === "EMOTION") {
+          if (tItem.emotion === uItem.emotion) { found = true; break; }
+        } else if (tItem.type === "PEN") {
+          if (tItem.action === uItem.action) { found = true; break; }
+        }
+      }
+    }
+    if (!found) return false;
+  }
+  return true;
+}
+
+function diagnoseFailureReason({ challenge, rawUserCode, currentState, targetState }) {
+  const hints = [];
+
+  if (challenge.kind === "joy" && currentState.emotion !== "JOY") {
+    hints.push("ピクトグラムの感情が「喜び（JOY）」になっていません。EMOTION JOY を使ってみましょう。");
+  } else if (challenge.kind === "sad" && currentState.emotion !== "SAD") {
+    hints.push("ピクトグラムの感情が「悲しみ（SAD）」になっていません。EMOTION SAD を使ってみましょう。");
+  } else if (challenge.kind === "angry" && currentState.emotion !== "ANGRY") {
+    hints.push("ピクトグラムの感情が「怒り（ANGRY）」になっていません。EMOTION ANGRY を使ってみましょう。");
+  } else if (challenge.kind === "surprise" && currentState.emotion !== "SURPRISE") {
+    hints.push("ピクトグラムの感情が「驚き（SURPRISE）」になっていません。EMOTION SURPRISE を使ってみましょう。");
+  } else if (challenge.kind === "speech" && !/(^|\n)\s*SP\s+"/i.test(rawUserCode)) {
+    hints.push("セリフ（吹き出し）が表示されていません。SP \"セリフ\" を指定してみましょう。");
+  }
+
+  if (targetState) {
+    if (targetState.emotion && currentState.emotion !== targetState.emotion) {
+      const emoMap = { JOY: "喜び", SAD: "悲しみ", ANGRY: "怒り", SURPRISE: "驚き", NORMAL: "普通" };
+      hints.push(`感情が目標（${emoMap[targetState.emotion] || targetState.emotion}）になっていません。EMOTION命令を確認しましょう。`);
+    }
+
+    if (targetState.trace && targetState.trace.length > 0) {
+      const targetHasMove = targetState.trace.some((t) => t.type === "MOVE");
+      const userHasMove = /M\s|MW\s/i.test(rawUserCode);
+      if (targetHasMove && !userHasMove) {
+        hints.push("途中の移動（M / MW命令）が実行されていません。ピクトグラムを移動させてみましょう。");
+      }
+
+      const targetHasRotate = targetState.trace.some((t) => t.type === "ROTATE");
+      const userHasRotate = /R\s|RW\s/i.test(rawUserCode);
+      if (targetHasRotate && !userHasRotate) {
+        hints.push("部位の回転（R / RW命令）が実行されていません。身体を回転させてみましょう。");
+      }
+
+      const targetHasSpeak = targetState.trace.some((t) => t.type === "SPEAK");
+      const userHasSpeak = /(^|\n)\s*SP\s+"/i.test(rawUserCode);
+      if (targetHasSpeak && !userHasSpeak) {
+        hints.push("セリフ（吹き出し）が表示されていません。SP \"セリフ\" を指定してみましょう。");
+      }
+    }
+
+    if (targetState.pose && currentState.pose) {
+      const diffParts = [];
+      const partNamesJp = {
+        BODY: "体(BODY)",
+        LUA: "左上腕(LUA)",
+        LLA: "左前腕(LLA)",
+        RUA: "右上腕(RUA)",
+        RLA: "右前腕(RLA)",
+        LUL: "左上腿(LUL)",
+        LLL: "左下腿(LLL)",
+        RUL: "右上腿(RUL)",
+        RLL: "右下腿(RLL)",
+      };
+      for (const part of Object.keys(partNamesJp)) {
+        const uAngle = currentState.pose[part] || 0;
+        const tAngle = targetState.pose[part] || 0;
+        if (Math.abs(uAngle - tAngle) >= 1) {
+          diffParts.push(partNamesJp[part]);
+        }
+      }
+      if (diffParts.length > 0) {
+        hints.push(`ピクトグラムのポーズ（角度）が目標と違います。特に 【${diffParts.slice(0, 3).join("、")}】 の角度を確認してみましょう。`);
+      }
+    }
+  }
+
+  if (hints.length === 0) {
+    return challenge.failure || "目標の動作やコード内容と一致していません。命令の種類や順序をもう一度確認してみましょう。";
+  }
+  return `💡 ヒント:\n・` + hints.join("\n・");
+}
+
 async function evaluateCurrentChallenge() {
   const challenge = CHALLENGES[currentChallengeIndex];
   if (!challenge) return;
@@ -446,7 +548,7 @@ async function evaluateCurrentChallenge() {
   const rawUserCode = codeInput.value || "";
   const normUserCode = normalizeCode(rawUserCode).replace(/\s+/g, "");
 
-  // 正解サンプルコードが存在する場合、非同期なしシミュレーションで目標の最終状態を算出
+  // 正解サンプルコードが存在する場合、非同期なしシミュレーションで目標の最終状態・トレースを算出
   let targetState = null;
   let normSampleCode = "";
   if (challenge.sample) {
@@ -455,6 +557,13 @@ async function evaluateCurrentChallenge() {
     } catch (e) {}
     normSampleCode = normalizeCode(challenge.sample).replace(/\s+/g, "");
   }
+
+  // ユーザーコードのシミュレーショントレース取得
+  let userSim = null;
+  try {
+    userSim = await Interpreter.simulate(rawUserCode);
+  } catch (e) {}
+  const userTrace = userSim ? userSim.trace : (interpreter.executionTrace || []);
 
   // 1. ポーズ（回転角度）と感情の状態一致チェック
   let isStateMatched = false;
@@ -469,7 +578,15 @@ async function evaluateCurrentChallenge() {
     isStateMatched = isPoseEqual && isEmotionEqual;
   }
 
-  // 2. 表記ゆれ統一（「体」→「BODY」など）後のコード比較チェック
+  // 2. 動作ステップ（トレース）の一致チェック（途中の動作スキップを防止）
+  let isTraceMatched = false;
+  if (targetState && targetState.trace && targetState.trace.length > 0) {
+    isTraceMatched = checkTraceMatch(targetState.trace, userTrace);
+  } else {
+    isTraceMatched = true;
+  }
+
+  // 3. 表記ゆれ統一（「体」→「BODY」など）後のコード比較チェック
   let isCodeMatched = false;
   if (normSampleCode.length > 0) {
     isCodeMatched = normUserCode.includes(normSampleCode);
@@ -486,19 +603,24 @@ async function evaluateCurrentChallenge() {
   } else if (challenge.kind === "normal") {
     passed = currentState.emotion === "NORMAL" || /EMOTION\s+(NORMAL|普通|ふつう)/i.test(rawUserCode);
   } else if (challenge.kind === "triangle") {
-    passed = isStateMatched || (/PEN\s+DOWN/i.test(rawUserCode) && (currentRunStats.lineDrawCount >= 3 || /REPEAT\s+3/i.test(rawUserCode)));
+    passed = (isStateMatched && isTraceMatched) || (/PEN\s+DOWN/i.test(rawUserCode) && (currentRunStats.lineDrawCount >= 3 || /REPEAT\s+3/i.test(rawUserCode)));
   } else if (challenge.kind === "speech") {
     passed = /(^|\n)\s*SP\s+"/i.test(rawUserCode);
   } else if (challenge.kind === "contains_code") {
-    // 最終ポーズ・感情の一致 OR 表記ゆれ統一後のコード一致のいずれかで合格
-    passed = isStateMatched || isCodeMatched;
+    // 最終状態一致＋動作手順トレース一致、または正規化コード一致で正解
+    passed = (isStateMatched && isTraceMatched) || isCodeMatched;
   } else {
-    // "any" 等: 状態一致、またはコード一致、または単に実行完了
-    passed = isStateMatched || (normSampleCode.length > 0 ? isCodeMatched : true);
+    // "any" 等
+    passed = (isStateMatched && isTraceMatched) || (normSampleCode.length > 0 ? isCodeMatched : true);
   }
 
   setChallengeResult(passed ? "できました" : "もう少し", passed ? "pass" : "fail");
-  appendConsole(passed ? (challenge.success || "正解です。") : (challenge.failure || "もう一度確認してみましょう。"), passed ? "ok" : "warn");
+  if (passed) {
+    appendConsole(challenge.success || "正解です！お見事です。", "ok");
+  } else {
+    const feedbackMsg = diagnoseFailureReason({ challenge, rawUserCode, currentState, targetState });
+    appendConsole(feedbackMsg, "warn");
+  }
 }
 
 btnChallengePrev?.addEventListener("click", () => {

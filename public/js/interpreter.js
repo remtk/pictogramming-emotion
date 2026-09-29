@@ -44,6 +44,7 @@ export class Interpreter {
     this.penColor = "#2B2B2E";
     this.items = [];
     this.vars = {};
+    this.executionTrace = [];
     this.walkPhase = undefined; // 歩行モーション位相（0〜1、未定義で通常姿勢＝正面ピクトグラム表示）
     this.walkDir = 1; // 歩行中の向き（1=右向き、-1=左向き）
     this._stopRequested = false;
@@ -257,6 +258,25 @@ export class Interpreter {
     const [head, ...args] = node.tokens;
     const cmd = head.toUpperCase();
     try {
+      if (cmd === "R" || cmd === "RW") {
+        const part = resolvePartName(args[0]) || args[0];
+        const angle = args[1] !== undefined ? this.evalExpr(args[1]) : 0;
+        this.executionTrace.push({ type: "ROTATE", part, angle });
+      } else if (cmd === "M" || cmd === "MW") {
+        const x = args[0] !== undefined ? this.evalExpr(args[0]) : 0;
+        const y = args[1] !== undefined ? this.evalExpr(args[1]) : 0;
+        this.executionTrace.push({ type: "MOVE", x, y });
+      } else if (cmd === "SP") {
+        const text = args[0] !== undefined ? String(this.evalExpr(args[0])) : "";
+        this.executionTrace.push({ type: "SPEAK", text });
+      } else if (cmd === "EMOTION") {
+        const emoKey = resolveEmotionName(args[0]) || args[0];
+        this.executionTrace.push({ type: "EMOTION", emotion: emoKey });
+      } else if (cmd === "PEN") {
+        const sub = (args[0] || "").toUpperCase();
+        this.executionTrace.push({ type: "PEN", action: sub });
+      }
+
       switch (cmd) {
         case "R":
           this._opRotate(args, false);
@@ -657,6 +677,7 @@ export class Interpreter {
       emotion: interpreter.emotion,
       penDown: interpreter.penDown,
       items: [...interpreter.items],
+      trace: [...(interpreter.executionTrace || [])],
     };
   }
 }

@@ -26,5 +26,12 @@
     "hint": "REPEAT文を使って、100進んで144度回転するという処理を5回繰り返すと星型になります。描き始める前にPEN DOWNを忘れずに。",
     "sample": "PEN DOWN\nREPEAT 5\nMW 100 0 1\nR BODY 144\nEND\nPEN UP",
     "kind": "any"
+  },
+  {
+    "title": "幾何学模様：正八角形を描こう",
+    "text": "ピクトグラミングくんを使って、画面上に綺麗な正八角形を描いてください。1辺の長さは100とし、最後に「JOY」の感情で「完成！」と表示させてください。",
+    "hint": "正八角形の内角は135度、外角は45度です。REPEAT命令を使って、移動と回転を8回繰り返しましょう。",
+    "sample": "PEN DOWN\nREPEAT 8\n  MW 100 0 1\n  R BODY 45\nEND\nPEN UP\nEMOTION JOY 1\nSP \"完成！\"",
+    "kind": "contains_code"
   }
 ]
