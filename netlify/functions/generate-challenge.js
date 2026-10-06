@@ -5,12 +5,12 @@
  *
  * 環境変数:
  *   GEMINI_API_KEY  - Google AI Studio で発行した API キー
- *   GEMINI_MODEL    - 使用するモデル名（省略可、既定: gemini-2.0-flash）
+ *   GEMINI_MODEL    - 使用するモデル名（省略可。未設定時はAPIで自動検出）
  */
 
 const https = require("https");
 
-function httpsJson(url, { method = "GET", body, headers } = {}) {
+function httpsRequest(url, { method = "GET", body, headers } = {}) {
   return new Promise((resolve, reject) => {
     const urlObj = new URL(url);
     const reqOpts = {
@@ -24,26 +24,25 @@ function httpsJson(url, { method = "GET", body, headers } = {}) {
       let data = "";
       res.on("data", (chunk) => { data += chunk; });
       res.on("end", () => {
-        if (res.statusCode < 200 || res.statusCode >= 300) {
-          console.error(`Gemini HTTP ${res.statusCode}:`, data.slice(0, 500));
-          reject(new Error(`Gemini HTTP ${res.statusCode}: ${data.slice(0, 400)}`));
-          return;
-        }
-        try {
-          resolve(JSON.parse(data));
-        } catch (e) {
-          reject(new Error("Geminiの応答がJSONではありません: " + data.slice(0, 200)));
-        }
+        resolve({ statusCode: res.statusCode, body: data });
       });
     });
     req.on("timeout", () => {
       req.destroy();
-      reject(new Error("Gemini APIリクエストがタイムアウトしました（30秒）"));
+      reject(new Error("リクエストがタイムアウトしました（30秒）"));
     });
     req.on("error", reject);
     if (body) req.write(body);
     req.end();
   });
+}
+
+async function httpsJson(url, opts = {}) {
+  const res = await httpsRequest(url, opts);
+  if (res.statusCode < 200 || res.statusCode >= 300) {
+    throw new Error(`HTTP ${res.statusCode}: ${res.body.slice(0, 400)}`);
+  }
+  return JSON.parse(res.body);
 }
 
 function buildGeneratePrompt(diffText) {
@@ -62,7 +61,7 @@ function buildGeneratePrompt(diffText) {
 
 [重要ルール: R/RW回転命令の仕様]
 ・R / RW 命令は「相対回転（現在の角度からの変化量）」です。
-・動かした部位を元の姿勢に戻すときは、「0」ではなく反転した反対の角度を指定してください。（例: -120度上げた腕を元に戻す正解コードは「RW RUA 120 1」です。「RW RUA 0 1」は間違いです）。
+・動かした部位を元の姿勢に戻すときは、「0」ではなく反転した反対の角度を指定してください。
 
 [難易度の目安]
 ・初級: 単純な1〜3行（感情を変える、セリフを言うだけ）
@@ -79,6 +78,32 @@ function buildGeneratePrompt(diffText) {
 }`;
 }
 
+// ListModels APIで実際に使えるモデルを取得する
+async function listAvailableModels(apiKey) {
+  for (const apiVer of ["v1beta", "v1"]) {
+    try {
+      const url = `https://generativelanguage.googleapis.com/${apiVer}/models?key=${encodeURIComponent(apiKey)}&pageSize=100`;
+      const json = await httpsJson(url);
+      if (json.models && json.models.length > 0) {
+        const models = json.models
+          .filter(m =>
+            Array.isArray(m.supportedGenerationMethods) &&
+            m.supportedGenerationMethods.includes("generateContent") &&
+            /flash|pro/i.test(m.name)
+          )
+          .map(m => ({ name: m.name.replace("models/", ""), apiVer }));
+        if (models.length > 0) {
+          console.log(`[ListModels/${apiVer}] Found:`, models.map(m => m.name).join(", "));
+          return models;
+        }
+      }
+    } catch (e) {
+      console.warn(`ListModels ${apiVer} failed: ${e.message}`);
+    }
+  }
+  return [];
+}
+
 async function generateChallengeWithGemini(diffLevel) {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
@@ -89,40 +114,65 @@ async function generateChallengeWithGemini(diffLevel) {
   if (String(diffLevel) === "2") diffText = "中級";
   if (String(diffLevel) === "3") diffText = "上級";
 
-  const body = JSON.stringify({
+  const reqBody = JSON.stringify({
     contents: [{ parts: [{ text: buildGeneratePrompt(diffText) }] }],
     generationConfig: { temperature: 0.8, responseMimeType: "application/json" },
   });
 
-  const primaryModel = process.env.GEMINI_MODEL || "gemini-2.5-flash";
-  const fallbackModels = [
-    primaryModel,
-    "gemini-2.5-flash-lite",
-    "gemini-2.0-flash",
-    "gemini-2.0-flash-lite",
-    "gemini-1.5-flash-latest",
-    "gemini-1.5-pro-latest",
-  ];
+  // 使用するモデルリストを決定
+  let modelsToTry = [];
+
+  if (process.env.GEMINI_MODEL) {
+    // 環境変数で明示指定されている場合
+    const m = process.env.GEMINI_MODEL;
+    modelsToTry = [
+      { name: m, apiVer: "v1beta" },
+      { name: m, apiVer: "v1" },
+    ];
+  } else {
+    // APIで自動検出
+    const available = await listAvailableModels(apiKey);
+    if (available.length > 0) {
+      // flash系を優先
+      modelsToTry = available.sort((a, b) => {
+        const score = (name) => {
+          if (/flash-lite/i.test(name)) return 1;
+          if (/flash/i.test(name)) return 0;
+          return 2;
+        };
+        return score(a.name) - score(b.name);
+      });
+    } else {
+      // 自動検出できなかった場合のフォールバック（v1betaとv1を両方試す）
+      const names = ["gemini-2.0-flash", "gemini-1.5-flash", "gemini-2.0-pro", "gemini-1.5-pro"];
+      modelsToTry = names.flatMap(name => [
+        { name, apiVer: "v1beta" },
+        { name, apiVer: "v1" },
+      ]);
+    }
+  }
 
   let lastError = null;
-  for (const model of fallbackModels) {
+  for (const { name, apiVer } of modelsToTry) {
     try {
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(apiKey)}`;
+      const url = `https://generativelanguage.googleapis.com/${apiVer}/models/${name}:generateContent?key=${encodeURIComponent(apiKey)}`;
       const json = await httpsJson(url, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Content-Length": Buffer.byteLength(body),
+          "Content-Length": Buffer.byteLength(reqBody),
         },
-        body,
+        body: reqBody,
       });
 
       if (json.error) {
-        throw new Error(json.error.message || `Gemini API error (${model})`);
+        throw new Error(json.error.message || `Gemini API error (${name})`);
       }
+
       let text = json.candidates?.[0]?.content?.parts?.[0]?.text || "";
       text = text.replace(/```json/g, "").replace(/```/g, "").trim();
       const result = JSON.parse(text);
+      console.log(`[Success] model=${name} apiVer=${apiVer}`);
       return {
         title: result.title || "無題",
         text: result.text || "",
@@ -132,7 +182,7 @@ async function generateChallengeWithGemini(diffLevel) {
       };
     } catch (err) {
       lastError = err;
-      console.warn(`Gemini model ${model} failed: ${err.message}. Trying next model...`);
+      console.warn(`Model ${name} (${apiVer}) failed: ${err.message}`);
     }
   }
 
@@ -141,7 +191,6 @@ async function generateChallengeWithGemini(diffLevel) {
 
 // Netlify Functions のエントリポイント
 exports.handler = async (event, context) => {
-  // CORS ヘッダー（同一オリジンからのリクエストのみ許可）
   const headers = {
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Headers": "Content-Type",
@@ -149,7 +198,6 @@ exports.handler = async (event, context) => {
     "Content-Type": "application/json; charset=utf-8",
   };
 
-  // プリフライトリクエスト対応
   if (event.httpMethod === "OPTIONS") {
     return { statusCode: 204, headers, body: "" };
   }
@@ -166,11 +214,7 @@ exports.handler = async (event, context) => {
 
   try {
     const challenge = await generateChallengeWithGemini(difficulty);
-    return {
-      statusCode: 200,
-      headers,
-      body: JSON.stringify(challenge),
-    };
+    return { statusCode: 200, headers, body: JSON.stringify(challenge) };
   } catch (err) {
     console.error("AI generate failed:", err.message);
     return {
