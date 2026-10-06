@@ -438,6 +438,15 @@ function renderChallenge() {
   setChallengeResult("未実行");
 }
 
+function normalizeSpeech(text) {
+  if (text === undefined || text === null) return "";
+  return String(text)
+    .replace(/^["'「『]+|["'」』]+$/g, "") // 前後のクォートや鉤括弧除去
+    .replace(/[\s\u3000]/g, "")           // 空白文字除去
+    .replace(/[！!？?。、,.・]/g, "")     // 句読点・感嘆符の軽微な差異を許容
+    .toLowerCase();
+}
+
 function checkTraceMatch(targetTrace, userTrace) {
   if (!targetTrace || targetTrace.length === 0) return true;
   if (!userTrace || userTrace.length === 0) return false;
@@ -454,7 +463,15 @@ function checkTraceMatch(targetTrace, userTrace) {
         } else if (tItem.type === "MOVE") {
           found = true; break;
         } else if (tItem.type === "SPEAK") {
-          found = true; break;
+          if (tItem.text !== undefined && uItem.text !== undefined) {
+            if (normalizeSpeech(tItem.text) === normalizeSpeech(uItem.text)) {
+              found = true;
+              break;
+            }
+          } else {
+            found = true;
+            break;
+          }
         } else if (tItem.type === "EMOTION") {
           if (tItem.emotion === uItem.emotion) { found = true; break; }
         } else if (tItem.type === "PEN") {
@@ -501,10 +518,15 @@ function diagnoseFailureReason({ challenge, rawUserCode, currentState, targetSta
         hints.push("部位の回転（R / RW命令）が実行されていません。身体を回転させてみましょう。");
       }
 
-      const targetHasSpeak = targetState.trace.some((t) => t.type === "SPEAK");
+      const targetSpeaks = targetState.trace.filter((t) => t.type === "SPEAK");
       const userHasSpeak = /(^|\n)\s*SP\s+"/i.test(rawUserCode);
-      if (targetHasSpeak && !userHasSpeak) {
-        hints.push("セリフ（吹き出し）が表示されていません。SP \"セリフ\" を指定してみましょう。");
+      if (targetSpeaks.length > 0) {
+        if (!userHasSpeak) {
+          hints.push("セリフ（吹き出し）が表示されていません。SP \"セリフ\" を指定してみましょう。");
+        } else {
+          const expectedSpeaks = targetSpeaks.map((s) => `「${s.text}」`).join("、");
+          hints.push(`セリフの内容が目標と合っているか確認してください。（目標: ${expectedSpeaks}）`);
+        }
       }
     }
 
@@ -605,7 +627,11 @@ async function evaluateCurrentChallenge() {
   } else if (challenge.kind === "triangle") {
     passed = (isStateMatched && isTraceMatched) || (/PEN\s+DOWN/i.test(rawUserCode) && (currentRunStats.lineDrawCount >= 3 || /REPEAT\s+3/i.test(rawUserCode)));
   } else if (challenge.kind === "speech") {
-    passed = /(^|\n)\s*SP\s+"/i.test(rawUserCode);
+    if (targetState && targetState.trace && targetState.trace.some((t) => t.type === "SPEAK") && challenge.title !== "セリフを表示しよう") {
+      passed = isTraceMatched;
+    } else {
+      passed = /(^|\n)\s*SP\s+"/i.test(rawUserCode);
+    }
   } else if (challenge.kind === "contains_code") {
     // 最終状態一致＋動作手順トレース一致、または正規化コード一致で正解
     passed = (isStateMatched && isTraceMatched) || isCodeMatched;
