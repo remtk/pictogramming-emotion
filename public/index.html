@@ -67,20 +67,29 @@ R LUA -120
 R LLA -10
 EMOTION 喜び"></textarea>
     </div>
-    <div class="code-toolbar">
-      <button class="btn ghost" id="btn-sample-basic">基本サンプル</button>
-      <button class="btn ghost" id="btn-sample-emotion">感情サンプル</button>
-      <button class="btn ghost" id="btn-sample-graphics">図形サンプル</button>
-      <button class="btn ghost" id="btn-sample-graphics2">図形サンプル2</button>
-    </div>
-    <div class="code-toolbar">
-      <button class="btn ghost" id="btn-sample-item">アイテム配置</button>
-      <button class="btn ghost" id="btn-sample-item-action">アイテム動作</button>
-      <button class="btn ghost" id="btn-sample-ik">IK動作</button>
-      <button class="btn ghost" id="btn-clear">クリア</button>
+    <div class="code-toolbar" style="display:flex; justify-content:space-between; align-items:center; margin-top:6px; margin-bottom:4px;">
+      <div style="display:flex; align-items:center; gap:6px;">
+        <label for="sample-select" style="font-size:11px; font-weight:700; color:var(--ink-soft); display:flex; align-items:center; gap:4px;">
+          <span>📂</span> サンプル:
+        </label>
+        <select id="sample-select" class="sample-select">
+          <option value="" disabled selected>選択して読み込む...</option>
+          <option value="basic">基本：バンザイ</option>
+          <option value="emotion">感情：喜び→驚き→悲しみ</option>
+          <option value="graphics">図形：三角形を描く</option>
+          <option value="graphics2">図形：正八角形を描く</option>
+          <option value="items">アイテム：配置と消去</option>
+          <option value="itemAction">アイテム：ボール移動とキャッチ</option>
+          <option value="ik">IK：手足の座標指定</option>
+        </select>
+      </div>
+      <button class="btn ghost" id="btn-clear" style="padding:4px 10px; font-size:11px;">入力クリア</button>
     </div>
 
-    <h2 class="panel-title" style="margin-top:8px"><span class="dot"></span>コンソールパネル</h2>
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px;">
+      <h2 class="panel-title" style="margin:0;"><span class="dot"></span>コンソールパネル</h2>
+      <button class="btn ghost" id="btn-console-clear" style="padding:2px 8px; font-size:10px;">ログ消去</button>
+    </div>
     <div class="console-panel-inner" id="console-panel"></div>
   </section>
 

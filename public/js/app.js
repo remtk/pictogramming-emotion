@@ -245,15 +245,28 @@ ITEM ボール 0 -85 2.0
 IK 右腕 15 -85
 IK 左腕 -15 -85
 SP "キャッチ"`,
-};
+const sampleSelect = document.getElementById("sample-select");
+if (sampleSelect) {
+  sampleSelect.addEventListener("change", (e) => {
+    const val = e.target.value;
+    if (SAMPLES[val]) {
+      codeInput.value = SAMPLES[val];
+      codeInput.focus();
+    }
+  });
+}
 
-document.getElementById("btn-sample-basic").addEventListener("click", () => {
+document.getElementById("btn-console-clear")?.addEventListener("click", () => {
+  consolePanel.innerHTML = "";
+});
+
+document.getElementById("btn-sample-basic")?.addEventListener("click", () => {
   codeInput.value = SAMPLES.basic;
 });
-document.getElementById("btn-sample-emotion").addEventListener("click", () => {
+document.getElementById("btn-sample-emotion")?.addEventListener("click", () => {
   codeInput.value = SAMPLES.emotion;
 });
-document.getElementById("btn-sample-graphics").addEventListener("click", () => {
+document.getElementById("btn-sample-graphics")?.addEventListener("click", () => {
   codeInput.value = SAMPLES.graphics;
 });
 document.getElementById("btn-sample-graphics2")?.addEventListener("click", () => {
