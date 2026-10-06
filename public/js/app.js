@@ -447,38 +447,72 @@ function normalizeSpeech(text) {
     .toLowerCase();
 }
 
+function matchTraceItem(tItem, uItem) {
+  if (tItem.type !== uItem.type) return false;
+  if (tItem.type === "ROTATE") {
+    return tItem.part === uItem.part;
+  }
+  if (tItem.type === "MOVE") {
+    // 移動の方向（正負）が一致しているかを検証（右→上 などの順序違いを正しく判定）
+    const signXMatches = Math.sign(tItem.x || 0) === Math.sign(uItem.x || 0);
+    const signYMatches = Math.sign(tItem.y || 0) === Math.sign(uItem.y || 0);
+    return signXMatches && signYMatches;
+  }
+  if (tItem.type === "SPEAK") {
+    if (tItem.text !== undefined && uItem.text !== undefined) {
+      return normalizeSpeech(tItem.text) === normalizeSpeech(uItem.text);
+    }
+    return true;
+  }
+  if (tItem.type === "EMOTION") {
+    return tItem.emotion === uItem.emotion;
+  }
+  if (tItem.type === "PEN") {
+    return tItem.action === uItem.action;
+  }
+  return true;
+}
+
 function checkTraceMatch(targetTrace, userTrace) {
   if (!targetTrace || targetTrace.length === 0) return true;
   if (!userTrace || userTrace.length === 0) return false;
 
+  // 模範解答内の「最後の PEN UP」のインデックスを取得（末尾のPEN UPは任意とする）
+  const lastPenUpIdx = targetTrace.reduce(
+    (last, item, idx) => (item.type === "PEN" && item.action === "UP" ? idx : last),
+    -1
+  );
+
   let uIdx = 0;
-  for (const tItem of targetTrace) {
-    let found = false;
-    while (uIdx < userTrace.length) {
-      const uItem = userTrace[uIdx];
-      uIdx++;
-      if (tItem.type === uItem.type) {
-        if (tItem.type === "ROTATE") {
-          if (tItem.part === uItem.part) { found = true; break; }
-        } else if (tItem.type === "MOVE") {
-          found = true; break;
-        } else if (tItem.type === "SPEAK") {
-          if (tItem.text !== undefined && uItem.text !== undefined) {
-            if (normalizeSpeech(tItem.text) === normalizeSpeech(uItem.text)) {
-              found = true;
-              break;
-            }
-          } else {
-            found = true;
-            break;
-          }
-        } else if (tItem.type === "EMOTION") {
-          if (tItem.emotion === uItem.emotion) { found = true; break; }
-        } else if (tItem.type === "PEN") {
-          if (tItem.action === uItem.action) { found = true; break; }
-        }
+  for (let tIdx = 0; tIdx < targetTrace.length; tIdx++) {
+    const tItem = targetTrace[tIdx];
+
+    // 描き終わりの PEN UP は、ユーザー側になくても手順一致とみなす
+    if (tIdx === lastPenUpIdx) {
+      const userHasPenUp = userTrace.some((u) => u.type === "PEN" && u.action === "UP");
+      if (!userHasPenUp) {
+        continue;
       }
     }
+
+    let found = false;
+    for (let i = uIdx; i < userTrace.length; i++) {
+      const uItem = userTrace[i];
+      if (matchTraceItem(tItem, uItem)) {
+        found = true;
+        uIdx = i + 1;
+        break;
+      }
+    }
+
+    // 終盤の EMOTION と SPEAK は、どちらが先でもOKとする（順序入れ替えの許容）
+    if (!found && (tItem.type === "EMOTION" || tItem.type === "SPEAK")) {
+      const existsAnywhere = userTrace.some((uItem) => matchTraceItem(tItem, uItem));
+      if (existsAnywhere) {
+        found = true;
+      }
+    }
+
     if (!found) return false;
   }
   return true;
@@ -590,8 +624,14 @@ async function evaluateCurrentChallenge() {
   // 1. ポーズ（回転角度）と感情の状態一致チェック
   let isStateMatched = false;
   if (targetState && currentState.pose) {
+    // 模範解答に PEN UP があり、ユーザーが PEN UP していない場合は BODY角度の差を許容
+    const targetHasPenUp = targetState.trace && targetState.trace.some((t) => t.type === "PEN" && t.action === "UP");
+    const userHasPenUp = userTrace.some((u) => u.type === "PEN" && u.action === "UP");
+    const ignoreBodyAngle = targetHasPenUp && !userHasPenUp;
+
     const poseKeys = ["BODY", "LUA", "LLA", "RUA", "RLA", "LUL", "LLL", "RUL", "RLL"];
     const isPoseEqual = poseKeys.every((key) => {
+      if (key === "BODY" && ignoreBodyAngle) return true;
       const uAngle = currentState.pose[key] || 0;
       const tAngle = targetState.pose[key] || 0;
       return Math.abs(uAngle - tAngle) < 1; // 誤差1度未満
@@ -643,6 +683,14 @@ async function evaluateCurrentChallenge() {
   setChallengeResult(passed ? "できました" : "もう少し", passed ? "pass" : "fail");
   if (passed) {
     appendConsole(challenge.success || "正解です！お見事です。", "ok");
+    // 教育的アドバイス: 模範解答にPEN UPがあるが、ユーザーコードにない場合
+    if (targetState && targetState.trace) {
+      const targetHasPenUp = targetState.trace.some((t) => t.type === "PEN" && t.action === "UP");
+      const userHasPenUp = userTrace.some((u) => u.type === "PEN" && u.action === "UP");
+      if (targetHasPenUp && !userHasPenUp) {
+        appendConsole("💡 アドバイス: プログラムの最後に「PEN UP」を入れてペンを上げておくと、ピクトグラムが正面を向いてより綺麗な仕上がりになりますよ！", "info");
+      }
+    }
   } else {
     const feedbackMsg = diagnoseFailureReason({ challenge, rawUserCode, currentState, targetState });
     appendConsole(feedbackMsg, "warn");
