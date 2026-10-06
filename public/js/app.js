@@ -505,20 +505,12 @@ function checkTraceMatch(targetTrace, userTrace) {
       }
     }
 
-    // 終盤の EMOTION と SPEAK は、どちらが先でもOKとする（順序入れ替えの許容）
-    if (!found && (tItem.type === "EMOTION" || tItem.type === "SPEAK")) {
-      const existsAnywhere = userTrace.some((uItem) => matchTraceItem(tItem, uItem));
-      if (existsAnywhere) {
-        found = true;
-      }
-    }
-
     if (!found) return false;
   }
   return true;
 }
 
-function diagnoseFailureReason({ challenge, rawUserCode, currentState, targetState }) {
+function diagnoseFailureReason({ challenge, rawUserCode, currentState, targetState, userTrace }) {
   const hints = [];
 
   if (challenge.kind === "joy" && currentState.emotion !== "JOY") {
@@ -540,6 +532,20 @@ function diagnoseFailureReason({ challenge, rawUserCode, currentState, targetSta
     }
 
     if (targetState.trace && targetState.trace.length > 0) {
+      // 感情とセリフの順序違いのチェック
+      const uTrace = userTrace || [];
+      const tEmoIdx = targetState.trace.findIndex((t) => t.type === "EMOTION");
+      const tSpkIdx = targetState.trace.findIndex((t) => t.type === "SPEAK");
+      const uEmoIdx = uTrace.findIndex((u) => u.type === "EMOTION");
+      const uSpkIdx = uTrace.findIndex((u) => u.type === "SPEAK");
+      if (tEmoIdx >= 0 && tSpkIdx >= 0 && uEmoIdx >= 0 && uSpkIdx >= 0) {
+        if (tEmoIdx < tSpkIdx && uEmoIdx > uSpkIdx) {
+          hints.push("命令の順番が違います。セリフを言う前に感情（EMOTION）を変えてみましょう。");
+        } else if (tEmoIdx > tSpkIdx && uEmoIdx < uSpkIdx) {
+          hints.push("命令の順番が違います。感情を変える前にセリフ（SP）を表示してみましょう。");
+        }
+      }
+
       const targetHasMove = targetState.trace.some((t) => t.type === "MOVE");
       const userHasMove = /M\s|MW\s/i.test(rawUserCode);
       if (targetHasMove && !userHasMove) {
@@ -692,7 +698,7 @@ async function evaluateCurrentChallenge() {
       }
     }
   } else {
-    const feedbackMsg = diagnoseFailureReason({ challenge, rawUserCode, currentState, targetState });
+    const feedbackMsg = diagnoseFailureReason({ challenge, rawUserCode, currentState, targetState, userTrace });
     appendConsole(feedbackMsg, "warn");
   }
 }
