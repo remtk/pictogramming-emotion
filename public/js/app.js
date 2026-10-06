@@ -1378,3 +1378,47 @@ if (stageEl && coordTooltip) {
     coordTooltip.style.transform = `translate(${tx}px, ${ty}px)`;
   });
 }
+
+// --- 📖 取扱説明書（使い方ガイド）モーダルの制御 ---------------------------
+(function setupManualModal() {
+  const manualModal = document.getElementById("manual-modal");
+  const btnManualTrigger = document.getElementById("btn-manual-trigger");
+  const btnManualClose = document.getElementById("btn-manual-close");
+  const btnManualFooterClose = document.getElementById("btn-manual-footer-close");
+
+  if (!manualModal) return;
+
+  const openManual = () => {
+    manualModal.classList.add("active");
+  };
+
+  const closeManual = () => {
+    manualModal.classList.remove("active");
+  };
+
+  btnManualTrigger?.addEventListener("click", openManual);
+  btnManualClose?.addEventListener("click", closeManual);
+  btnManualFooterClose?.addEventListener("click", closeManual);
+
+  manualModal.addEventListener("click", (e) => {
+    if (e.target === manualModal) closeManual();
+  });
+
+  window.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && manualModal.classList.contains("active")) {
+      closeManual();
+    }
+  });
+
+  // タブ切り替え
+  const tabs = manualModal.querySelectorAll(".manual-tab");
+  const panes = manualModal.querySelectorAll(".manual-tab-pane");
+
+  tabs.forEach((tab) => {
+    tab.addEventListener("click", () => {
+      const targetId = tab.dataset.tab;
+      tabs.forEach((t) => t.classList.toggle("active", t === tab));
+      panes.forEach((pane) => pane.classList.toggle("active", pane.id === targetId));
+    });
+  });
+})();

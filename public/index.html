@@ -13,9 +13,14 @@
     <h1>ピクトグラミング<span style="color:var(--accent-joy)">+</span></h1>
     <span class="brand-sub">PICTOGRAMMING+</span>
   </div>
-  <div class="session-info" style="font-size: 13px; color: var(--ink-soft); font-family: var(--font-mono); display: flex; align-items: center; gap: 8px;">
-    <span>ID:</span>
-    <span id="display-session-id" style="font-weight: 700; color: var(--ink); background: var(--paper-soft); padding: 2px 8px; border-radius: 4px;"></span>
+  <div class="header-right" style="display:flex; align-items:center; gap:12px;">
+    <button id="btn-manual-trigger" class="btn ghost manual-header-btn" title="ピクトグラミング+の使い方・取扱説明書を見る" style="display:flex; align-items:center; gap:6px; font-weight:700; font-size:12px; padding:6px 14px; background:#fff; border-color:var(--line);">
+      <span>📖</span> 使い方ガイド
+    </button>
+    <div class="session-info" style="font-size: 13px; color: var(--ink-soft); font-family: var(--font-mono); display: flex; align-items: center; gap: 8px;">
+      <span>ID:</span>
+      <span id="display-session-id" style="font-weight: 700; color: var(--ink); background: var(--paper-soft); padding: 2px 8px; border-radius: 4px;"></span>
+    </div>
   </div>
 </header>
 
@@ -177,6 +182,183 @@ EMOTION 喜び"></textarea>
       <button class="btn ghost challenge-btn" id="btn-challenge-reset">この問題をリセット</button>
       <button class="btn ghost challenge-btn" id="btn-challenge-delete" style="color:var(--danger, #e74c3c); border-color:rgba(231, 76, 60, 0.4);">この問題を削除</button>
       <button class="btn ghost challenge-btn" id="btn-challenge-add">新規問題を追加</button>
+    </div>
+  </div>
+</div>
+
+<!-- 📖 取扱説明書（使い方ガイド）モーダル -->
+<div id="manual-modal" class="modal-overlay">
+  <div class="modal-content manual-modal-content" style="max-width: 680px;">
+    <div class="modal-header">
+      <div style="display:flex; align-items:center; gap:8px;">
+        <span style="font-size:20px;">📖</span>
+        <h3 style="margin:0;">ピクトグラミング+ 取扱説明書</h3>
+      </div>
+      <button id="btn-manual-close" class="modal-close-btn">&times;</button>
+    </div>
+
+    <!-- マニュアルタブ切り替えバー -->
+    <div class="manual-tabs">
+      <button class="manual-tab active" data-tab="tab-start">🚀 はじめかた</button>
+      <button class="manual-tab" data-tab="tab-motion">💃 身体を動かす</button>
+      <button class="manual-tab" data-tab="tab-emotion">🎭 感情表現</button>
+      <button class="manual-tab" data-tab="tab-graphics">🎨 図形・セリフ</button>
+      <button class="manual-tab" data-tab="tab-rules">💡 問題の解き方</button>
+    </div>
+
+    <div class="modal-body manual-modal-body" style="padding: 16px; overflow-y: auto; max-height: 60vh;">
+      
+      <!-- タブ1: はじめかた -->
+      <div class="manual-tab-pane active" id="tab-start">
+        <h4 class="manual-heading">🌟 基本の操作手順</h4>
+        <div class="manual-step-list">
+          <div class="manual-step">
+            <span class="step-num">1</span>
+            <div>
+              <strong>コードを入力する</strong>
+              <p>中央のコード入力欄に命令を入力します。「📂 サンプル」メニューから代表的なプログラムを読み込むこともできます。</p>
+            </div>
+          </div>
+          <div class="manual-step">
+            <span class="step-num">2</span>
+            <div>
+              <strong>「実行 ▶」ボタンを押す</strong>
+              <p>左パネル下の「実行 ▶」を押すと、人型ピクトグラムがアニメーションで動きます。</p>
+            </div>
+          </div>
+          <div class="manual-step">
+            <span class="step-num">3</span>
+            <div>
+              <strong>課題のクリアを目指す</strong>
+              <p>中央上部に問題文が表示されています。お題通りの動作ができると「できました！」と判定されます。</p>
+            </div>
+          </div>
+        </div>
+
+        <h4 class="manual-heading" style="margin-top:16px;">💡 画面の便利な機能</h4>
+        <ul class="manual-list">
+          <li><strong>リサイズ自由</strong>: コード入力欄やコンソールパネルの右下をマウスでドラッグすると、好きな大きさに広げられます。</li>
+          <li><strong>ドラッグ移動</strong>: 実行が止まっているときは、画面上のピクトグラムやアイテムを直接マウスで掴んで動かせます。</li>
+          <li><strong>感情パレット</strong>: 左下の色とりどりのチップを押すと、その感情のコードが一発で入力されます。</li>
+        </ul>
+      </div>
+
+      <!-- タブ2: 身体を動かす -->
+      <div class="manual-tab-pane" id="tab-motion">
+        <h4 class="manual-heading">🕺 ポーズをつくる・移動する</h4>
+        <div class="manual-table-wrap">
+          <table class="manual-table">
+            <thead>
+              <tr><th>命令の書き方</th><th>効果と解説</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>R 部位 角度</code></td>
+                <td>指定した部位を瞬時に回転させます。<br><small>例: <code>R 左上腕 90</code>（腕を90度上げる）</small></td>
+              </tr>
+              <tr>
+                <td><code>RW 部位 角度 秒</code></td>
+                <td>指定した秒数をかけてなめらかに回転アニメーションします。<br><small>例: <code>RW 右上腕 -90 1</code></small></td>
+              </tr>
+              <tr>
+                <td><code>M x y</code></td>
+                <td>ピクトグラム全体を座標(x, y)分だけ瞬時に平行移動します。<br><small>例: <code>M 50 0</code>（右へ50進む）</small></td>
+              </tr>
+              <tr>
+                <td><code>MW x y 秒</code></td>
+                <td>指定秒数をかけて歩行しながら平行移動します。<br><small>例: <code>MW 100 0 1</code></small></td>
+              </tr>
+              <tr>
+                <td><code>WAIT 秒</code></td>
+                <td>指定した秒数だけその場で一時停止（待機）します。<br><small>例: <code>WAIT 0.5</code></small></td>
+              </tr>
+              <tr>
+                <td><code>REPEAT 回数 ... END</code></td>
+                <td>ENDまでの処理を指定回数繰り返します。<br><small>例: <code>REPEAT 4 ... END</code>（正方形など）</small></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="manual-note">※ 部位名は「左上腕」「左前腕」「右上腕」「右前腕」「体」「左上腿」「左下腿」「右上腿」「右下腿」または英字（LUA, LLA等）で指定できます。</p>
+      </div>
+
+      <!-- タブ3: 感情表現 -->
+      <div class="manual-tab-pane" id="tab-emotion">
+        <h4 class="manual-heading">🎭 感情表現命令（エディション特別機能）</h4>
+        <p>人型ピクトグラムが表情・ポーズ・オーラ色を一斉に変化させて豊かな感情を表現します。</p>
+        <div class="manual-code-box">
+          <code>EMOTION 感情名 [秒]</code>
+        </div>
+        <div class="manual-table-wrap" style="margin-top:10px;">
+          <table class="manual-table">
+            <thead>
+              <tr><th>指定できる感情名</th><th>表情とオーラの色</th><th>動きの特徴</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><code>喜び</code> または <code>JOY</code></td><td>😊 オレンジ・ゴールド</td><td>両腕を元気に広げる</td></tr>
+              <tr><td><code>悲しみ</code> または <code>SAD</code></td><td>😢 ブルー・しずく</td><td>両腕をだらんと下げる</td></tr>
+              <tr><td><code>怒り</code> または <code>ANGRY</code></td><td>😠 レッド・角立ち</td><td>腰に手をあてて構える</td></tr>
+              <tr><td><code>驚き</code> または <code>SURPRISE</code></td><td>😲 イエロー・星形</td><td>両手を上げて目を見開く</td></tr>
+              <tr><td><code>普通</code> または <code>NORMAL</code></td><td>😐 グリーン・通常</td><td>初期の直立姿勢に戻る</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="manual-note">💡 例: <code>EMOTION 喜び 0.8</code> と書くと、0.8秒かけて喜びのポーズへ遷移します。</p>
+      </div>
+
+      <!-- タブ4: 図形・セリフ -->
+      <div class="manual-tab-pane" id="tab-graphics">
+        <h4 class="manual-heading">🎨 図形を描く（ピクトグラフィックス）</h4>
+        <div class="manual-table-wrap">
+          <table class="manual-table">
+            <thead>
+              <tr><th>命令</th><th>説明</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><code>PEN DOWN</code></td><td>ペンを下ろします。この後の移動（M/MW）の軌跡が線として描かれます。</td></tr>
+              <tr><td><code>PEN UP</code></td><td>ペンを上げます。移動しても線を描かなくなります。</td></tr>
+              <tr><td><code>PEN COLOR "#色"</code></td><td>描画する線の色を変更します。<small>例: <code>PEN COLOR "#FF0000"</code></small></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h4 class="manual-heading" style="margin-top:16px;">💬 セリフとアイテム操作</h4>
+        <div class="manual-table-wrap">
+          <table class="manual-table">
+            <thead>
+              <tr><th>命令</th><th>説明</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><code>SP "文字"</code></td><td>吹き出しを表示してセリフを喋らせます。<small>例: <code>SP "こんにちは！"</code></small></td></tr>
+              <tr><td><code>ITEM 種類 x y [倍率]</code></td><td>指定した座標にアイテム（リンゴ, 星, ハート, 剣, ボール）を配置します。</td></tr>
+              <tr><td><code>ITEM CLEAR</code></td><td>配置したアイテムをすべて画面から片付けます。</td></tr>
+              <tr><td><code>IK 腕・脚 x y</code></td><td>指定した座標へ手先・足先を自動で伸ばします（IK制御）。</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- タブ5: 問題の解き方 -->
+      <div class="manual-tab-pane" id="tab-rules">
+        <h4 class="manual-heading">💡 問題のクリア判定とお作法</h4>
+        <div class="manual-point-box">
+          <strong>✅ 正解（できました）になる条件</strong>
+          <p>問題で指定された「ポーズ（角度）」「感情」「セリフ」「図形の線の本数や移動」が目標と合っていれば合格になります！</p>
+        </div>
+        <div class="manual-point-box" style="margin-top:10px; border-left-color: #3b82f6;">
+          <strong>🎯 順序の重要性</strong>
+          <p>「右に行ってから上に行く」や「喜んでからセリフを言う」など、動作の流れや順序はプログラミングの大切な要素です。順番を意識してプログラムを組み立てましょう！</p>
+        </div>
+        <div class="manual-point-box" style="margin-top:10px; border-left-color: #10b981;">
+          <strong>✏️ 描き終わりの PEN UP について</strong>
+          <p>図形を描き終えた最後に <code>PEN UP</code> を書き忘れても、図形が完成していれば合格になります。ただし、最後にペンを上げておくとピクトグラムが正面を向いてより綺麗に仕上がります！</p>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="modal-footer" style="display:flex; justify-content:flex-end;">
+      <button class="btn primary" id="btn-manual-footer-close" style="padding:6px 20px;">閉じる</button>
     </div>
   </div>
 </div>
