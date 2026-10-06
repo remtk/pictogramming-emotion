@@ -1,0 +1,16 @@
+[build]
+  publish = "public"
+  functions = "netlify/functions"
+
+# /api/generate-challenge → Netlify Function にリダイレクト
+[[redirects]]
+  from = "/api/generate-challenge"
+  to = "/.netlify/functions/generate-challenge"
+  status = 200
+  force = true
+
+# SPA フォールバック（必要な場合）
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
