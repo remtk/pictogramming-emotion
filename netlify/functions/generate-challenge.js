@@ -94,8 +94,15 @@ async function generateChallengeWithGemini(diffLevel) {
     generationConfig: { temperature: 0.8, responseMimeType: "application/json" },
   });
 
-  const primaryModel = process.env.GEMINI_MODEL || "gemini-2.0-flash";
-  const fallbackModels = [primaryModel, "gemini-2.0-flash-lite", "gemini-1.5-flash"];
+  const primaryModel = process.env.GEMINI_MODEL || "gemini-2.5-flash";
+  const fallbackModels = [
+    primaryModel,
+    "gemini-2.5-flash-lite",
+    "gemini-2.0-flash",
+    "gemini-2.0-flash-lite",
+    "gemini-1.5-flash-latest",
+    "gemini-1.5-pro-latest",
+  ];
 
   let lastError = null;
   for (const model of fallbackModels) {
