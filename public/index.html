@@ -149,12 +149,12 @@ EMOTION 喜び"></textarea>
 <div id="challenge-admin-modal" class="modal-overlay">
   <div class="modal-content" style="max-width:640px;">
     <div class="modal-header">
-      <h3>🛠️ 管理者メニュー</h3>
+      <h3 id="admin-modal-title">🛠️ 管理者メニュー</h3>
       <button id="btn-challenge-modal-close" class="modal-close-btn">&times;</button>
     </div>
 
-    <!-- 管理者モーダル タブ -->
-    <div class="admin-tabs">
+    <!-- 管理者モーダル タブ（管理者ログイン時のみ表示） -->
+    <div class="admin-tabs" id="admin-tabs-bar">
       <button class="admin-tab active" data-admin-tab="tab-editor">✏️ 作成・編集</button>
       <button class="admin-tab" data-admin-tab="tab-bank">📦 問題バンク</button>
     </div>

@@ -808,8 +808,13 @@ async function saveChallengesToStorage() {
 }
 
 function openChallengeEditor() {
-  console.log("openChallengeEditor called. isCreateMode:", isCreateMode, "isAdminMode:", isAdminMode);
+  const modalTitle = document.getElementById("admin-modal-title");
+  const tabsBar = document.getElementById("admin-tabs-bar");
+
   if (isCreateMode) {
+    if (modalTitle) modalTitle.textContent = "✨ 問題の作成";
+    if (tabsBar) tabsBar.style.display = "none"; // 一般作成時はタブを非表示
+
     challengeEditTitle.value  = "";
     challengeEditText.value   = "";
     challengeEditHint.value   = "";
@@ -821,6 +826,9 @@ function openChallengeEditor() {
     btnChallengeAdd.style.display = "";
     btnChallengeSubmit.textContent = "入力をやめる";
   } else if (isAdminMode) {
+    if (modalTitle) modalTitle.textContent = "🛠️ 管理者メニュー";
+    if (tabsBar) tabsBar.style.display = ""; // 管理者ログイン時のみタブを表示
+
     const c = CHALLENGES[currentChallengeIndex];
     if (c) {
       challengeEditTitle.value  = c.title || "";
@@ -832,7 +840,7 @@ function openChallengeEditor() {
     btnChallengeSave.style.display = "";
     btnChallengeReset.style.display = "";
     if (btnChallengeDelete) btnChallengeDelete.style.display = "";
-    btnChallengeAdd.style.display = ""; // 管理者もバンクへ追加できる
+    btnChallengeAdd.style.display = "";
     btnChallengeAdmin.textContent = "🔓 編集中";
   }
   // 常に「作成・編集」タブをアクティブにして開く
