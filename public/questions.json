@@ -1,10 +1,10 @@
 [
   {
-    "title": "【中級】感情ストーリー（驚いてから喜ぶ）",
-    "text": "まず驚き（SURPRISE）になって「えっ！？」と後ずさり（MW -40 0）し、1秒後に喜び（JOY）に変わって「嬉しい！」と言わせてください。",
-    "hint": "EMOTION SURPRISE → SP → MW -40 0 0.5 → WAIT 1 → EMOTION JOY → SP の順に書きます。",
-    "sample": "EMOTION SURPRISE 0.5\nSP \"えっ！？\"\nMW -40 0 0.5\nWAIT 1\nEMOTION JOY 0.5\nSP \"嬉しい！\"",
-    "kind": "contains_code"
+    "title": "喜びの表情にしよう",
+    "text": "EMOTION命令を使って、ピクトグラムを喜びの状態にしてください。",
+    "hint": "例: EMOTION JOY 0",
+    "sample": "// 問題1: 喜びの表情にしよう\nEMOTION JOY 0",
+    "kind": "joy"
   },
   {
     "title": "線で三角形を描こう",
@@ -14,10 +14,10 @@
     "kind": "triangle"
   },
   {
-    "title": "【上級】変数を使ってだんだん大きくなる渦巻き",
-    "text": "LET変数 LEN を使って、直進するごとに長さを20ずつ増やしながら4回曲がる四角い渦巻き（拡大スパイラル）を描いてください。",
-    "hint": "LET LEN 30 から始め、4回 [LEN + 20] して直角に曲がります。",
-    "sample": "LET LEN 30\nPEN DOWN\nREPEAT 4\n  MW [LEN] 0 0.3\n  R BODY 90\n  LET LEN [LEN + 20]\nEND\nPEN UP",
+    "title": "【上級】正12角形のスタークロック",
+    "text": "正12角形の軌跡を描きながら12個の頂点を巡り、特定の頂点でアイテム配置や感情表現を行うプログラムを作成してください。\n\n以下の条件をすべて満たしてください：\n1. 変数 `CNT` を 0 で初期化する。\n2. `PEN DOWN` で描画を開始し、`REPEAT 12` のループを作成する。\n3. ループ内で `CNT` を 1 ずつ増やし（`LET CNT [CNT + 1]`）、前進（`MW 25 0 0.2`）と体の回転（`RW BODY 30 0.2`）を行って正12角形を描く。\n4. `IF [CNT == 6]` のとき、ペンの色を黄色（`PEN COLOR \"#FFD700\"`）に変更し、感情を `SURPRISE` にする。\n5. `IF [CNT == 12]` のとき、星のアイテム（`ITEM 星 0 0 1`）を配置し、感情を `JOY` にしてセリフ `SP \"1周完了！\"` を表示する。",
+    "hint": "正12角形の外角は 360 ÷ 12 = 30度です。1辺進むごとに `RW BODY 30 0.2` で体を30度回転させましょう。ループのカウンタ変数 `CNT` を使って `IF` 文で 6 番目（半分）と 12 番目（最後）の頂点での処理を分岐させます。",
+    "sample": "LET CNT 0\nPEN DOWN\nREPEAT 12\n  LET CNT [CNT + 1]\n  MW 25 0 0.2\n  RW BODY 30 0.2\n  IF [CNT == 6]\n    PEN COLOR \"#FFD700\"\n    EMOTION SURPRISE 0.5\n  END\n  IF [CNT == 12]\n    ITEM 星 0 0 1\n    EMOTION JOY 1\n    SP \"1周完了！\"\n  END\nEND",
     "kind": "contains_code"
   }
 ]

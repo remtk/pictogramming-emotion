@@ -169,7 +169,9 @@ const server = http.createServer((req, res) => {
   // APIエンドポイント: AI自動作問（Gemini）。GASを使わずローカルで動かす
   if (req.method === "GET" && reqPath === "/api/generate-challenge") {
     const qs = new URL(req.url, "http://localhost").searchParams;
-    generateChallengeWithGemini(qs.get("difficulty") || "1")
+    const diff = qs.get("difficulty") || "1";
+    const condition = qs.get("condition") || "";
+    generateChallengeWithGemini(diff, condition)
       .then((challenge) => {
         res.writeHead(200, { "Content-Type": "application/json; charset=utf-8" });
         res.end(JSON.stringify(challenge));
@@ -179,6 +181,31 @@ const server = http.createServer((req, res) => {
         res.writeHead(500, { "Content-Type": "application/json; charset=utf-8" });
         res.end(JSON.stringify({ error: err.message }));
       });
+    return;
+  }
+
+  // APIエンドポイント: AIによる問題・正解コードの正確性検証
+  if (req.method === "POST" && reqPath === "/api/validate-challenge") {
+    let body = "";
+    req.on("data", chunk => { body += chunk.toString(); });
+    req.on("end", () => {
+      try {
+        const questionData = JSON.parse(body);
+        validateChallengeWithGemini(questionData)
+          .then((result) => {
+            res.writeHead(200, { "Content-Type": "application/json; charset=utf-8" });
+            res.end(JSON.stringify(result));
+          })
+          .catch((err) => {
+            console.error("Validation failed:", err.message);
+            res.writeHead(500, { "Content-Type": "application/json; charset=utf-8" });
+            res.end(JSON.stringify({ error: err.message }));
+          });
+      } catch (e) {
+        res.writeHead(400, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ error: e.message }));
+      }
+    });
     return;
   }
 
@@ -317,10 +344,14 @@ function httpsJson(url, { method = "GET", body, headers } = {}) {
   });
 }
 
-function buildGeneratePrompt(diffText) {
+function buildGeneratePrompt(diffText, condition = "") {
+  const conditionRule = condition && condition.trim()
+    ? `\n[特別な作成条件・指定]\n以下のユーザー指定条件を必ず満たす問題を作成してください:\n「${condition.trim()}」\n`
+    : "";
+
   return `あなたはプログラミング学習アプリ「ピクトグラミング+」の問題作成アシスタントです。
 以下の独自言語仕様と難易度基準に従って、${diffText}レベルのプログラミング問題を1つ作成し、JSONのみを出力してください。
-
+${conditionRule}
 [言語仕様]
 ・EMOTION [感情] [秒]: 感情表現（JOY/喜び, SAD/悲しみ, ANGRY/怒り, SURPRISE/驚き, NORMAL/普通）
 ・SP "セリフ": 吹き出し
@@ -345,17 +376,24 @@ function buildGeneratePrompt(diffText) {
 ・中級: ループ（REPEAT）や複数命令の組み合わせ、順序の制御などを使う（例: REPEATによる正三角形や四角形の描画、腕を2本同時に動かしてから感情変化とセリフ、前傾してお辞儀してから元に戻す、アイテムを置いてIKで手を伸ばす）。
 ・上級: 変数（LET）・条件分岐（IF）・二重ループ（REPEATの入れ子）・複数の動作の同期（アイテム移動とピクトグラム移動の連携、変数を用いたスパイラル描画やカウントダウンジャンプ等）を組み合わせる。
 
+[重要: 問題文（text）の書き方ルール（ネタバレ禁止）]
+・問題文に「プログラムコードそのもの」や「命令名（MW 25 0, RW BODY 30, IF [CNT==6] など）」を直接答えとして書いてはいけません！
+  （悪い例: 「REPEAT 12 のループを作成し、MW 25 0 と RW BODY 30 を実行してください」 ← 答えをそのまま書き写すだけで思考が不要になるためNG）
+・問題文は「何を実現してほしいか（目的や仕様）」を日本語で自然に説明してください。
+  （良い例: 「正12角形を描きながら一周するプログラムを作ってください。途中の6頂点目で驚きの表情にし、12頂点目で星を置いて『1周完了！』と喜ばせてください」）
+・具体的な命令構文や計算式（「1周は360度なので360/12で計算します」「REPEATとIFを組み合わせます」など）は、問題文ではなく【ヒント（hint）】に記載してください。
+
 [出力JSON] （これ以外のテキストは出力しない）
 {
   "title": "【${diffText}】問題のタイトル",
-  "text": "ユーザーへの問題文",
-  "hint": "ヒント",
+  "text": "ユーザーへの問題文（命令名やコードの丸写しを禁止し、達成すべき動作・仕様を自然な日本語で説明）",
+  "hint": "ヒント（使用する命令のヒントや考え方、計算の目安）",
   "sample": "正解コード（改行を含む）",
   "kind": "contains_code"
 }`;
 }
 
-async function generateChallengeWithGemini(diffLevel) {
+async function generateChallengeWithGemini(diffLevel, condition = "") {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
     throw new Error("GEMINI_API_KEY が未設定です。プロジェクト直下の .env に書いてください。");
@@ -366,12 +404,12 @@ async function generateChallengeWithGemini(diffLevel) {
   if (String(diffLevel) === "3") diffText = "上級";
 
   const body = JSON.stringify({
-    contents: [{ parts: [{ text: buildGeneratePrompt(diffText) }] }],
+    contents: [{ parts: [{ text: buildGeneratePrompt(diffText, condition) }] }],
     generationConfig: { temperature: 0.8, responseMimeType: "application/json" },
   });
 
-  const primaryModel = process.env.GEMINI_MODEL || "gemini-3.5-flash";
-  const fallbackModels = [primaryModel, "gemini-flash-latest", "gemini-3.1-flash-lite"];
+  const primaryModel = process.env.GEMINI_MODEL || "gemini-3.8-flash";
+  const fallbackModels = [primaryModel, "gemini-3.5-flash-lite", "gemini-flash-latest", "gemini-3.5-flash", "gemini-3.1-flash-lite"];
 
   let lastError = null;
   for (const model of fallbackModels) {
@@ -406,6 +444,91 @@ async function generateChallengeWithGemini(diffLevel) {
   }
 
   throw lastError || new Error("Gemini APIのリクエストに失敗しました。");
+}
+
+function buildValidatePrompt(challenge) {
+  return `あなたはプログラミング学習アプリ「ピクトグラミング+」のコード検証アシスタントです。
+登録されようとしているプログラミング問題と正解プログラムコードを検証し、正しく動作するか判定してください。
+
+[言語仕様]
+・EMOTION [感情] [秒]: 感情表現（JOY, SAD, ANGRY, SURPRISE, NORMAL / 喜び, 悲しみ, 怒り, 驚き, 普通）
+・SP "セリフ": 吹き出し
+・PEN DOWN / PEN UP / PEN COLOR "#色": 線の描画
+・R [部位] [角度]: 部位の相対回転（BODY, LUA, LLA, RUA, RLA, LUL, LLL, RUL, RLL / 体, 左上腕, 左前腕, 右上腕, 右前腕, 左上腿, 左下腿, 右上腿, 右下腿）
+・RW [部位] [角度] [秒]: 回転アニメーション
+・M x y / MW x y 秒: 平行移動
+・WAIT 秒: 待機
+・REPEAT n ... END: 繰り返し
+・LET 変数名 値 / LET 変数名 [式]: 変数
+・IF [式] ... END: 条件分岐
+・ITEM 種類 x y [倍率] / ITEM CLEAR: アイテム配置・消去（リンゴ, 星, ハート, 剣, ボール）
+・IM / IMW 種類 dx dy 秒: アイテム移動
+・IK / IKW 部位 x y 秒: 手足の座標指定（右腕, 左腕, 右脚, 左脚）
+
+[検証対象の問題データ]
+タイトル: ${challenge.title || ""}
+問題文: ${challenge.text || ""}
+正解コード:
+\`\`\`
+${challenge.sample || ""}
+\`\`\`
+
+[検証項目（以下を厳しくチェックしてください）]
+1. 文法エラー: 未定義の命令、閉じられていないREPEAT/IF、引用符の閉じ忘れ、不適切な式構文がないか。
+2. 幾何学・ロジックの正確さ: 
+   - 「正n角形」を描く場合、1回の回転角は「360 / n」度である必要があります（例: 正12角形は 360/12 = 30度）。外角・回転角が幾何学的に破綻していないか。
+   - ループ回数と回転角度の積が360度（または目的の角度）になっているか。
+3. 問題文に記載された条件（特定の変数初期化、IF条件、ペンの色変更、アイテム配置、セリフ等）が正解コードで漏れなく実装されているか。
+4. 単純なコピペやデタラメな文字列ではなく、実際に学習者が実行して題意通りの結果が得られるか。
+
+[出力JSON形式] （JSONのみを出力してください）
+{
+  "valid": true または false,
+  "reason": "検証結果の解説（NGの場合は修正すべき具体的なエラー理由・数式や構文の間違い、OKの場合は確認コメント）"
+}`;
+}
+
+async function validateChallengeWithGemini(challenge) {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) {
+    // APIキーがない場合は構文チェックのみ（スキップ）
+    return { valid: true, reason: "APIキー未設定のためAI検証をスキップしました。" };
+  }
+
+  const body = JSON.stringify({
+    contents: [{ parts: [{ text: buildValidatePrompt(challenge) }] }],
+    generationConfig: { temperature: 0.2, responseMimeType: "application/json" },
+  });
+
+  const primaryModel = process.env.GEMINI_MODEL || "gemini-3.8-flash";
+  const fallbackModels = [primaryModel, "gemini-3.5-flash-lite", "gemini-flash-latest", "gemini-3.5-flash", "gemini-3.1-flash-lite"];
+
+  for (const model of fallbackModels) {
+    try {
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(apiKey)}`;
+      const json = await httpsJson(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Content-Length": Buffer.byteLength(body),
+        },
+        body,
+      });
+
+      if (json.error) throw new Error(json.error.message);
+      let text = json.candidates?.[0]?.content?.parts?.[0]?.text || "";
+      text = text.replace(/```json/g, "").replace(/```/g, "").trim();
+      const result = JSON.parse(text);
+      return {
+        valid: Boolean(result.valid),
+        reason: result.reason || "",
+      };
+    } catch (err) {
+      console.warn(`Gemini validate (${model}) failed: ${err.message}`);
+    }
+  }
+
+  return { valid: true, reason: "AIサーバーの応答が得られなかったため検証をパスしました。" };
 }
 
 server.listen(PORT, () => {

@@ -212,6 +212,7 @@ export class Interpreter {
     } catch (e) {
       this.log(`構文エラー (${e.lineNo ?? "?"}行目): ${e.message}`, "error");
       this.onDone();
+      if (this._throwErrors) throw e;
       return;
     }
     try {
@@ -222,6 +223,7 @@ export class Interpreter {
         this.log("停止しました", "warn");
       } else {
         this.log(`実行エラー: ${e.message}`, "error");
+        if (this._throwErrors) throw e;
       }
     } finally {
       this._running = false;
@@ -433,7 +435,9 @@ export class Interpreter {
     this.onCommandExecuted("EMOTION", { emotion: key, label: emoDef.label, duration });
 
     const neutralPose = createInitialPose();
+    // 感情ポーズのプリセットを適用。ただし現在の進行方向（BODY回転角）は保持する
     const targetPose = { ...neutralPose, ...(emoDef.pose || {}) };
+    targetPose.BODY = this.pose.BODY || 0;
     const startPose = { ...this.pose };
     if (duration <= 0) {
       for (const k of POSE_ANGLE_KEYS) {
@@ -671,6 +675,7 @@ export class Interpreter {
   static async simulate(code) {
     const interpreter = new Interpreter({});
     interpreter._fastMode = true;
+    interpreter._throwErrors = true;
     await interpreter.run(code);
     return {
       pose: { ...interpreter.pose },

@@ -162,13 +162,19 @@ EMOTION 喜び"></textarea>
     <!-- タブ1: 問題の作成・編集 -->
     <div class="admin-tab-pane active" id="tab-editor">
       <div class="modal-body" id="challenge-editor">
-        <div style="display:flex; gap:8px; margin-bottom:12px; align-items:center; background:var(--paper-soft); padding:10px; border-radius:8px; border:1px solid var(--line);">
-          <select class="challenge-input" id="ai-difficulty" style="margin:0; width:140px;">
-            <option value="1">難易度: 初級</option>
-            <option value="2">難易度: 中級</option>
-            <option value="3">難易度: 上級</option>
-          </select>
-          <button class="btn primary" id="btn-ai-generate" style="flex:1;">🤖 AIで問題を自動生成</button>
+        <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:12px; background:var(--paper-soft); padding:10px; border-radius:8px; border:1px solid var(--line);">
+          <div style="display:flex; gap:8px; align-items:center;">
+            <select class="challenge-input" id="ai-difficulty" style="margin:0; width:130px;">
+              <option value="1">難易度: 初級</option>
+              <option value="2">難易度: 中級</option>
+              <option value="3">難易度: 上級</option>
+            </select>
+            <input class="challenge-input" id="ai-condition" type="text" placeholder="条件・テーマ（例: REPEATで図形、IKでキャッチ、変数LETを使用）" style="margin:0; flex:1;">
+            <button class="btn primary" id="btn-ai-generate" style="white-space:nowrap; padding:6px 14px;">🤖 AI自動生成</button>
+          </div>
+          <div style="font-size:10px; color:var(--ink-soft);">
+            💡 条件を指定すると、特定の命令（LET, IF, IK, REPEATなど）やテーマに沿った問題をGeminiが作問します。
+          </div>
         </div>
         <input class="challenge-input" id="challenge-edit-title" type="text" placeholder="問題タイトル">
         <textarea class="challenge-input" id="challenge-edit-text" rows="2" placeholder="問題文"></textarea>

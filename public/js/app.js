@@ -36,6 +36,50 @@ const challengeAdminModal = document.getElementById("challenge-admin-modal");
 const btnChallengeModalClose = document.getElementById("btn-challenge-modal-close");
 const btnAIGenerate = document.getElementById("btn-ai-generate");
 const aiDifficulty = document.getElementById("ai-difficulty");
+const aiCondition = document.getElementById("ai-condition");
+
+/**
+ * 手動・AI作問コードの妥当性を二重チェック（ローカル実行シミュレーション ＋ Gemini AI判定）
+ */
+async function validateChallengeCode(challenge) {
+  // 1. 基本チェック
+  if (!challenge.title || !challenge.title.trim()) {
+    return { ok: false, message: "問題タイトルが空です。" };
+  }
+  if (!challenge.sample || !challenge.sample.trim()) {
+    return { ok: false, message: "正解コードが入力されていません。" };
+  }
+
+  // 2. ローカル構文解析・シミュレーションチェック
+  try {
+    const sim = await Interpreter.simulate(challenge.sample);
+    if (!sim) {
+      return { ok: false, message: "正解コードのシミュレーション実行に失敗しました。" };
+    }
+  } catch (err) {
+    return { ok: false, message: `正解コードに構文エラーがあります:\n${err.message}` };
+  }
+
+  // 3. サーバー側 Gemini AI による整合性チェック
+  try {
+    const res = await fetch("/api/validate-challenge", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(challenge),
+    });
+    if (res.ok) {
+      const val = await res.json();
+      if (val && val.valid === false) {
+        return { ok: false, message: `【AI検証でエラーが検出されました】\n${val.reason}` };
+      }
+    }
+  } catch (e) {
+    // ネットワークエラー時もローカルシミュレーションが通っていれば許可
+    console.warn("AI validation API skipped or failed:", e);
+  }
+
+  return { ok: true };
+}
 
 // --- 管理者タブ切り替え ---
 const adminTabs = document.querySelectorAll(".admin-tab");
@@ -885,11 +929,21 @@ btnChallengeAdd?.addEventListener("click", async () => {
   };
 
   const originalBtnText = btnChallengeAdd.textContent;
-  btnChallengeAdd.textContent = "保存中...";
+  btnChallengeAdd.textContent = "検証中...";
   btnChallengeAdd.disabled = true;
 
-  // デフォルト問題セット（CHALLENGES）には追加せず、問題バンクに蓄積する
   try {
+    // 登録前のコード妥当性検証（構文解析 ＋ AI判定）
+    const validation = await validateChallengeCode(newChallenge);
+    if (!validation.ok) {
+      alert(`⚠️ 問題コードにエラーがあるため登録できません:\n\n${validation.message}`);
+      appendConsole(`問題登録を中断しました: ${validation.message}`, "error");
+      return;
+    }
+
+    btnChallengeAdd.textContent = "保存中...";
+
+    // デフォルト問題セット（CHALLENGES）には追加せず、問題バンクに蓄積する
     const res = await fetch("/api/question-bank", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -923,17 +977,20 @@ btnAIGenerate?.addEventListener("click", async () => {
 
   try {
     const diff = aiDifficulty.value;
-    // まずローカル server.js を使い、無い場合のみ GAS にフォールバック
+    const conditionVal = aiCondition?.value?.trim() || "";
+    // ローカル server.js へ条件も含めてリクエスト
     let data = null;
     try {
-      const localRes = await fetch("/api/generate-challenge?difficulty=" + encodeURIComponent(diff));
+      const url = `/api/generate-challenge?difficulty=${encodeURIComponent(diff)}&condition=${encodeURIComponent(conditionVal)}`;
+      const localRes = await fetch(url);
       if (localRes.ok) data = await localRes.json();
       else {
         const errBody = await localRes.json().catch(() => ({}));
         throw new Error(errBody.error || "local generate failed");
       }
     } catch (localErr) {
-      const gasRes = await fetch(GAS_URL + "?action=generateChallenge&difficulty=" + encodeURIComponent(diff));
+      const gasUrl = `${GAS_URL}?action=generateChallenge&difficulty=${encodeURIComponent(diff)}&condition=${encodeURIComponent(conditionVal)}`;
+      const gasRes = await fetch(gasUrl);
       if (!gasRes.ok) throw localErr;
       data = await gasRes.json();
     }
@@ -943,11 +1000,12 @@ btnAIGenerate?.addEventListener("click", async () => {
     challengeEditText.value = data.text || "";
     challengeEditHint.value = data.hint || "";
     challengeEditSample.value = data.sample || "";
-    challengeEditKind.value = data.kind || "contains_code";
-    appendConsole("AIが問題を生成しました！", "ok");
+    if (challengeEditKind) challengeEditKind.value = data.kind || "contains_code";
+    appendConsole(`AIが問題を生成しました！${conditionVal ? `（条件: ${conditionVal}）` : ""}`, "ok");
   } catch (err) {
     console.error("AI Generate Error:", err);
     appendConsole("AI生成に失敗しました。.env の GEMINI_API_KEY を確認してください。", "error");
+    alert(`AI生成に失敗しました: ${err.message}`);
   } finally {
     btnAIGenerate.textContent = originalText;
     btnAIGenerate.disabled = false;
@@ -980,18 +1038,42 @@ btnChallengeAdmin?.addEventListener("click", () => {
 btnChallengeSave?.addEventListener("click", async () => {
   if (!isAdminMode) return;
   const c = CHALLENGES[currentChallengeIndex];
-  c.title  = challengeEditTitle.value;
-  c.text   = challengeEditText.value;
-  c.hint   = challengeEditHint.value;
-  c.sample = challengeEditSample.value;
-  c.kind   = "contains_code";
+  const updatedChallenge = {
+    title: challengeEditTitle.value,
+    text: challengeEditText.value,
+    hint: challengeEditHint.value,
+    sample: challengeEditSample.value,
+    kind: "contains_code",
+  };
+
+  const originalSaveText = btnChallengeSave.textContent;
+  btnChallengeSave.textContent = "検証中...";
+  btnChallengeSave.disabled = true;
+
   try {
+    const validation = await validateChallengeCode(updatedChallenge);
+    if (!validation.ok) {
+      alert(`⚠️ 問題コードにエラーがあるため保存できません:\n\n${validation.message}`);
+      appendConsole(`問題保存を中断しました: ${validation.message}`, "error");
+      return;
+    }
+
+    c.title  = updatedChallenge.title;
+    c.text   = updatedChallenge.text;
+    c.hint   = updatedChallenge.hint;
+    c.sample = updatedChallenge.sample;
+    c.kind   = updatedChallenge.kind;
+
     await saveChallengesToStorage();
     renderChallenge();
     closeChallengeEditor(); // 保存成功時にエディタを閉じる
     appendConsole(`問題 ${currentChallengeIndex + 1} を保存しました（全ユーザーに反映）`, "ok");
   } catch (e) {
     appendConsole("保存に失敗しました。サーバーが起動しているか確認してください。", "error");
+    alert(`保存に失敗しました: ${e.message}`);
+  } finally {
+    btnChallengeSave.textContent = originalSaveText;
+    btnChallengeSave.disabled = false;
   }
 });
 
