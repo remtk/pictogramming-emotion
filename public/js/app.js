@@ -887,7 +887,6 @@ btnChallengeSubmit?.addEventListener("click", () => {
 });
 
 btnChallengeAdd?.addEventListener("click", async () => {
-  if (!isCreateMode) return;
   const newChallenge = {
     title: challengeEditTitle.value || "無題",
     text: challengeEditText.value || "",
@@ -895,6 +894,10 @@ btnChallengeAdd?.addEventListener("click", async () => {
     sample: challengeEditSample.value || "",
     kind: challengeEditKind.value || "any",
   };
+
+  const originalBtnText = btnChallengeAdd.textContent;
+  btnChallengeAdd.textContent = "保存中...";
+  btnChallengeAdd.disabled = true;
 
   // デフォルト問題セット（CHALLENGES）には追加せず、問題バンクに蓄積する
   try {
@@ -905,10 +908,22 @@ btnChallengeAdd?.addEventListener("click", async () => {
     });
     const result = await res.json();
     if (!res.ok || !result.success) throw new Error(result.error || "保存失敗");
-    closeChallengeEditor();
+    
     appendConsole(`💾 問題「${newChallenge.title}」を問題バンクに蓄積しました（バンク合計: ${result.total} 問）`, "ok");
+    alert(`問題「${newChallenge.title}」を問題バンクに蓄積しました！（合計: ${result.total}問）`);
+
+    // バンクリストを更新
+    if (typeof loadQuestionBank === "function") {
+      loadQuestionBank();
+    }
+
+    closeChallengeEditor();
   } catch (e) {
     appendConsole(`問題バンクへの保存に失敗しました: ${e.message}`, "error");
+    alert(`保存に失敗しました: ${e.message}`);
+  } finally {
+    btnChallengeAdd.textContent = originalBtnText;
+    btnChallengeAdd.disabled = false;
   }
 });
 
