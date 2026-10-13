@@ -147,42 +147,69 @@ EMOTION 喜び"></textarea>
 </div>
 
 <div id="challenge-admin-modal" class="modal-overlay">
-  <div class="modal-content">
+  <div class="modal-content" style="max-width:640px;">
     <div class="modal-header">
-      <h3>🛠️ 問題の作成・編集</h3>
+      <h3>🛠️ 管理者メニュー</h3>
       <button id="btn-challenge-modal-close" class="modal-close-btn">&times;</button>
     </div>
-    <div class="modal-body" id="challenge-editor">
-      <div style="display:flex; gap:8px; margin-bottom:12px; align-items:center; background:var(--paper-soft); padding:10px; border-radius:8px; border:1px solid var(--line);">
-        <select class="challenge-input" id="ai-difficulty" style="margin:0; width:140px;">
-          <option value="1">難易度: 初級</option>
-          <option value="2">難易度: 中級</option>
-          <option value="3">難易度: 上級</option>
+
+    <!-- 管理者モーダル タブ -->
+    <div class="admin-tabs">
+      <button class="admin-tab active" data-admin-tab="tab-editor">✏️ 作成・編集</button>
+      <button class="admin-tab" data-admin-tab="tab-bank">📦 問題バンク</button>
+    </div>
+
+    <!-- タブ1: 問題の作成・編集 -->
+    <div class="admin-tab-pane active" id="tab-editor">
+      <div class="modal-body" id="challenge-editor">
+        <div style="display:flex; gap:8px; margin-bottom:12px; align-items:center; background:var(--paper-soft); padding:10px; border-radius:8px; border:1px solid var(--line);">
+          <select class="challenge-input" id="ai-difficulty" style="margin:0; width:140px;">
+            <option value="1">難易度: 初級</option>
+            <option value="2">難易度: 中級</option>
+            <option value="3">難易度: 上級</option>
+          </select>
+          <button class="btn primary" id="btn-ai-generate" style="flex:1;">🤖 AIで問題を自動生成</button>
+        </div>
+        <input class="challenge-input" id="challenge-edit-title" type="text" placeholder="問題タイトル">
+        <textarea class="challenge-input" id="challenge-edit-text" rows="2" placeholder="問題文"></textarea>
+        <textarea class="challenge-input" id="challenge-edit-hint" rows="2" placeholder="ヒント"></textarea>
+        <textarea class="challenge-input challenge-code-input" id="challenge-edit-sample" rows="4" placeholder="正解のプログラムコード（判定用）"></textarea>
+        <select class="challenge-input" id="challenge-edit-kind">
+          <option value="joy">判定: 喜びになっている</option>
+          <option value="sad">判定: 悲しみになっている</option>
+          <option value="angry">判定: 怒りになっている</option>
+          <option value="surprise">判定: 驚きになっている</option>
+          <option value="normal">判定: 普通になっている</option>
+          <option value="triangle">判定: 三角形の命令を使っている</option>
+          <option value="speech">判定: SPでセリフを表示している</option>
+          <option value="contains_code">判定: 正解コードを含んでいればOK</option>
+          <option value="any">判定: 実行できればOK</option>
         </select>
-        <button class="btn primary" id="btn-ai-generate" style="flex:1;">🤖 AIで問題を自動生成</button>
       </div>
-      <input class="challenge-input" id="challenge-edit-title" type="text" placeholder="問題タイトル">
-      <textarea class="challenge-input" id="challenge-edit-text" rows="2" placeholder="問題文"></textarea>
-      <textarea class="challenge-input" id="challenge-edit-hint" rows="2" placeholder="ヒント"></textarea>
-      <textarea class="challenge-input challenge-code-input" id="challenge-edit-sample" rows="4" placeholder="正解のプログラムコード（判定用）"></textarea>
-      <select class="challenge-input" id="challenge-edit-kind">
-        <option value="joy">判定: 喜びになっている</option>
-        <option value="sad">判定: 悲しみになっている</option>
-        <option value="angry">判定: 怒りになっている</option>
-        <option value="surprise">判定: 驚きになっている</option>
-        <option value="normal">判定: 普通になっている</option>
-        <option value="triangle">判定: 三角形の命令を使っている</option>
-        <option value="speech">判定: SPでセリフを表示している</option>
-        <option value="contains_code">判定: 正解コードを含んでいればOK</option>
-        <option value="any">判定: 実行できればOK</option>
-      </select>
+      <div class="modal-footer" style="display:flex; gap:8px; flex-wrap:wrap;">
+        <button class="btn ghost challenge-btn" id="btn-challenge-save">この問題を保存</button>
+        <button class="btn ghost challenge-btn" id="btn-challenge-reset">この問題をリセット</button>
+        <button class="btn ghost challenge-btn" id="btn-challenge-delete" style="color:var(--danger, #e74c3c); border-color:rgba(231, 76, 60, 0.4);">この問題を削除</button>
+        <button class="btn ghost challenge-btn" id="btn-challenge-add">バンクに追加</button>
+      </div>
     </div>
-    <div class="modal-footer" style="display:flex; gap:8px; flex-wrap:wrap;">
-      <button class="btn ghost challenge-btn" id="btn-challenge-save">この問題を保存</button>
-      <button class="btn ghost challenge-btn" id="btn-challenge-reset">この問題をリセット</button>
-      <button class="btn ghost challenge-btn" id="btn-challenge-delete" style="color:var(--danger, #e74c3c); border-color:rgba(231, 76, 60, 0.4);">この問題を削除</button>
-      <button class="btn ghost challenge-btn" id="btn-challenge-add">新規問題を追加</button>
+
+    <!-- タブ2: 問題バンク閲覧 -->
+    <div class="admin-tab-pane" id="tab-bank">
+      <div class="modal-body" style="padding:16px; gap:12px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap;">
+          <span id="bank-count-label" style="font-size:12px; font-weight:700; color:var(--ink-soft);">読み込み中...</span>
+          <button class="btn ghost" id="btn-bank-refresh" style="padding:4px 12px; font-size:11px;">🔄 更新</button>
+        </div>
+        <div id="bank-list" class="bank-list">
+          <!-- JSで動的生成 -->
+        </div>
+      </div>
+      <div class="modal-footer" style="justify-content:flex-start;">
+        <span style="font-size:11px; color:var(--ink-soft);">💡 「バンクに追加」ボタンで作成した問題が蓄積されます</span>
+      </div>
     </div>
+
   </div>
 </div>
 

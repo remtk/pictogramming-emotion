@@ -32,6 +32,15 @@ const QUESTION_BANK_FILE = path.join(__dirname, "question_bank.json"); // 問題
   }
 })();
 
+// BOMを除去してJSONファイルを読み込むヘルパー
+function readBankFile(filePath) {
+  if (!fs.existsSync(filePath)) return [];
+  let text = fs.readFileSync(filePath, "utf-8");
+  // UTF-8 BOM (\uFEFF) を除去
+  if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
+  return JSON.parse(text);
+}
+
 // ==========================================
 // 管理者設定: Google Apps Script (GAS) WebアプリURL
 // 発行されたURLを以下の変数に貼り付けてください（空文字の場合はローカル保存のみ）
@@ -195,11 +204,9 @@ const server = http.createServer((req, res) => {
   // APIエンドポイント: 問題バンク（蓄積用）を取得
   if (req.method === "GET" && reqPath === "/api/question-bank") {
     try {
-      const data = fs.existsSync(QUESTION_BANK_FILE)
-        ? fs.readFileSync(QUESTION_BANK_FILE, "utf-8")
-        : "[]";
+      const bank = readBankFile(QUESTION_BANK_FILE);
       res.writeHead(200, { "Content-Type": "application/json; charset=utf-8" });
-      res.end(data);
+      res.end(JSON.stringify(bank));
     } catch (e) {
       res.writeHead(500, { "Content-Type": "application/json" });
       res.end(JSON.stringify({ error: e.message }));
@@ -218,10 +225,7 @@ const server = http.createServer((req, res) => {
           throw new Error("Invalid question format");
         }
         // 既存バンクを読み込み
-        let bank = [];
-        if (fs.existsSync(QUESTION_BANK_FILE)) {
-          bank = JSON.parse(fs.readFileSync(QUESTION_BANK_FILE, "utf-8"));
-        }
+        let bank = readBankFile(QUESTION_BANK_FILE);
         // タイムスタンプとIDを付与して追加
         newQuestion.id = Date.now() + "_" + Math.random().toString(36).slice(2, 7);
         newQuestion.createdAt = new Date().toISOString();
@@ -241,10 +245,7 @@ const server = http.createServer((req, res) => {
   if (req.method === "DELETE" && reqPath.startsWith("/api/question-bank/")) {
     const targetId = decodeURIComponent(reqPath.slice("/api/question-bank/".length));
     try {
-      let bank = [];
-      if (fs.existsSync(QUESTION_BANK_FILE)) {
-        bank = JSON.parse(fs.readFileSync(QUESTION_BANK_FILE, "utf-8"));
-      }
+      let bank = readBankFile(QUESTION_BANK_FILE);
       const before = bank.length;
       bank = bank.filter(q => q.id !== targetId);
       fs.writeFileSync(QUESTION_BANK_FILE, JSON.stringify(bank, null, 2));

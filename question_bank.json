@@ -1,1 +1,29 @@
-﻿[]
+[
+  {
+    "title": "腕を上げよう",
+    "text": "右腕を90度上げてください",
+    "hint": "R RUA -90",
+    "sample": "R RUA -90",
+    "kind": "any",
+    "id": "1791867566312_cshjq",
+    "createdAt": "2026-10-13T04:59:26.312Z"
+  },
+  {
+    "title": "悲しんでみよう",
+    "text": "SAD感情にしてください",
+    "hint": "EMOTION SAD",
+    "sample": "EMOTION SAD",
+    "kind": "sad",
+    "id": "1791867566318_78wip",
+    "createdAt": "2026-10-13T04:59:26.318Z"
+  },
+  {
+    "title": "星を描こう（上級）",
+    "text": "REPEATを使って星を描いてください",
+    "hint": "REPEAT 5 ... END",
+    "sample": "PEN DOWN",
+    "kind": "contains_code",
+    "id": "1791867566320_ky6mt",
+    "createdAt": "2026-10-13T04:59:26.320Z"
+  }
+]

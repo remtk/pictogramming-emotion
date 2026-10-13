@@ -37,6 +37,19 @@ const btnChallengeModalClose = document.getElementById("btn-challenge-modal-clos
 const btnAIGenerate = document.getElementById("btn-ai-generate");
 const aiDifficulty = document.getElementById("ai-difficulty");
 
+// --- 管理者タブ切り替え ---
+const adminTabs = document.querySelectorAll(".admin-tab");
+const adminTabPanes = document.querySelectorAll(".admin-tab-pane");
+adminTabs.forEach(tab => {
+  tab.addEventListener("click", () => {
+    adminTabs.forEach(t => t.classList.toggle("active", t === tab));
+    const targetId = tab.dataset.adminTab;
+    adminTabPanes.forEach(pane => pane.classList.toggle("active", pane.id === targetId));
+    // バンクタブに切り替えたら即読み込み
+    if (targetId === "tab-bank") loadQuestionBank();
+  });
+});
+
 if (btnChallengeModalClose) {
   btnChallengeModalClose.addEventListener("click", closeChallengeEditor);
 }
@@ -838,9 +851,12 @@ function openChallengeEditor() {
     btnChallengeSave.style.display = "";
     btnChallengeReset.style.display = "";
     if (btnChallengeDelete) btnChallengeDelete.style.display = "";
-    btnChallengeAdd.style.display = "none";
+    btnChallengeAdd.style.display = ""; // 管理者もバンクへ追加できる
     btnChallengeAdmin.textContent = "🔓 編集中";
   }
+  // 常に「作成・編集」タブをアクティブにして開く
+  adminTabs.forEach(t => t.classList.toggle("active", t.dataset.adminTab === "tab-editor"));
+  adminTabPanes.forEach(p => p.classList.toggle("active", p.id === "tab-editor"));
   challengeAdminModal.classList.add("active");
 }
 
@@ -1030,6 +1046,107 @@ btnChallengeDelete?.addEventListener("click", async () => {
 
 // 起動時にサーバーから問題を読み込み、再描画
 loadChallengesFromStorage().then(() => renderChallenge());
+
+// --- 問題バンク管理（管理者用） ------------------------------------------
+const KIND_LABELS = {
+  joy: "😊 喜び", sad: "😢 悲しみ", angry: "😠 怒り",
+  surprise: "😲 驚き", normal: "😐 普通",
+  triangle: "📐 三角形", speech: "💬 セリフ",
+  contains_code: "💻 コード一致", any: "✅ 実行OK",
+};
+
+async function loadQuestionBank() {
+  const bankList = document.getElementById("bank-list");
+  const countLabel = document.getElementById("bank-count-label");
+  if (!bankList) return;
+
+  bankList.innerHTML = `<div class="bank-empty"><span class="bank-empty-icon">⏳</span>読み込み中...</div>`;
+  if (countLabel) countLabel.textContent = "読み込み中...";
+
+  try {
+    const res = await fetch("/api/question-bank");
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const bank = await res.json();
+
+    if (countLabel) countLabel.textContent = `📦 蓄積済み問題: ${bank.length} 問`;
+
+    if (bank.length === 0) {
+      bankList.innerHTML = `
+        <div class="bank-empty">
+          <span class="bank-empty-icon">📭</span>
+          まだ問題が蓄積されていません。<br>
+          「バンクに追加」ボタンで問題を作成してください。
+        </div>`;
+      return;
+    }
+
+    bankList.innerHTML = "";
+    // 新しい順（末尾が最新）に逆順表示
+    [...bank].reverse().forEach((q, idx) => {
+      const item = document.createElement("div");
+      item.className = "bank-item";
+
+      const createdAt = q.createdAt
+        ? new Date(q.createdAt).toLocaleString("ja-JP", { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" })
+        : "不明";
+
+      const kindLabel = KIND_LABELS[q.kind] || q.kind || "不明";
+      const num = bank.length - idx; // 新→旧の順番号
+
+      item.innerHTML = `
+        <div class="bank-item-info">
+          <div class="bank-item-title">#${num} ${escapeHtml(q.title || "無題")}</div>
+          <div class="bank-item-meta">
+            <span class="kind-badge">${kindLabel}</span>
+            <span>🕐 ${createdAt}</span>
+          </div>
+          <div class="bank-item-text">${escapeHtml(q.text || "")}</div>
+        </div>
+        <div class="bank-item-actions">
+          <button class="btn ghost bank-btn" data-action="detail" data-id="${escapeHtml(q.id)}">詳細</button>
+          <button class="btn danger bank-btn" data-action="delete" data-id="${escapeHtml(q.id)}" data-title="${escapeHtml(q.title || "無題")}">削除</button>
+        </div>`;
+
+      // 詳細ボタン：フォームにデータを流し込んで作成・編集タブへ
+      item.querySelector("[data-action='detail']").addEventListener("click", () => {
+        challengeEditTitle.value  = q.title || "";
+        challengeEditText.value   = q.text || "";
+        challengeEditHint.value   = q.hint || "";
+        challengeEditSample.value = q.sample || "";
+        challengeEditKind.value   = q.kind || "any";
+        // 作成・編集タブへ切り替え
+        adminTabs.forEach(t => t.classList.toggle("active", t.dataset.adminTab === "tab-editor"));
+        adminTabPanes.forEach(p => p.classList.toggle("active", p.id === "tab-editor"));
+        appendConsole(`📋 バンクから「${q.title}」を編集エリアに読み込みました`, "info");
+      });
+
+      // 削除ボタン
+      item.querySelector("[data-action='delete']").addEventListener("click", async (e) => {
+        const id = e.currentTarget.dataset.id;
+        const title = e.currentTarget.dataset.title;
+        if (!confirm(`「${title}」を問題バンクから削除しますか？`)) return;
+
+        try {
+          const delRes = await fetch(`/api/question-bank/${encodeURIComponent(id)}`, { method: "DELETE" });
+          const result = await delRes.json();
+          if (!delRes.ok || !result.success) throw new Error(result.error || "削除失敗");
+          appendConsole(`🗑️ 「${title}」を問題バンクから削除しました（残 ${result.total} 問）`, "ok");
+          loadQuestionBank(); // 再読み込み
+        } catch (err) {
+          appendConsole(`削除に失敗しました: ${err.message}`, "error");
+        }
+      });
+
+      bankList.appendChild(item);
+    });
+  } catch (err) {
+    bankList.innerHTML = `<div class="bank-empty"><span class="bank-empty-icon">⚠️</span>読み込みに失敗しました<br><small>${escapeHtml(err.message)}</small></div>`;
+    if (countLabel) countLabel.textContent = "取得エラー";
+  }
+}
+
+// 更新ボタン
+document.getElementById("btn-bank-refresh")?.addEventListener("click", loadQuestionBank);
 
 // --- ログデータ管理 --------------------------------------------------------
 const sessionId = Math.random().toString(36).substring(2, 10);
