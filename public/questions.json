@@ -1,10 +1,10 @@
 [
   {
-    "title": "喜びの表情にしよう",
-    "text": "EMOTION命令を使って、ピクトグラムを喜びの状態にしてください。",
-    "hint": "例: EMOTION JOY 0",
-    "sample": "// 問題1: 喜びの表情にしよう\nEMOTION JOY 0",
-    "kind": "joy"
+    "title": "【中級】感情ストーリー（驚いてから喜ぶ）",
+    "text": "まず驚き（SURPRISE）になって「えっ！？」と後ずさり（MW -40 0）し、1秒後に喜び（JOY）に変わって「嬉しい！」と言わせてください。",
+    "hint": "EMOTION SURPRISE → SP → MW -40 0 0.5 → WAIT 1 → EMOTION JOY → SP の順に書きます。",
+    "sample": "EMOTION SURPRISE 0.5\nSP \"えっ！？\"\nMW -40 0 0.5\nWAIT 1\nEMOTION JOY 0.5\nSP \"嬉しい！\"",
+    "kind": "contains_code"
   },
   {
     "title": "線で三角形を描こう",
@@ -14,10 +14,10 @@
     "kind": "triangle"
   },
   {
-    "title": "セリフを表示しよう",
-    "text": "SP命令を使って、ピクトグラムにひとこと話させてください。",
-    "hint": "例: SP \"こんにちは\"",
-    "sample": "// 問題3: セリフを表示しよう\nSP \"こんにちは\"",
-    "kind": "speech"
+    "title": "【上級】変数を使ってだんだん大きくなる渦巻き",
+    "text": "LET変数 LEN を使って、直進するごとに長さを20ずつ増やしながら4回曲がる四角い渦巻き（拡大スパイラル）を描いてください。",
+    "hint": "LET LEN 30 から始め、4回 [LEN + 20] して直角に曲がります。",
+    "sample": "LET LEN 30\nPEN DOWN\nREPEAT 4\n  MW [LEN] 0 0.3\n  R BODY 90\n  LET LEN [LEN + 20]\nEND\nPEN UP",
+    "kind": "contains_code"
   }
 ]

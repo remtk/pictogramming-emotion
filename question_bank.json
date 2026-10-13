@@ -1,47 +1,272 @@
 [
   {
-    "title": "腕を上げよう",
-    "text": "右腕を90度上げてください",
-    "hint": "R RUA -90",
+    "title": "【初級】嬉しい気持ちを表現しよう",
+    "text": "EMOTION命令を使って、ピクトグラムの表情を「喜び（JOY）」に変えてみましょう。",
+    "hint": "EMOTION JOY 0 と書きます。",
+    "sample": "EMOTION JOY 0",
+    "kind": "contains_code",
+    "id": "1791870601224_n599t",
+    "createdAt": "2026-10-13T05:50:01.224Z"
+  },
+  {
+    "title": "【初級】元気に挨拶しよう",
+    "text": "SP命令を使って、ピクトグラムに「こんにちは！」と言わせてみましょう。",
+    "hint": "SP \"こんにちは！\" と書きます。",
+    "sample": "SP \"こんにちは！\"",
+    "kind": "speech",
+    "id": "1791870602224_sj34h",
+    "createdAt": "2026-10-13T05:50:02.224Z"
+  },
+  {
+    "title": "【初級】悲しい気持ちに切り替えよう",
+    "text": "EMOTION命令を使って、ピクトグラムの感情を「悲しみ（SAD）」にしてください。",
+    "hint": "EMOTION SAD 0 を使います。",
+    "sample": "EMOTION SAD 0",
+    "kind": "contains_code",
+    "id": "1791870603224_dohub",
+    "createdAt": "2026-10-13T05:50:03.224Z"
+  },
+  {
+    "title": "【初級】右腕を水平に上げよう",
+    "text": "R命令を使って、右上腕（RUA）を時計と反対回りに90度（-90）回転させて水平にしてください。",
+    "hint": "R RUA -90 を実行します。",
     "sample": "R RUA -90",
     "kind": "any",
-    "id": "1791867566312_cshjq",
-    "createdAt": "2026-10-13T04:59:26.312Z"
+    "id": "1791870604224_guesk",
+    "createdAt": "2026-10-13T05:50:04.224Z"
   },
   {
-    "title": "悲しんでみよう",
-    "text": "SAD感情にしてください",
-    "hint": "EMOTION SAD",
-    "sample": "EMOTION SAD",
-    "kind": "sad",
-    "id": "1791867566318_78wip",
-    "createdAt": "2026-10-13T04:59:26.318Z"
-  },
-  {
-    "title": "星を描こう（上級）",
-    "text": "REPEATを使って星を描いてください",
-    "hint": "REPEAT 5 ... END",
-    "sample": "PEN DOWN",
+    "title": "【初級】怒りの表情にしてみよう",
+    "text": "ピクトグラムの感情を「怒り（ANGRY）」に設定してください。",
+    "hint": "EMOTION ANGRY 0 を使います。",
+    "sample": "EMOTION ANGRY 0",
     "kind": "contains_code",
-    "id": "1791867566320_ky6mt",
-    "createdAt": "2026-10-13T04:59:26.320Z"
+    "id": "1791870605224_ghu63",
+    "createdAt": "2026-10-13T05:50:05.224Z"
   },
   {
-    "title": "幾何学模様の星を描こう",
-    "text": "ペンを下げて、回転と移動を繰り返すことで、5角形の星型（五芒星）を描画してください。各辺の長さは100、回転角は144度とし、5回繰り返すプログラムを作成してください。",
-    "hint": "REPEAT文を使って、100進んで144度回転するという処理を5回繰り返すと星型になります。描き始める前にPEN DOWNを忘れずに。",
-    "sample": "PEN DOWN\nREPEAT 5\nMW 100 0 1\nR BODY 144\nEND\nPEN UP",
+    "title": "【初級】びっくり驚こう",
+    "text": "EMOTION命令を使って、ピクトグラムを「驚き（SURPRISE）」の感情にしてください。",
+    "hint": "EMOTION SURPRISE 0 を指定します。",
+    "sample": "EMOTION SURPRISE 0",
+    "kind": "contains_code",
+    "id": "1791870606224_n1w6t",
+    "createdAt": "2026-10-13T05:50:06.224Z"
+  },
+  {
+    "title": "【初級】右へトコトコ歩こう",
+    "text": "MW命令を使って、右方向（X: 60, Y: 0）へ1秒かけて歩いて移動させてください。",
+    "hint": "MW 60 0 1 を使います。",
+    "sample": "MW 60 0 1",
     "kind": "any",
-    "id": "1791869059828_5sxxa",
-    "createdAt": "2026-10-13T05:24:19.828Z"
+    "id": "1791870607224_kidgc",
+    "createdAt": "2026-10-13T05:50:07.224Z"
   },
   {
-    "title": "幾何学模様：正八角形を描こう",
-    "text": "ピクトグラミングくんを使って、画面上に綺麗な正八角形を描いてください。1辺の長さは100とし、最後に「JOY」の感情で「完成！」と表示させてください。",
-    "hint": "正八角形の内角は135度、外角は45度です。REPEAT命令を使って、移動と回転を8回繰り返しましょう。",
-    "sample": "PEN DOWN\nREPEAT 8\n  MW 100 0 1\n  R BODY 45\nEND\nPEN UP\nEMOTION JOY 1\nSP \"完成！\"",
+    "title": "【初級】左手で挙手しよう",
+    "text": "左上腕（LUA）を大きく回して、真上にピンと挙手（165度）させてください。",
+    "hint": "R LUA 165 を実行します。",
+    "sample": "R LUA 165",
+    "kind": "any",
+    "id": "1791870608224_mjf6e",
+    "createdAt": "2026-10-13T05:50:08.224Z"
+  },
+  {
+    "title": "【初級】足元にリンゴを置こう",
+    "text": "ITEM命令を使って、座標(-50, 0)に「リンゴ」を置いてみましょう。",
+    "hint": "ITEM リンゴ -50 0 と書きます。",
+    "sample": "ITEM リンゴ -50 0",
+    "kind": "any",
+    "id": "1791870609224_wp4lt",
+    "createdAt": "2026-10-13T05:50:09.224Z"
+  },
+  {
+    "title": "【初級】普通の表情に戻ろう",
+    "text": "EMOTION命令を使って、ピクトグラムを直立の「普通（NORMAL）」の状態に戻してください。",
+    "hint": "EMOTION NORMAL 0 を使います。",
+    "sample": "EMOTION NORMAL 0",
     "kind": "contains_code",
-    "id": "1791869070390_jzw47",
-    "createdAt": "2026-10-13T05:24:30.390Z"
+    "id": "1791870610224_6fhln",
+    "createdAt": "2026-10-13T05:50:10.224Z"
+  },
+  {
+    "title": "【中級】バンザイして喜びを叫ぼう",
+    "text": "左腕（LUA 165）と右腕（RUA -165）を同時に上げてバンザイの姿勢にし、喜び（JOY）になって「やったー！」と叫んでください。",
+    "hint": "腕の回転命令を2つ書いた後、EMOTION JOY、SP \"やったー！\" を記述します。",
+    "sample": "R LUA 165\nR RUA -165\nEMOTION JOY 0.5\nSP \"やったー！\"",
+    "kind": "contains_code",
+    "id": "1791870611224_dieeb",
+    "createdAt": "2026-10-13T05:50:11.224Z"
+  },
+  {
+    "title": "【中級】丁寧なお辞儀（ペコリ）",
+    "text": "RW命令を使って体を前に30度倒し、WAITで1秒待ってから元の姿勢（-30度）に戻し、「よろしくお願いします」と言わせてください。",
+    "hint": "RW BODY 30 0.5 → WAIT 1 → RW BODY -30 0.5 → SP を順に実行します。",
+    "sample": "RW BODY 30 0.5\nWAIT 1\nRW BODY -30 0.5\nSP \"よろしくお願いします\"",
+    "kind": "speech",
+    "id": "1791870612224_w9p17",
+    "createdAt": "2026-10-13T05:50:12.224Z"
+  },
+  {
+    "title": "【中級】ペンで正三角形を描こう",
+    "text": "PEN DOWNの後、REPEAT 3 と回転角120度を使って一辺80の正三角形を描き、最後にペンを上げてください。",
+    "hint": "PEN DOWN、REPEAT 3、MW 80 0 0.4、R BODY 120、END、PEN UP を組み合わせます。",
+    "sample": "PEN DOWN\nREPEAT 3\n  MW 80 0 0.4\n  R BODY 120\nEND\nPEN UP",
+    "kind": "triangle",
+    "id": "1791870613224_y51sf",
+    "createdAt": "2026-10-13T05:50:13.224Z"
+  },
+  {
+    "title": "【中級】赤色で正方形を描こう",
+    "text": "ペンの色を赤（#E74C3C）に変えてから、REPEAT 4 と90度回転を使って一辺70の正方形を描いてください。",
+    "hint": "PEN COLOR \"#E74C3C\"、PEN DOWN、REPEAT 4、MW 70 0 0.4、R BODY 90、END、PEN UP を使います。",
+    "sample": "PEN COLOR \"#E74C3C\"\nPEN DOWN\nREPEAT 4\n  MW 70 0 0.4\n  R BODY 90\nEND\nPEN UP",
+    "kind": "contains_code",
+    "id": "1791870614224_sov6q",
+    "createdAt": "2026-10-13T05:50:14.224Z"
+  },
+  {
+    "title": "【中級】落ちてくるボールをキャッチ！",
+    "text": "アイテム「ボール」を(0, -90)に配置し、右腕のIK命令を使ってそのボールの位置へ手を伸ばしてキャッチしてください。",
+    "hint": "ITEM ボール 0 -90 と IK 右腕 0 -90 を使います。",
+    "sample": "ITEM ボール 0 -90 1.5\nIK 右腕 0 -90\nSP \"ナイスキャッチ！\"",
+    "kind": "any",
+    "id": "1791870615224_pfut1",
+    "createdAt": "2026-10-13T05:50:15.224Z"
+  },
+  {
+    "title": "【中級】感情ストーリー（驚いてから喜ぶ）",
+    "text": "まず驚き（SURPRISE）になって「えっ！？」と後ずさり（MW -40 0）し、1秒後に喜び（JOY）に変わって「嬉しい！」と言わせてください。",
+    "hint": "EMOTION SURPRISE → SP → MW -40 0 0.5 → WAIT 1 → EMOTION JOY → SP の順に書きます。",
+    "sample": "EMOTION SURPRISE 0.5\nSP \"えっ！？\"\nMW -40 0 0.5\nWAIT 1\nEMOTION JOY 0.5\nSP \"嬉しい！\"",
+    "kind": "contains_code",
+    "id": "1791870616224_4exj7",
+    "createdAt": "2026-10-13T05:50:16.224Z"
+  },
+  {
+    "title": "【中級】階段ステップを描こう",
+    "text": "REPEAT 3 を使って、「右へ40進む → 上へ40進む」を繰り返して階段のような3段の線を描いてください。",
+    "hint": "PEN DOWN、REPEAT 3、MW 40 0 0.3、MW 0 -40 0.3、END、PEN UP を使います。",
+    "sample": "PEN DOWN\nREPEAT 3\n  MW 40 0 0.3\n  MW 0 -40 0.3\nEND\nPEN UP",
+    "kind": "contains_code",
+    "id": "1791870617224_63kjn",
+    "createdAt": "2026-10-13T05:50:17.224Z"
+  },
+  {
+    "title": "【中級】走るポーズを作ろう",
+    "text": "右腕を後ろ（RUA 60）、左腕を前（LUA -60）、右脚を前（RUL -45）、左脚を後ろ（LUL 45）にして、力強いダッシュのポーズを作ってください。",
+    "hint": "R RUA 60、R LUA -60、R RUL -45、R LUL 45 を組み合わせます。",
+    "sample": "R RUA 60\nR LUA -60\nR RUL -45\nR LUL 45",
+    "kind": "any",
+    "id": "1791870618224_sx71x",
+    "createdAt": "2026-10-13T05:50:18.224Z"
+  },
+  {
+    "title": "【中級】右手を振ってバイバイ",
+    "text": "右上腕を上げて（RUA -120）、前腕（RLA）を左右に振って（40度と-40度）から「またね！」と挨拶してください。",
+    "hint": "R RUA -120、RW RLA 40 0.3、RW RLA -40 0.3、SP \"またね！\" を記述します。",
+    "sample": "R RUA -120\nRW RLA 40 0.3\nRW RLA -40 0.3\nSP \"またね！\"",
+    "kind": "speech",
+    "id": "1791870619224_n5swu",
+    "createdAt": "2026-10-13T05:50:19.224Z"
+  },
+  {
+    "title": "【中級】アイテムを集めてお片付け",
+    "text": "リンゴと星を画面に配置した後、2秒待ってから ITEM CLEAR で全部消し、「綺麗になった！」と言わせてください。",
+    "hint": "ITEM リンゴ -60 0、ITEM 星 60 0、WAIT 2、ITEM CLEAR、SP を使います。",
+    "sample": "ITEM リンゴ -60 0\nITEM 星 60 0\nWAIT 2\nITEM CLEAR\nSP \"綺麗になった！\"",
+    "kind": "speech",
+    "id": "1791870620224_lps0c",
+    "createdAt": "2026-10-13T05:50:20.224Z"
+  },
+  {
+    "title": "【上級】きらめく星型（五芒星）の一筆書き",
+    "text": "REPEAT 5 と回転角144度を使って、一辺100の美しい五角形の星（星型多角形）を一筆書きで描画してください。",
+    "hint": "PEN DOWN、REPEAT 5、MW 100 0 0.4、R BODY 144、END、PEN UP を組み合わせます。",
+    "sample": "PEN DOWN\nREPEAT 5\n  MW 100 0 0.4\n  R BODY 144\nEND\nPEN UP\nEMOTION JOY 0.5",
+    "kind": "contains_code",
+    "id": "1791870621224_855ob",
+    "createdAt": "2026-10-13T05:50:21.224Z"
+  },
+  {
+    "title": "【上級】変数を使ってだんだん大きくなる渦巻き",
+    "text": "LET変数 LEN を使って、直進するごとに長さを20ずつ増やしながら4回曲がる四角い渦巻き（拡大スパイラル）を描いてください。",
+    "hint": "LET LEN 30 から始め、4回 [LEN + 20] して直角に曲がります。",
+    "sample": "LET LEN 30\nPEN DOWN\nREPEAT 4\n  MW [LEN] 0 0.3\n  R BODY 90\n  LET LEN [LEN + 20]\nEND\nPEN UP",
+    "kind": "contains_code",
+    "id": "1791870622224_skq9e",
+    "createdAt": "2026-10-13T05:50:22.224Z"
+  },
+  {
+    "title": "【上級】変数と条件分岐でテストの合否判定",
+    "text": "LET SCORE 85 と定義し、IF [SCORE >= 80] のときは喜び（JOY）で「合格！」、そうでない時は悲しみ（SAD）になる判定プログラムを書いてください。",
+    "hint": "LET SCORE 85、IF [SCORE >= 80] EMOTION JOY SP \"合格！\" END を使います。",
+    "sample": "LET SCORE 85\nIF [SCORE >= 80]\n  EMOTION JOY 0.5\n  SP \"合格！\"\nEND\nIF [SCORE < 80]\n  EMOTION SAD 0.5\n  SP \"不合格…\"\nEND",
+    "kind": "contains_code",
+    "id": "1791870623224_5jn9s",
+    "createdAt": "2026-10-13T05:50:23.224Z"
+  },
+  {
+    "title": "【上級】リズミカルな反復ダンスルーティン",
+    "text": "REPEAT 3 を使い、左右の腕を交互に上げ下げするウェーブダンスをアニメーションさせ、最後に「ダンシング！」と決めポーズしてください。",
+    "hint": "REPEAT 3 の中で RW LUA 90 0.2 と RW RUA -90 0.2 などを交互に動かします。",
+    "sample": "REPEAT 3\n  RW LUA 90 0.2\n  RW RUA -90 0.2\n  RW LUA -90 0.2\n  RW RUA 90 0.2\nEND\nEMOTION JOY 0.5\nSP \"ダンシング！\"",
+    "kind": "contains_code",
+    "id": "1791870624224_uw26d",
+    "createdAt": "2026-10-13T05:50:24.224Z"
+  },
+  {
+    "title": "【上級】青い正六角形（ハニカム）を描こう",
+    "text": "ペンの色を綺麗な水色（#3498DB）に設定し、外角60度（360/6）の正六角形を描いてください。",
+    "hint": "PEN COLOR \"#3498DB\"、PEN DOWN、REPEAT 6、MW 55 0 0.3、R BODY 60、END、PEN UP を使います。",
+    "sample": "PEN COLOR \"#3498DB\"\nPEN DOWN\nREPEAT 6\n  MW 55 0 0.3\n  R BODY 60\nEND\nPEN UP",
+    "kind": "contains_code",
+    "id": "1791870625224_ngk0d",
+    "createdAt": "2026-10-13T05:50:25.224Z"
+  },
+  {
+    "title": "【上級】飛んでくるボールをスライディングキャッチ！",
+    "text": "ボールを遠く(-180, -40)に置き、IMWで右へ180動かしながら、ピクトグラムはMWで左に60移動して手先(IK)でキャッチしてください。",
+    "hint": "ITEM ボール、IMW ボール 180 0 1.5、MW -60 0 1.5、IK 右腕 -60 -40 を同期させます。",
+    "sample": "ITEM ボール -180 -40 1.5\nIMW ボール 180 0 1.5\nMW -60 0 1.5\nWAIT 1.5\nIK 右腕 -60 -40\nEMOTION JOY 0.5\nSP \"キャッチ成功！\"",
+    "kind": "contains_code",
+    "id": "1791870626224_5r3gd",
+    "createdAt": "2026-10-13T05:50:26.224Z"
+  },
+  {
+    "title": "【上級】窓枠（二重正方形）を描こう",
+    "text": "一辺40の内側の四角形を描いた後、ペンを上げて移動し、外側に一辺80の四角形を描いて窓枠のような同心図形を完成させてください。",
+    "hint": "REPEAT 4 で内側を描画 → PEN UP → M -20 20 → PEN DOWN → REPEAT 4 で外側を描画します。",
+    "sample": "PEN DOWN\nREPEAT 4\n  MW 40 0 0.25\n  R BODY 90\nEND\nPEN UP\nM -20 20\nPEN DOWN\nREPEAT 4\n  MW 80 0 0.25\n  R BODY 90\nEND\nPEN UP",
+    "kind": "contains_code",
+    "id": "1791870627224_g47sb",
+    "createdAt": "2026-10-13T05:50:27.224Z"
+  },
+  {
+    "title": "【上級】カウントダウン・ジャンプ！",
+    "text": "LET COUNT 3 から始めて「3」「2」「1」とカウントダウンし、最後にジャンプ（上に移動して両手バンザイ）して「ジャンプ！」と叫んでください。",
+    "hint": "REPEAT 3 の中で SP [COUNT] と LET COUNT [COUNT - 1] を行い、最後に MW 0 -60 とバンザイをします。",
+    "sample": "LET COUNT 3\nREPEAT 3\n  SP [COUNT]\n  WAIT 0.7\n  LET COUNT [COUNT - 1]\nEND\nMW 0 -60 0.3\nR LUA 165\nR RUA -165\nEMOTION JOY 0.3\nSP \"ジャンプ！\"",
+    "kind": "contains_code",
+    "id": "1791870628224_xfid5",
+    "createdAt": "2026-10-13T05:50:28.224Z"
+  },
+  {
+    "title": "【上級】ダイヤ型（ひし形）のペンダントを描こう",
+    "text": "体をあらかじめ45度傾けた状態で一辺60の正方形を描くことで、傾いたダイヤモンド（ひし形）を描画してください。",
+    "hint": "R BODY 45 を実行してから、PEN DOWN、REPEAT 4、MW 60 0 0.3、R BODY 90、END、PEN UP を行います。",
+    "sample": "R BODY 45\nPEN DOWN\nREPEAT 4\n  MW 60 0 0.3\n  R BODY 90\nEND\nPEN UP",
+    "kind": "contains_code",
+    "id": "1791870629224_lnmje",
+    "createdAt": "2026-10-13T05:50:29.224Z"
+  },
+  {
+    "title": "【上級】二重ループで3つの四角形を並べて描く",
+    "text": "REPEAT 3 の外側ループの中で、1辺30の正方形（REPEAT 4）を描き、描き終わったらペンを上げて右に50進む処理を繰り返してください。",
+    "hint": "外側の REPEAT 3 の中に内側の REPEAT 4 を入れ、内側終了後に PEN UP → M 50 0 → PEN DOWN とします。",
+    "sample": "REPEAT 3\n  PEN DOWN\n  REPEAT 4\n    MW 30 0 0.2\n    R BODY 90\n  END\n  PEN UP\n  M 50 0\nEND",
+    "kind": "contains_code",
+    "id": "1791870630224_19mbz",
+    "createdAt": "2026-10-13T05:50:30.224Z"
   }
 ]

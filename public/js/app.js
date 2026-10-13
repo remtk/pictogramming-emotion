@@ -688,30 +688,11 @@ async function evaluateCurrentChallenge() {
     isCodeMatched = normUserCode.includes(normSampleCode);
   }
 
-  if (challenge.kind === "joy") {
-    passed = currentState.emotion === "JOY" || /EMOTION\s+(JOY|喜び|よろこび)/i.test(rawUserCode);
-  } else if (challenge.kind === "sad") {
-    passed = currentState.emotion === "SAD" || /EMOTION\s+(SAD|悲しみ|かなしみ)/i.test(rawUserCode);
-  } else if (challenge.kind === "angry") {
-    passed = currentState.emotion === "ANGRY" || /EMOTION\s+(ANGRY|怒り|いかり)/i.test(rawUserCode);
-  } else if (challenge.kind === "surprise") {
-    passed = currentState.emotion === "SURPRISE" || /EMOTION\s+(SURPRISE|驚き|おどろき)/i.test(rawUserCode);
-  } else if (challenge.kind === "normal") {
-    passed = currentState.emotion === "NORMAL" || /EMOTION\s+(NORMAL|普通|ふつう)/i.test(rawUserCode);
-  } else if (challenge.kind === "triangle") {
-    passed = (isStateMatched && isTraceMatched) || (/PEN\s+DOWN/i.test(rawUserCode) && (currentRunStats.lineDrawCount >= 3 || /REPEAT\s+3/i.test(rawUserCode)));
-  } else if (challenge.kind === "speech") {
-    if (targetState && targetState.trace && targetState.trace.some((t) => t.type === "SPEAK") && challenge.title !== "セリフを表示しよう") {
-      passed = isTraceMatched;
-    } else {
-      passed = /(^|\n)\s*SP\s+"/i.test(rawUserCode);
-    }
-  } else if (challenge.kind === "contains_code") {
-    // 最終状態一致＋動作手順トレース一致、または正規化コード一致で正解
+  // すべての問題で総合自動判定（最終状態一致＋動作手順トレース一致、または正規化コード一致）
+  if (normSampleCode.length > 0) {
     passed = (isStateMatched && isTraceMatched) || isCodeMatched;
   } else {
-    // "any" 等
-    passed = (isStateMatched && isTraceMatched) || (normSampleCode.length > 0 ? isCodeMatched : true);
+    passed = true;
   }
 
   setChallengeResult(passed ? "できました" : "もう少し", passed ? "pass" : "fail");
@@ -833,7 +814,7 @@ function openChallengeEditor() {
     challengeEditText.value   = "";
     challengeEditHint.value   = "";
     challengeEditSample.value = "";
-    challengeEditKind.value   = "any";
+    if (challengeEditKind) challengeEditKind.value = "contains_code";
     btnChallengeSave.style.display = "none";
     btnChallengeReset.style.display = "none";
     if (btnChallengeDelete) btnChallengeDelete.style.display = "none";
@@ -846,7 +827,7 @@ function openChallengeEditor() {
       challengeEditText.value   = c.text || "";
       challengeEditHint.value   = c.hint || "";
       challengeEditSample.value = c.sample || "";
-      challengeEditKind.value   = c.kind || "any";
+      if (challengeEditKind) challengeEditKind.value = c.kind || "contains_code";
     }
     btnChallengeSave.style.display = "";
     btnChallengeReset.style.display = "";
@@ -892,7 +873,7 @@ btnChallengeAdd?.addEventListener("click", async () => {
     text: challengeEditText.value || "",
     hint: challengeEditHint.value || "",
     sample: challengeEditSample.value || "",
-    kind: challengeEditKind.value || "any",
+    kind: "contains_code",
   };
 
   const originalBtnText = btnChallengeAdd.textContent;
@@ -995,7 +976,7 @@ btnChallengeSave?.addEventListener("click", async () => {
   c.text   = challengeEditText.value;
   c.hint   = challengeEditHint.value;
   c.sample = challengeEditSample.value;
-  c.kind   = challengeEditKind.value;
+  c.kind   = "contains_code";
   try {
     await saveChallengesToStorage();
     renderChallenge();
@@ -1064,10 +1045,10 @@ loadChallengesFromStorage().then(() => renderChallenge());
 
 // --- 問題バンク管理（管理者用） ------------------------------------------
 const KIND_LABELS = {
-  joy: "😊 喜び", sad: "😢 悲しみ", angry: "😠 怒り",
-  surprise: "😲 驚き", normal: "😐 普通",
-  triangle: "📐 三角形", speech: "💬 セリフ",
-  contains_code: "💻 コード一致", any: "✅ 実行OK",
+  contains_code: "💻 総合判定（手順・姿勢一致）",
+  triangle: "📐 三角形",
+  speech: "💬 セリフ",
+  any: "✅ 実行OK",
 };
 
 async function loadQuestionBank() {
@@ -1112,7 +1093,6 @@ async function loadQuestionBank() {
         <div class="bank-item-info">
           <div class="bank-item-title">#${num} ${escapeHtml(q.title || "無題")}</div>
           <div class="bank-item-meta">
-            <span class="kind-badge">${kindLabel}</span>
             <span>🕐 ${createdAt}</span>
           </div>
           <div class="bank-item-text">${escapeHtml(q.text || "")}</div>
@@ -1128,7 +1108,7 @@ async function loadQuestionBank() {
         challengeEditText.value   = q.text || "";
         challengeEditHint.value   = q.hint || "";
         challengeEditSample.value = q.sample || "";
-        challengeEditKind.value   = q.kind || "any";
+        if (challengeEditKind) challengeEditKind.value = q.kind || "contains_code";
         // 作成・編集タブへ切り替え
         adminTabs.forEach(t => t.classList.toggle("active", t.dataset.adminTab === "tab-editor"));
         adminTabPanes.forEach(p => p.classList.toggle("active", p.id === "tab-editor"));
