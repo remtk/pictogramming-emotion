@@ -879,15 +879,20 @@ btnChallengeAdd?.addEventListener("click", async () => {
     sample: challengeEditSample.value || "",
     kind: challengeEditKind.value || "any",
   };
-  CHALLENGES.push(newChallenge);
-  currentChallengeIndex = CHALLENGES.length - 1;
+
+  // デフォルト問題セット（CHALLENGES）には追加せず、問題バンクに蓄積する
   try {
-    await saveChallengesToStorage();
-    renderChallenge();
+    const res = await fetch("/api/question-bank", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(newChallenge),
+    });
+    const result = await res.json();
+    if (!res.ok || !result.success) throw new Error(result.error || "保存失敗");
     closeChallengeEditor();
-    appendConsole("新しい問題を登録しました", "ok");
+    appendConsole(`💾 問題「${newChallenge.title}」を問題バンクに蓄積しました（バンク合計: ${result.total} 問）`, "ok");
   } catch (e) {
-    appendConsole("保存に失敗しました。", "error");
+    appendConsole(`問題バンクへの保存に失敗しました: ${e.message}`, "error");
   }
 });
 

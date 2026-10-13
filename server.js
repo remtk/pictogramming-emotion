@@ -12,6 +12,7 @@ const PORT = process.env.PORT || 3000;
 const ROOT = path.join(__dirname, "public");
 const LOG_FILE = path.join(__dirname, "logs.csv");
 const QUESTIONS_FILE = path.join(__dirname, "public", "questions.json"); // 問題データの保存先
+const QUESTION_BANK_FILE = path.join(__dirname, "question_bank.json"); // 問題バンク（蓄積用）
 
 // .env から GEMINI_API_KEY などを読む（dotenv不要）
 (function loadEnvFile() {
@@ -188,6 +189,71 @@ const server = http.createServer((req, res) => {
         res.end(JSON.stringify({ error: e.message }));
       }
     });
+    return;
+  }
+
+  // APIエンドポイント: 問題バンク（蓄積用）を取得
+  if (req.method === "GET" && reqPath === "/api/question-bank") {
+    try {
+      const data = fs.existsSync(QUESTION_BANK_FILE)
+        ? fs.readFileSync(QUESTION_BANK_FILE, "utf-8")
+        : "[]";
+      res.writeHead(200, { "Content-Type": "application/json; charset=utf-8" });
+      res.end(data);
+    } catch (e) {
+      res.writeHead(500, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: e.message }));
+    }
+    return;
+  }
+
+  // APIエンドポイント: 問題バンクへ問題を追加（デフォルト問題セットには影響しない）
+  if (req.method === "POST" && reqPath === "/api/question-bank") {
+    let body = "";
+    req.on("data", chunk => { body += chunk.toString(); });
+    req.on("end", () => {
+      try {
+        const newQuestion = JSON.parse(body);
+        if (typeof newQuestion !== "object" || !newQuestion.title) {
+          throw new Error("Invalid question format");
+        }
+        // 既存バンクを読み込み
+        let bank = [];
+        if (fs.existsSync(QUESTION_BANK_FILE)) {
+          bank = JSON.parse(fs.readFileSync(QUESTION_BANK_FILE, "utf-8"));
+        }
+        // タイムスタンプとIDを付与して追加
+        newQuestion.id = Date.now() + "_" + Math.random().toString(36).slice(2, 7);
+        newQuestion.createdAt = new Date().toISOString();
+        bank.push(newQuestion);
+        fs.writeFileSync(QUESTION_BANK_FILE, JSON.stringify(bank, null, 2));
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ success: true, total: bank.length, id: newQuestion.id }));
+      } catch (e) {
+        res.writeHead(400, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ error: e.message }));
+      }
+    });
+    return;
+  }
+
+  // APIエンドポイント: 問題バンクから特定の問題を削除
+  if (req.method === "DELETE" && reqPath.startsWith("/api/question-bank/")) {
+    const targetId = decodeURIComponent(reqPath.slice("/api/question-bank/".length));
+    try {
+      let bank = [];
+      if (fs.existsSync(QUESTION_BANK_FILE)) {
+        bank = JSON.parse(fs.readFileSync(QUESTION_BANK_FILE, "utf-8"));
+      }
+      const before = bank.length;
+      bank = bank.filter(q => q.id !== targetId);
+      fs.writeFileSync(QUESTION_BANK_FILE, JSON.stringify(bank, null, 2));
+      res.writeHead(200, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ success: true, deleted: before - bank.length, total: bank.length }));
+    } catch (e) {
+      res.writeHead(500, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: e.message }));
+    }
     return;
   }
 
