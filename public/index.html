@@ -66,12 +66,22 @@
         <div class="challenge-title" id="challenge-title"></div>
         <div class="challenge-text" id="challenge-text"></div>
         <div class="challenge-hint" id="challenge-hint" hidden></div>
-        <div class="challenge-actions" style="margin-top:6px; display:flex; justify-content:space-between; align-items:center;">
+        <div class="challenge-actions" style="margin-top:6px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:5px;">
           <div style="display:flex; gap:5px;">
             <button class="btn ghost challenge-btn" id="btn-challenge-prev">◀ 前の問題</button>
             <button class="btn ghost challenge-btn" id="btn-challenge-next">次の問題 ▶</button>
           </div>
-          <button class="btn ghost challenge-btn" id="btn-challenge-hint">💡 ヒント</button>
+          <div style="display:flex; gap:5px;">
+            <button class="btn ghost challenge-btn" id="btn-challenge-hint">💡 ヒント</button>
+            <button class="btn ghost challenge-btn" id="btn-challenge-giveup" style="color:var(--accent-angry); border-color:var(--accent-angry);">🏳️ ギブアップ</button>
+          </div>
+        </div>
+        <div class="challenge-giveup" id="challenge-giveup" hidden>
+          <div class="challenge-giveup-topline">
+            <span style="font-weight:700; font-size:11px; color:var(--accent-angry);">📖 正解コード例:</span>
+            <button class="btn ghost challenge-btn" id="btn-challenge-giveup-copy" style="padding:2px 8px; font-size:10px;">📋 エディタに読み込む</button>
+          </div>
+          <pre class="challenge-giveup-code" id="challenge-giveup-code"></pre>
         </div>
       </div>
     </div>
@@ -123,7 +133,7 @@ EMOTION 喜び"></textarea>
 
 </main>
 
-<button id="btn-log-trigger" class="btn-log-trigger" title="プログラム実行ログを確認">📊 実行ログ確認</button>
+<button id="btn-log-trigger" class="btn-log-trigger" title="プログラム実行ログを確認" style="display:none;">📊 実行ログ確認</button>
 
 <div id="log-modal" class="modal-overlay">
   <div class="modal-content">

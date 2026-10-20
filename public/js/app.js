@@ -20,6 +20,10 @@ const challengeHint = document.getElementById("challenge-hint");
 const btnChallengePrev = document.getElementById("btn-challenge-prev");
 const btnChallengeNext = document.getElementById("btn-challenge-next");
 const btnChallengeHint = document.getElementById("btn-challenge-hint");
+const btnChallengeGiveup = document.getElementById("btn-challenge-giveup");
+const challengeGiveup = document.getElementById("challenge-giveup");
+const challengeGiveupCode = document.getElementById("challenge-giveup-code");
+const btnChallengeGiveupCopy = document.getElementById("btn-challenge-giveup-copy");
 const btnChallengeAdmin = document.getElementById("btn-challenge-admin");
 const btnChallengeSubmit = document.getElementById("btn-challenge-submit");
 const btnChallengeAdd = document.getElementById("btn-challenge-add");
@@ -505,6 +509,8 @@ function renderChallenge() {
   challengeHint.textContent = challenge.hint;
   challengeHint.hidden = true;
   btnChallengeHint.textContent = "💡 ヒント";
+  if (challengeGiveup) challengeGiveup.hidden = true;
+  if (btnChallengeGiveup) btnChallengeGiveup.textContent = "🏳️ ギブアップ";
   btnChallengePrev.disabled = currentChallengeIndex === 0;
   btnChallengeNext.disabled = currentChallengeIndex === CHALLENGES.length - 1;
   setChallengeResult("未実行");
@@ -780,6 +786,37 @@ btnChallengeToggle?.addEventListener("click", () => {
   const isHidden = challengeBody.style.display === "none";
   challengeBody.style.display = isHidden ? "" : "none";
   btnChallengeToggle.textContent = isHidden ? "▲ 折りたたむ" : "▼ 課題を表示";
+});
+
+btnChallengeGiveup?.addEventListener("click", () => {
+  if (!challengeGiveup) return;
+  if (!challengeGiveup.hidden) {
+    challengeGiveup.hidden = true;
+    btnChallengeGiveup.textContent = "🏳️ ギブアップ";
+    return;
+  }
+  const ok = window.confirm("ギブアップして正解コード例を表示しますか？\n（いつでも確認・復習できます）");
+  if (!ok) return;
+
+  const challenge = CHALLENGES[currentChallengeIndex];
+  const sampleCode = challenge?.sample || "// 正解コードが登録されていません";
+  if (challengeGiveupCode) {
+    challengeGiveupCode.textContent = sampleCode;
+  }
+  challengeGiveup.hidden = false;
+  btnChallengeGiveup.textContent = "正解を隠す";
+  appendConsole(`🏳️ 問題「${challenge?.title || ""}」をギブアップしました。正解コード例を確認してみましょう。`, "info");
+});
+
+btnChallengeGiveupCopy?.addEventListener("click", () => {
+  const challenge = CHALLENGES[currentChallengeIndex];
+  if (!challenge || !challenge.sample) {
+    appendConsole("正解コードが登録されていません。", "warn");
+    return;
+  }
+  codeInput.value = challenge.sample;
+  codeInput.focus();
+  appendConsole("📋 正解コードをエディタに読み込みました。「実行 ▶」を押して動作を確認してみましょう！", "ok");
 });
 
 renderChallenge();
@@ -1413,22 +1450,22 @@ const btnModalClose = document.getElementById("btn-modal-close");
 const btnModalCloseFooter = document.getElementById("btn-modal-close-footer");
 const btnLogClear = document.getElementById("btn-log-clear");
 
-btnLogTrigger.addEventListener("click", () => {
+btnLogTrigger?.addEventListener("click", () => {
   updateLogUI();
-  logModal.classList.add("active");
+  logModal?.classList.add("active");
 });
 
 const closeModal = () => {
-  logModal.classList.remove("active");
+  logModal?.classList.remove("active");
 };
 
-btnModalClose.addEventListener("click", closeModal);
-btnModalCloseFooter.addEventListener("click", closeModal);
-logModal.addEventListener("click", (e) => {
+btnModalClose?.addEventListener("click", closeModal);
+btnModalCloseFooter?.addEventListener("click", closeModal);
+logModal?.addEventListener("click", (e) => {
   if (e.target === logModal) closeModal();
 });
 
-btnLogClear.addEventListener("click", () => {
+btnLogClear?.addEventListener("click", () => {
   if (confirm("ログと統計情報をクリアしますか？")) {
     clearLog();
   }
