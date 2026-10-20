@@ -1233,3 +1233,46 @@ body {
   margin-bottom: 10px;
 }
 
+.community-diff-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.community-diff-card {
+  appearance: none;
+  border: 1px solid var(--line);
+  background: #fff;
+  border-radius: 12px;
+  padding: 16px 12px;
+  cursor: pointer;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 110px;
+}
+
+.community-diff-card:hover {
+  border-color: var(--accent-joy);
+  box-shadow: 0 4px 14px rgba(43, 43, 46, 0.08);
+}
+
+.community-diff-label {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--ink);
+}
+
+.community-diff-desc {
+  font-size: 12px;
+  color: var(--ink-soft);
+  line-height: 1.4;
+}
+
+@media (max-width: 640px) {
+  .community-diff-grid {
+    grid-template-columns: 1fr;
+  }
+}
+

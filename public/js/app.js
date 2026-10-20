@@ -489,6 +489,77 @@ const CHALLENGES = DEFAULT_CHALLENGES.map(c => ({ ...c }));
 
 let currentChallengeIndex = 0;
 const challengeTrialCounts = {}; // 問題ごとの実行試行回数 { "1_タイトル": 回数 }
+const challengeProgress = {}; // 問題ごとの判定・入力状態（同一セッション内で保持）
+let practiceMode = "default"; // default | community
+let practiceDifficulty = null;
+let defaultPracticeSnapshot = null;
+let defaultPracticeIndex = 0;
+
+const DIFFICULTY_LABELS = { "1": "初級", "2": "中級", "3": "上級" };
+
+function challengeProgressKey(challenge, index) {
+  if (!challenge) return `idx_${index}`;
+  if (challenge.id) return `${practiceMode}:${challenge.id}`;
+  return `${practiceMode}:${index}:${challenge.title || "untitled"}`;
+}
+
+function currentResultStatus() {
+  if (!challengeResult) return "";
+  if (challengeResult.classList.contains("pass")) return "pass";
+  if (challengeResult.classList.contains("fail")) return "fail";
+  return "";
+}
+
+function saveCurrentChallengeProgress() {
+  const challenge = CHALLENGES[currentChallengeIndex];
+  if (!challenge) return;
+  const key = challengeProgressKey(challenge, currentChallengeIndex);
+  challengeProgress[key] = {
+    resultText: challengeResult?.textContent || "未実行",
+    resultStatus: currentResultStatus(),
+    code: codeInput?.value ?? "",
+    hintShown: !!(challengeHint && !challengeHint.hidden),
+    giveupShown: !!(challengeGiveup && !challengeGiveup.hidden),
+  };
+}
+
+function applySavedChallengeProgress(challenge) {
+  const key = challengeProgressKey(challenge, currentChallengeIndex);
+  const saved = challengeProgress[key];
+  if (!saved) {
+    setChallengeResult("未実行");
+    if (challengeHint) challengeHint.hidden = true;
+    if (btnChallengeHint) btnChallengeHint.textContent = "💡 ヒント";
+    if (challengeGiveup) challengeGiveup.hidden = true;
+    if (btnChallengeGiveup) btnChallengeGiveup.textContent = "🏳️ ギブアップ";
+    return;
+  }
+
+  setChallengeResult(saved.resultText || "未実行", saved.resultStatus || "");
+  if (codeInput) codeInput.value = saved.code || "";
+  if (challengeHint) challengeHint.hidden = !saved.hintShown;
+  if (btnChallengeHint) btnChallengeHint.textContent = saved.hintShown ? "ヒント非表示" : "💡 ヒント";
+  if (challengeGiveup) {
+    challengeGiveup.hidden = !saved.giveupShown;
+    if (saved.giveupShown && challengeGiveupCode) {
+      challengeGiveupCode.textContent = challenge.sample || "// 正解コードが登録されていません";
+    }
+  }
+  if (btnChallengeGiveup) btnChallengeGiveup.textContent = saved.giveupShown ? "正解を隠す" : "🏳️ ギブアップ";
+}
+
+function updatePracticeModeUI() {
+  const badge = document.getElementById("challenge-badge");
+  const exitBtn = document.getElementById("btn-exit-community");
+  if (practiceMode === "community") {
+    const label = DIFFICULTY_LABELS[practiceDifficulty] || "";
+    if (badge) badge.textContent = `🧩 みんなの問題${label ? ` · ${label}` : ""}`;
+    if (exitBtn) exitBtn.hidden = false;
+  } else {
+    if (badge) badge.textContent = "🎯 課題";
+    if (exitBtn) exitBtn.hidden = true;
+  }
+}
 
 function setChallengeResult(text, status = "") {
   if (!challengeResult) return;
@@ -505,13 +576,10 @@ function renderChallenge() {
   challengeTitle.textContent = challenge.title;
   challengeText.textContent = challenge.text;
   challengeHint.textContent = challenge.hint;
-  challengeHint.hidden = true;
-  btnChallengeHint.textContent = "💡 ヒント";
-  if (challengeGiveup) challengeGiveup.hidden = true;
-  if (btnChallengeGiveup) btnChallengeGiveup.textContent = "🏳️ ギブアップ";
   btnChallengePrev.disabled = currentChallengeIndex === 0;
   btnChallengeNext.disabled = currentChallengeIndex === CHALLENGES.length - 1;
-  setChallengeResult("未実行");
+  updatePracticeModeUI();
+  applySavedChallengeProgress(challenge);
 }
 
 function normalizeSpeech(text) {
@@ -744,6 +812,7 @@ async function evaluateCurrentChallenge() {
   }
 
   setChallengeResult(passed ? "できました" : "もう少し", passed ? "pass" : "fail");
+  saveCurrentChallengeProgress();
   if (passed) {
     appendConsole(challenge.success || "正解です！お見事です。", "ok");
     // 教育的アドバイス: 模範解答にPEN UPがあるが、ユーザーコードにない場合
@@ -775,12 +844,14 @@ async function evaluateCurrentChallenge() {
 }
 
 btnChallengePrev?.addEventListener("click", () => {
+  saveCurrentChallengeProgress();
   currentChallengeIndex = Math.max(0, currentChallengeIndex - 1);
   renderChallenge();
   if (challengeAdminModal.classList.contains("active") && isAdminMode) openChallengeEditor();
 });
 
 btnChallengeNext?.addEventListener("click", () => {
+  saveCurrentChallengeProgress();
   currentChallengeIndex = Math.min(CHALLENGES.length - 1, currentChallengeIndex + 1);
   renderChallenge();
   if (challengeAdminModal.classList.contains("active") && isAdminMode) openChallengeEditor();
@@ -818,6 +889,7 @@ btnChallengeGiveup?.addEventListener("click", () => {
   challengeGiveup.hidden = false;
   btnChallengeGiveup.textContent = "正解を隠す";
   appendConsole(`🏳️ 問題「${challenge?.title || ""}」をギブアップしました。正解コード例を確認してみましょう。`, "info");
+  saveCurrentChallengeProgress();
 
   // ギブアップログ送信
   const qNumber = currentChallengeIndex + 1;
@@ -996,6 +1068,7 @@ btnChallengeAdd?.addEventListener("click", async () => {
     hint: challengeEditHint.value || "",
     sample: challengeEditSample.value || "",
     kind: "contains_code",
+    difficulty: aiDifficulty?.value || "",
   };
 
   const originalBtnText = btnChallengeAdd.textContent;
@@ -1302,6 +1375,110 @@ async function loadQuestionBank() {
 
 // 更新ボタン
 document.getElementById("btn-bank-refresh")?.addEventListener("click", loadQuestionBank);
+
+function detectQuestionDifficulty(q) {
+  const d = String(q?.difficulty || "").trim();
+  if (d === "1" || d === "2" || d === "3") return d;
+  const title = q?.title || "";
+  if (/【上級】/.test(title) || /^上級/.test(title)) return "3";
+  if (/【中級】/.test(title) || /^中級/.test(title)) return "2";
+  if (/【初級】/.test(title) || /^初級/.test(title)) return "1";
+  if (title.includes("上級")) return "3";
+  if (title.includes("中級")) return "2";
+  if (title.includes("初級")) return "1";
+  return "";
+}
+
+function shuffleArray(items) {
+  const arr = items.slice();
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+function toPlayableChallenge(q, i) {
+  return {
+    id: q.id || `community_${i}_${q.title || "untitled"}`,
+    title: q.title || `問題 ${i + 1}`,
+    text: q.text || "",
+    hint: q.hint || "",
+    sample: q.sample || "",
+    kind: q.kind || "contains_code",
+    difficulty: detectQuestionDifficulty(q),
+  };
+}
+
+function replaceChallengeSet(list) {
+  CHALLENGES.length = 0;
+  list.forEach((item) => CHALLENGES.push(item));
+  currentChallengeIndex = 0;
+}
+
+function openCommunityModal() {
+  document.getElementById("community-modal")?.classList.add("active");
+}
+
+function closeCommunityModal() {
+  document.getElementById("community-modal")?.classList.remove("active");
+}
+
+async function startCommunitySet(diff) {
+  saveCurrentChallengeProgress();
+  let bank = [];
+  try {
+    const res = await fetch("/api/question-bank");
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    bank = await res.json();
+  } catch (err) {
+    alert(`問題バンクの読み込みに失敗しました: ${err.message}`);
+    return;
+  }
+
+  const filtered = (Array.isArray(bank) ? bank : [])
+    .filter((q) => detectQuestionDifficulty(q) === String(diff))
+    .map(toPlayableChallenge);
+  if (filtered.length === 0) {
+    alert(`${DIFFICULTY_LABELS[diff] || "選択した難易度"}の問題がまだありません。`);
+    return;
+  }
+
+  if (practiceMode === "default") {
+    defaultPracticeSnapshot = CHALLENGES.map((c) => ({ ...c }));
+    defaultPracticeIndex = currentChallengeIndex;
+  }
+
+  const set = shuffleArray(filtered).slice(0, 10);
+  practiceMode = "community";
+  practiceDifficulty = String(diff);
+  replaceChallengeSet(set);
+  closeCommunityModal();
+  renderChallenge();
+  appendConsole(`🧩 みんなの問題（${DIFFICULTY_LABELS[diff]}）を ${set.length} 問出題します。`, "ok");
+}
+
+function exitCommunitySet() {
+  saveCurrentChallengeProgress();
+  if (defaultPracticeSnapshot && defaultPracticeSnapshot.length > 0) {
+    replaceChallengeSet(defaultPracticeSnapshot);
+    currentChallengeIndex = Math.min(defaultPracticeIndex, CHALLENGES.length - 1);
+  }
+  practiceMode = "default";
+  practiceDifficulty = null;
+  renderChallenge();
+  appendConsole("通常の課題に戻りました。", "ok");
+}
+
+document.getElementById("btn-community-mode")?.addEventListener("click", openCommunityModal);
+document.getElementById("btn-community-modal-close")?.addEventListener("click", closeCommunityModal);
+document.getElementById("community-modal")?.addEventListener("click", (e) => {
+  if (e.target?.id === "community-modal") closeCommunityModal();
+});
+document.querySelectorAll(".community-diff-card").forEach((btn) => {
+  btn.addEventListener("click", () => startCommunitySet(btn.dataset.diff));
+});
+document.getElementById("btn-exit-community")?.addEventListener("click", exitCommunitySet);
 
 // --- ログデータ管理 --------------------------------------------------------
 const sessionId = Math.random().toString(36).substring(2, 10);

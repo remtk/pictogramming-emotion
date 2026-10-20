@@ -14,6 +14,9 @@
     <span class="brand-sub">PICTOGRAMMING+</span>
   </div>
   <div class="header-right" style="display:flex; align-items:center; gap:12px;">
+    <button id="btn-community-mode" class="btn ghost manual-header-btn" title="みんなが作った問題を難易度別に解く" style="display:flex; align-items:center; gap:6px; font-weight:700; font-size:12px; padding:6px 14px; background:#fff; border-color:var(--line);">
+      <span>🧩</span> みんなの問題を解く
+    </button>
     <button id="btn-manual-trigger" class="btn ghost manual-header-btn" title="ピクトグラミング+の使い方・取扱説明書を見る" style="display:flex; align-items:center; gap:6px; font-weight:700; font-size:12px; padding:6px 14px; background:#fff; border-color:var(--line);">
       <span>📖</span> 使い方ガイド
     </button>
@@ -52,9 +55,10 @@
     <div class="challenge-panel" id="challenge-panel">
       <div class="challenge-topline">
         <div style="display:flex; align-items:center; gap:6px;">
-          <span class="challenge-badge">🎯 課題</span>
+          <span class="challenge-badge" id="challenge-badge">🎯 課題</span>
           <span class="challenge-count" id="challenge-count">問題 1/3</span>
           <span class="challenge-result" id="challenge-result">未実行</span>
+          <button class="btn ghost challenge-btn-sm" id="btn-exit-community" hidden title="通常の課題に戻る">↩ 通常課題</button>
         </div>
         <div class="challenge-top-actions">
           <button class="btn ghost challenge-btn-sm" id="btn-challenge-toggle" title="課題の表示/折りたたみ">▲ 折りたたむ</button>
@@ -169,6 +173,34 @@ EMOTION 喜び"></textarea>
     <div class="modal-footer">
       <button id="btn-log-clear" class="btn danger">ログクリア</button>
       <button id="btn-modal-close-footer" class="btn ghost">閉じる</button>
+    </div>
+  </div>
+</div>
+
+<div id="community-modal" class="modal-overlay">
+  <div class="modal-content" style="max-width:620px;">
+    <div class="modal-header">
+      <h3 style="margin:0;">🧩 みんなの問題を解く</h3>
+      <button id="btn-community-modal-close" class="modal-close-btn">&times;</button>
+    </div>
+    <div class="modal-body" style="padding:18px 20px 22px;">
+      <p style="margin:0 0 14px; font-size:13px; color:var(--ink-soft); line-height:1.5;">
+        難易度を選ぶと、みんなが作った問題から<strong>10問1セット</strong>が出題されます。途中の「できました／もう少し」は、前後の問題に移動しても残ります。
+      </p>
+      <div class="community-diff-grid">
+        <button type="button" class="community-diff-card" data-diff="1">
+          <span class="community-diff-label">初級</span>
+          <span class="community-diff-desc">短い命令で基本を確認</span>
+        </button>
+        <button type="button" class="community-diff-card" data-diff="2">
+          <span class="community-diff-label">中級</span>
+          <span class="community-diff-desc">複数の命令を組み合わせる</span>
+        </button>
+        <button type="button" class="community-diff-card" data-diff="3">
+          <span class="community-diff-label">上級</span>
+          <span class="community-diff-desc">繰り返しや図形など発展課題</span>
+        </button>
+      </div>
     </div>
   </div>
 </div>
