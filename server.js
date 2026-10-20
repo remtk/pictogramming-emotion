@@ -48,8 +48,9 @@ function readBankFile(filePath) {
 const GAS_WEBHOOK_URL = ""; 
 
 // ログファイルが存在しない場合はヘッダを作成
+const CSV_HEADER = "Timestamp,SessionID,QuestionNumber,QuestionTitle,TrialCount,Result,Code\n";
 if (!fs.existsSync(LOG_FILE)) {
-  fs.writeFileSync(LOG_FILE, "Timestamp,SessionID,Action,Joy,Sad,Angry,Surprise,Normal,LineCount,LineLength,Code\n");
+  fs.writeFileSync(LOG_FILE, CSV_HEADER);
 }
 
 const MIME = {
@@ -72,20 +73,16 @@ const server = http.createServer((req, res) => {
     req.on("end", () => {
       try {
         const data = JSON.parse(body);
-        const timestamp = new Date().toISOString();
+        const timestamp = data.timestamp || new Date().toISOString();
         const session = data.sessionId || "unknown";
-        const action = data.action || "RUN";
-        const joy = data.stats?.emotions?.JOY || 0;
-        const sad = data.stats?.emotions?.SAD || 0;
-        const angry = data.stats?.emotions?.ANGRY || 0;
-        const surprise = data.stats?.emotions?.SURPRISE || 0;
-        const normal = data.stats?.emotions?.NORMAL || 0;
-        const lines = data.stats?.lineDrawCount || 0;
-        const length = data.stats?.lineDrawLength || 0;
+        const qNumber = data.questionNumber !== undefined ? data.questionNumber : "";
+        const qTitle = (data.questionTitle || "").replace(/[\r\n,]/g, " ");
+        const trial = data.trialCount !== undefined ? data.trialCount : 1;
+        const result = data.result || "";
         // コード内容は改行やカンマを含むためダブルクォートで囲み、内部のダブルクォートは2つ重ねる（エスケープ）
         const code = `"${(data.code || "").replace(/"/g, '""')}"`;
 
-        const csvRow = `${timestamp},${session},${action},${joy},${sad},${angry},${surprise},${normal},${lines},${length},${code}\n`;
+        const csvRow = `${timestamp},${session},${qNumber},${qTitle},${trial},${result},${code}\n`;
         fs.appendFile(LOG_FILE, csvRow, (err) => {
           if (err) console.error("Failed to write log:", err);
         });
@@ -93,8 +90,13 @@ const server = http.createServer((req, res) => {
         // GASへの転送処理 (URLが設定されている場合)
         if (GAS_WEBHOOK_URL && GAS_WEBHOOK_URL.startsWith("https://")) {
           const reqBody = JSON.stringify({
-            timestamp, session, action, joy, sad, angry, surprise, normal,
-            lines, length, code: data.code || ""
+            timestamp,
+            session,
+            questionNumber: qNumber,
+            questionTitle: data.questionTitle || "",
+            trialCount: trial,
+            result,
+            code: data.code || ""
           });
 
           function sendToGAS(url, body, redirectCount = 0) {
@@ -110,12 +112,11 @@ const server = http.createServer((req, res) => {
               }
             };
             const gasReq = https.request(reqOpts, (gasRes) => {
-              // GASは302リダイレクトを返すことがあるので追いかける
               if ((gasRes.statusCode === 301 || gasRes.statusCode === 302 || gasRes.statusCode === 307 || gasRes.statusCode === 308) && gasRes.headers.location) {
-                gasRes.resume(); // レスポンスを消費
+                gasRes.resume();
                 sendToGAS(gasRes.headers.location, body, redirectCount + 1);
               } else {
-                gasRes.resume(); // レスポンスを消費
+                gasRes.resume();
               }
             });
             gasReq.on("error", (e) => {

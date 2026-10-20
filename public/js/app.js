@@ -158,14 +158,11 @@ const interpreter = new Interpreter({
   },
   onConsole: appendConsole,
   onSpeak: showSpeech,
-  onDone: () => {
+  onDone: async () => {
     btnRun.disabled = false;
     btnStop.disabled = true;
     addLogHistory("プログラムの実行が完了しました", "done");
-    if (typeof sendComprehensiveLog === "function") {
-      sendComprehensiveLog(codeInput.value);
-    }
-    evaluateCurrentChallenge();
+    await evaluateCurrentChallenge();
   },
   onCommandExecuted: (cmd, details) => {
     handleCommandLog(cmd, details);
@@ -491,6 +488,7 @@ PEN UP`,
 const CHALLENGES = DEFAULT_CHALLENGES.map(c => ({ ...c }));
 
 let currentChallengeIndex = 0;
+const challengeTrialCounts = {}; // 問題ごとの実行試行回数 { "1_タイトル": 回数 }
 
 function setChallengeResult(text, status = "") {
   if (!challengeResult) return;
@@ -760,6 +758,20 @@ async function evaluateCurrentChallenge() {
     const feedbackMsg = diagnoseFailureReason({ challenge, rawUserCode, currentState, targetState, userTrace });
     appendConsole(feedbackMsg, "warn");
   }
+
+  // 同一問題に対する試行回数をカウント＆記録
+  const qNumber = currentChallengeIndex + 1;
+  const qKey = challenge.title ? `${qNumber}_${challenge.title}` : `q_${qNumber}`;
+  challengeTrialCounts[qKey] = (challengeTrialCounts[qKey] || 0) + 1;
+  const trialCount = challengeTrialCounts[qKey];
+
+  sendChallengeLog({
+    questionNumber: qNumber,
+    questionTitle: challenge.title || `問題 ${qNumber}`,
+    trialCount: trialCount,
+    result: passed ? "正解" : "不正解",
+    code: rawUserCode,
+  });
 }
 
 btnChallengePrev?.addEventListener("click", () => {
@@ -806,6 +818,18 @@ btnChallengeGiveup?.addEventListener("click", () => {
   challengeGiveup.hidden = false;
   btnChallengeGiveup.textContent = "正解を隠す";
   appendConsole(`🏳️ 問題「${challenge?.title || ""}」をギブアップしました。正解コード例を確認してみましょう。`, "info");
+
+  // ギブアップログ送信
+  const qNumber = currentChallengeIndex + 1;
+  const qKey = challenge?.title ? `${qNumber}_${challenge.title}` : `q_${qNumber}`;
+  const trialCount = challengeTrialCounts[qKey] || 0;
+  sendChallengeLog({
+    questionNumber: qNumber,
+    questionTitle: challenge?.title || `問題 ${qNumber}`,
+    trialCount: trialCount,
+    result: "ギブアップ",
+    code: codeInput.value || "",
+  });
 });
 
 btnChallengeGiveupCopy?.addEventListener("click", () => {
@@ -1341,34 +1365,48 @@ function addLogHistory(text, type = "info") {
 // GASへ直接送信するURL（netlifyかローカルサーバーどちらからでも動く）
 const GAS_URL = "https://script.google.com/macros/s/AKfycbz_1wXsaydCFO5g_SffaOK_DGoBdq4BLjwXIjCcBVbgCLb-Y6cDq1IEaIpHW9vIb3Zp/exec";
 
-function sendComprehensiveLog(code) {
-  const gasPayload = JSON.stringify({
-    timestamp: new Date().toISOString(),
-    session: sessionId,
-    action: "RUN_PROGRAM",
-    joy: currentRunStats.emotions?.JOY || 0,
-    sad: currentRunStats.emotions?.SAD || 0,
-    angry: currentRunStats.emotions?.ANGRY || 0,
-    surprise: currentRunStats.emotions?.SURPRISE || 0,
-    normal: currentRunStats.emotions?.NORMAL || 0,
-    lines: currentRunStats.lineDrawCount || 0,
-    length: currentRunStats.lineDrawLength || 0,
-    code: code || ""
-  });
+function sendChallengeLog({ questionNumber = "", questionTitle = "", trialCount = 1, result = "", code = "" } = {}) {
+  const timestamp = new Date().toISOString();
+  const payload = {
+    timestamp,
+    sessionId: sessionId,
+    questionNumber: questionNumber,
+    questionTitle: questionTitle,
+    trialCount: trialCount,
+    result: result,
+    code: code,
+  };
 
-  // GASはCORS制限を回避するため no-corsで送る（レスポンスは読めないが送信は完了する）
-  fetch(GAS_URL, {
-    method: "POST",
-    mode: "no-cors",
-    headers: { "Content-Type": "text/plain" },
-    body: gasPayload,
-  }).catch(err => console.warn("GASログ送信失敗:", err));
-  // ローカルサーバーが起動中ならそちらにも送る（CSVバックアップ）
+  // GASへ直接送信（no-cors）
+  if (GAS_URL) {
+    fetch(GAS_URL, {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "text/plain" },
+      body: JSON.stringify(payload),
+    }).catch(err => console.warn("GASログ送信失敗:", err));
+  }
+
+  // ローカルサーバーへ送信（CSVバックアップ）
   fetch("/api/logs", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ sessionId, action: "RUN_PROGRAM", stats: currentRunStats, code }),
-  }).catch(() => {}); // netlify環境では失敗するのでエラーは無視
+    body: JSON.stringify(payload),
+  }).catch(() => {});
+}
+
+function sendComprehensiveLog(code) {
+  const challenge = CHALLENGES[currentChallengeIndex];
+  const qNumber = currentChallengeIndex + 1;
+  const qKey = challenge?.title ? `${qNumber}_${challenge.title}` : `q_${qNumber}`;
+  const trialCount = challengeTrialCounts[qKey] || 1;
+  sendChallengeLog({
+    questionNumber: qNumber,
+    questionTitle: challenge?.title || `問題 ${qNumber}`,
+    trialCount: trialCount,
+    result: "実行",
+    code: code || codeInput.value || "",
+  });
 }
 
 function handleCommandLog(cmd, details) {
