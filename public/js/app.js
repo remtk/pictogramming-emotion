@@ -453,10 +453,21 @@ EMOTION JOY 0`,
     failure: "まだ喜びになっていません。EMOTION JOY を使ってみましょう。",
   },
   {
+    title: "セリフを表示しよう",
+    text: "SP命令を使って、ピクトグラムにひとこと話させてください。",
+    hint: "例: SP \"こんにちは\"",
+    sample: `// 問題2: セリフを表示しよう
+SP "こんにちは"`,
+    kind: "speech",
+    check: ({ code }) => /(^|\n)\s*SP\s+"/i.test(code),
+    success: "正解です。吹き出しを表示できています。",
+    failure: "SP \"文字\" の形でセリフを書いてみましょう。",
+  },
+  {
     title: "線で三角形を描こう",
     text: "ペンを下ろして、移動とBODY回転を使い、三角形を描いてください。",
     hint: "PEN DOWN、REPEAT 3、MW、R BODY 120 を組み合わせます。",
-    sample: `// 問題2: 線で三角形を描こう
+    sample: `// 問題3: 線で三角形を描こう
 PEN DOWN
 REPEAT 3
   MW 60 0 0.4
@@ -470,17 +481,6 @@ PEN UP`,
       (stats.lineDrawCount >= 3 || /REPEAT\s+3/i.test(code)),
     success: "正解です。三角形を描くための命令が使えています。",
     failure: "PEN DOWN、3回の移動、R BODY 120 が入っているか確認しましょう。",
-  },
-  {
-    title: "セリフを表示しよう",
-    text: "SP命令を使って、ピクトグラムにひとこと話させてください。",
-    hint: "例: SP \"こんにちは\"",
-    sample: `// 問題3: セリフを表示しよう
-SP "こんにちは"`,
-    kind: "speech",
-    check: ({ code }) => /(^|\n)\s*SP\s+"/i.test(code),
-    success: "正解です。吹き出しを表示できています。",
-    failure: "SP \"文字\" の形でセリフを書いてみましょう。",
   },
 ];
 

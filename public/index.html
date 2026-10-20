@@ -76,9 +76,19 @@
       </div>
     </div>
 
-    <!-- プログラムコード記述領域ヘッダー（見出し＋ツールバーを一体化して縦幅を大幅節約） -->
-    <div class="code-header">
-      <h2 class="panel-title" style="margin:0;"><span class="dot"></span>プログラムコード記述領域</h2>
+    <!-- プログラムコード記述領域の見出し -->
+    <h2 class="panel-title" style="margin:2px 0 6px;"><span class="dot"></span>プログラムコード記述領域</h2>
+
+    <!-- コードエディタ領域 -->
+    <div class="code-area-wrap">
+      <textarea id="code-input" spellcheck="false" placeholder="// ここに命令を書きます
+R LUA -120
+R LLA -10
+EMOTION 喜び"></textarea>
+    </div>
+
+    <!-- コンソール上部ツールバー（サンプル選択 & 入力クリア） -->
+    <div class="code-toolbar" style="display:flex; justify-content:space-between; align-items:center; margin-top:6px; margin-bottom:4px;">
       <div style="display:flex; align-items:center; gap:6px;">
         <label for="sample-select" style="font-size:11px; font-weight:700; color:var(--ink-soft); display:flex; align-items:center; gap:4px;">
           <span>📂</span> サンプル:
@@ -93,19 +103,12 @@
           <option value="itemAction">アイテム：ボール移動とキャッチ</option>
           <option value="ik">IK：手足の座標指定</option>
         </select>
-        <button class="btn ghost" id="btn-clear" style="padding:3px 8px; font-size:11px;">入力クリア</button>
       </div>
+      <button class="btn ghost" id="btn-clear" style="padding:3px 10px; font-size:11px;">入力クリア</button>
     </div>
 
-    <!-- コードエディタ領域 -->
-    <div class="code-area-wrap">
-      <textarea id="code-input" spellcheck="false" placeholder="// ここに命令を書きます
-R LUA -120
-R LLA -10
-EMOTION 喜び"></textarea>
-    </div>
-
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px;">
+    <!-- コンソールパネルヘッダー -->
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:6px;">
       <h2 class="panel-title" style="margin:0;"><span class="dot"></span>コンソールパネル</h2>
       <button class="btn ghost" id="btn-console-clear" style="padding:2px 8px; font-size:10px;">ログ消去</button>
     </div>
