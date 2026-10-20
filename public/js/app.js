@@ -504,7 +504,7 @@ function renderChallenge() {
   challengeText.textContent = challenge.text;
   challengeHint.textContent = challenge.hint;
   challengeHint.hidden = true;
-  btnChallengeHint.textContent = "ヒント";
+  btnChallengeHint.textContent = "💡 ヒント";
   btnChallengePrev.disabled = currentChallengeIndex === 0;
   btnChallengeNext.disabled = currentChallengeIndex === CHALLENGES.length - 1;
   setChallengeResult("未実行");
@@ -770,7 +770,16 @@ btnChallengeNext?.addEventListener("click", () => {
 
 btnChallengeHint?.addEventListener("click", () => {
   challengeHint.hidden = !challengeHint.hidden;
-  btnChallengeHint.textContent = challengeHint.hidden ? "ヒント" : "ヒント非表示";
+  btnChallengeHint.textContent = challengeHint.hidden ? "💡 ヒント" : "ヒント非表示";
+});
+
+const btnChallengeToggle = document.getElementById("btn-challenge-toggle");
+const challengeBody = document.getElementById("challenge-body");
+btnChallengeToggle?.addEventListener("click", () => {
+  if (!challengeBody) return;
+  const isHidden = challengeBody.style.display === "none";
+  challengeBody.style.display = isHidden ? "" : "none";
+  btnChallengeToggle.textContent = isHidden ? "▲ 折りたたむ" : "▼ 課題を表示";
 });
 
 renderChallenge();
