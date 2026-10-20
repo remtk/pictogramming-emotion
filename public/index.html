@@ -176,7 +176,10 @@ EMOTION 喜び"></textarea>
 <div id="challenge-admin-modal" class="modal-overlay">
   <div class="modal-content" style="max-width:640px;">
     <div class="modal-header">
-      <h3 id="admin-modal-title">🛠️ 管理者メニュー</h3>
+      <div style="display:flex; align-items:center; gap:12px;">
+        <h3 id="admin-modal-title" style="margin:0;">🛠️ 管理者メニュー</h3>
+        <a href="/api/logs/csv" download="logs.csv" class="btn ghost" style="padding:3px 10px; font-size:11px; text-decoration:none; display:inline-flex; align-items:center; gap:4px;" title="最新の実行ログCSVをダウンロード">📊 実行ログCSV取得</a>
+      </div>
       <button id="btn-challenge-modal-close" class="modal-close-btn">&times;</button>
     </div>
 
