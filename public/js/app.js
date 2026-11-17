@@ -25,6 +25,27 @@ const challengeGiveup = document.getElementById("challenge-giveup");
 const challengeGiveupCode = document.getElementById("challenge-giveup-code");
 const btnChallengeGiveupCopy = document.getElementById("btn-challenge-giveup-copy");
 const btnChallengeAdmin = document.getElementById("btn-challenge-admin");
+// Click brand (logo) to unlock admin mode (hidden alternative)
+const brandDiv = document.querySelector('.brand');
+brandDiv?.addEventListener('click', () => {
+  if (isAdminMode) {
+    const isHidden = !challengeAdminModal.classList.contains('active');
+    if (isHidden) {
+      if (isCreateMode) closeChallengeEditor();
+      openChallengeEditor();
+    } else {
+      closeChallengeEditor();
+    }
+    return;
+  }
+  const input = prompt("管理者パスワードを入力してください");
+  if (input === null) return;
+  if (input !== ADMIN_PASSWORD) { alert("パスワードが違います"); return; }
+  isAdminMode = true;
+  appendConsole("管理者モードで問題を編集できます", "ok");
+  if (isCreateMode) closeChallengeEditor();
+  openChallengeEditor();
+});
 const btnChallengeSubmit = document.getElementById("btn-challenge-submit");
 const btnChallengeAdd = document.getElementById("btn-challenge-add");
 const challengeEditor = document.getElementById("challenge-editor");
