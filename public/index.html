@@ -62,7 +62,7 @@
         </div>
         <div class="challenge-top-actions">
           <button class="btn ghost challenge-btn-sm" id="btn-challenge-toggle" title="課題の表示/折りたたみ">▲ 折りたたむ</button>
-          <button class="btn ghost challenge-btn-sm" id="btn-challenge-submit" title="問題の作成">＋ 作成</button>
+          <button class="btn ghost challenge-btn-sm" id="btn-challenge-submit" title="問題を生成">問題を生成</button>
           <button class="btn ghost challenge-btn-sm" id="btn-challenge-admin" title="管理者モード">🔒 ロック解除</button>
         </div>
       </div>
@@ -185,8 +185,23 @@ EMOTION 喜び"></textarea>
     </div>
     <div class="modal-body" style="padding:18px 20px 22px;">
       <p style="margin:0 0 14px; font-size:13px; color:var(--ink-soft); line-height:1.5;">
-        難易度を選ぶと、みんなが作った問題から<strong>10問1セット</strong>が出題されます。途中の「できました／もう少し」は、前後の問題に移動しても残ります。
+        出題数と難易度を選ぶと、みんなが作った問題からランダムに出題されます。途中の「できました／もう少し」は、前後の問題に移動しても残ります。
       </p>
+      <div style="display:flex; align-items:center; gap:16px; margin-bottom:16px; background:var(--paper-soft); padding:10px 14px; border-radius:8px; border:1px solid var(--line);">
+        <span style="font-size:13px; font-weight:700; color:var(--ink);">出題数:</span>
+        <label style="display:inline-flex; align-items:center; gap:6px; cursor:pointer; font-size:13px; font-weight:600; color:var(--ink);">
+          <input type="radio" name="community-qcount" value="3" style="accent-color:var(--accent-joy); cursor:pointer;">
+          3問
+        </label>
+        <label style="display:inline-flex; align-items:center; gap:6px; cursor:pointer; font-size:13px; font-weight:600; color:var(--ink);">
+          <input type="radio" name="community-qcount" value="5" checked style="accent-color:var(--accent-joy); cursor:pointer;">
+          5問
+        </label>
+        <label style="display:inline-flex; align-items:center; gap:6px; cursor:pointer; font-size:13px; font-weight:600; color:var(--ink);">
+          <input type="radio" name="community-qcount" value="10" style="accent-color:var(--accent-joy); cursor:pointer;">
+          10問
+        </label>
+      </div>
       <div class="community-diff-grid">
         <button type="button" class="community-diff-card" data-diff="1">
           <span class="community-diff-label">初級</span>
@@ -210,7 +225,6 @@ EMOTION 喜び"></textarea>
     <div class="modal-header">
       <div style="display:flex; align-items:center; gap:12px;">
         <h3 id="admin-modal-title" style="margin:0;">🛠️ 管理者メニュー</h3>
-        <a href="/api/logs/csv" download="logs.csv" class="btn ghost" style="padding:3px 10px; font-size:11px; text-decoration:none; display:inline-flex; align-items:center; gap:4px;" title="最新の実行ログCSVをダウンロード">📊 実行ログCSV取得</a>
       </div>
       <button id="btn-challenge-modal-close" class="modal-close-btn">&times;</button>
     </div>

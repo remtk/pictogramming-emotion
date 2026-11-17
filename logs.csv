@@ -118,3 +118,65 @@ IK 右腕 30 -80
 
 
 "
+2026-11-17T05:00:57.554Z,95rrr6aw,7,【中級】お辞儀して元気よく挨拶,1,不正解,"RW BODY 30 0.4
+WAIT 0.4
+RW BOdY -30 0.4
+SP ""よろしくお願いします！""
+"
+2026-11-17T05:01:19.552Z,95rrr6aw,7,【中級】お辞儀して元気よく挨拶,2,正解,"RW BODY 30 0.4
+WAIT 0.4
+RW BODY -30 0.4
+SP ""よろしくお願いします！""
+"
+2026-11-17T05:01:32.169Z,95rrr6aw,7,【中級】お辞儀して元気よく挨拶,3,正解,"RW BODY 30 0.4
+WAIT 0.4
+RW BODY -30 0.4
+SP ""よろしくお願いします！""
+"
+2026-11-17T05:22:00.077Z,oxyp4j2l,1,【上級】八芒星（星型八角形）の描画,0,ギブアップ,"// 感情サンプル：喜び→驚き→悲しみと遷移する
+EMOTION 喜び 0.8
+SP ""やったー！""
+WAIT 1
+EMOTION 驚き 0.5
+SP ""えっ！？""
+WAIT 1
+EMOTION 悲しみ 1
+SP ""そんな…""
+WAIT 1
+EMOTION 普通 0.6"
+2026-11-17T05:22:20.756Z,oxyp4j2l,2,【上級】アイテムの個数判定,0,ギブアップ,"PEN DOWN
+REPEAT 8
+  MW 45 0 05
+  R BODY 135
+END
+PEN UP"
+2026-11-17T05:23:27.899Z,oxyp4j2l,2,【上級】アイテムの個数判定,1,不正解,"PEN DOWN
+REPEAT 8
+  MW 45 0 05
+  R BODY 135
+END
+PEN UP"
+2026-11-17T05:23:47.791Z,oxyp4j2l,2,【上級】アイテムの個数判定,2,正解,"LET COUNT 3
+IF [COUNT >= 3]
+  EMOTION SURPRISE 0.3
+  SP ""たくさん見つけた！""
+END
+IF [COUNT == 0]
+  EMOTION SAD 0.3
+  SP ""ゼロ個…""
+END"
+2026-11-17T05:24:00.936Z,oxyp4j2l,3,【上級】じゃんけんの勝敗分岐,0,ギブアップ,"LET COUNT 3
+IF [COUNT >= 3]
+  EMOTION SURPRISE 0.3
+  SP ""たくさん見つけた！""
+END
+IF [COUNT == 0]
+  EMOTION SAD 0.3
+  SP ""ゼロ個…""
+END"
+2026-11-17T05:24:22.737Z,oxyp4j2l,3,【上級】じゃんけんの勝敗分岐,1,正解,"LET RESULT 1
+IF [RESULT == 1]
+  EMOTION JOY 0.3
+  SP ""勝った！""
+END
+"

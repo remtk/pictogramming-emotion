@@ -1010,7 +1010,7 @@ function openChallengeEditor() {
     btnChallengeReset.style.display = "none";
     if (btnChallengeDelete) btnChallengeDelete.style.display = "none";
     btnChallengeAdd.style.display = "";
-    btnChallengeSubmit.textContent = "入力をやめる";
+    btnChallengeSubmit.textContent = "問題を生成";
   } else if (isAdminMode) {
     if (modalTitle) modalTitle.textContent = "🛠️ 管理者メニュー";
     if (tabsBar) tabsBar.style.display = ""; // 管理者ログイン時のみタブを表示
@@ -1038,7 +1038,7 @@ function openChallengeEditor() {
 function closeChallengeEditor() {
   challengeAdminModal.classList.remove("active");
   if (isCreateMode) {
-    btnChallengeSubmit.textContent = "問題を作成";
+    btnChallengeSubmit.textContent = "問題を生成";
     isCreateMode = false;
   }
   if (isAdminMode) {
@@ -1449,7 +1449,10 @@ async function startCommunitySet(diff) {
     defaultPracticeIndex = currentChallengeIndex;
   }
 
-  const set = shuffleArray(filtered).slice(0, 10);
+  const selectedCountRadio = document.querySelector('input[name="community-qcount"]:checked');
+  const count = selectedCountRadio ? parseInt(selectedCountRadio.value, 10) : 5;
+
+  const set = shuffleArray(filtered).slice(0, count);
   practiceMode = "community";
   practiceDifficulty = String(diff);
   replaceChallengeSet(set);
