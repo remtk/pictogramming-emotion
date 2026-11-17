@@ -354,7 +354,7 @@ function buildGeneratePrompt(diffText, condition = "") {
     ? `\n[特別な作成条件・指定]\n以下のユーザー指定条件を必ず満たす問題を作成してください:\n「${condition.trim()}」\n`
     : "";
 
-  return `あなたはプログラミング学習アプリ「ピクトグラミング+」の問題作成アシスタントです。
+  return `あなたはプログラミング学習アプリ「PictoCode」の問題作成アシスタントです。
 以下の独自言語仕様と難易度基準に従って、${diffText}レベルのプログラミング問題を1つ作成し、JSONのみを出力してください。
 ${conditionRule}
 [言語仕様]
@@ -452,7 +452,7 @@ async function generateChallengeWithGemini(diffLevel, condition = "") {
 }
 
 function buildValidatePrompt(challenge) {
-  return `あなたはプログラミング学習アプリ「ピクトグラミング+」のコード検証アシスタントです。
+  return `あなたはプログラミング学習アプリ「PictoCode」のコード検証アシスタントです。
 登録されようとしているプログラミング問題と正解プログラムコードを検証し、正しく動作するか判定してください。
 
 [言語仕様]
