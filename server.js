@@ -256,6 +256,10 @@ const server = http.createServer((req, res) => {
         let bank = readBankFile(QUESTION_BANK_FILE);
         // タイムスタンプとIDを付与して追加
         newQuestion.id = Date.now() + "_" + Math.random().toString(36).slice(2, 7);
+        if (!newQuestion.qid) {
+          const userCount = bank.filter(q => q.qid && q.qid.startsWith("NEW-")).length + 1;
+          newQuestion.qid = `NEW-${String(userCount).padStart(2, "0")}`;
+        }
         newQuestion.createdAt = new Date().toISOString();
         bank.push(newQuestion);
         fs.writeFileSync(QUESTION_BANK_FILE, JSON.stringify(bank, null, 2));

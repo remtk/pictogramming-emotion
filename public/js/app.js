@@ -443,9 +443,11 @@ codeInput.value = SAMPLES.emotion;
 // --- デフォルト問題の定義 ----------------------------------------------------
 const DEFAULT_CHALLENGES = [
   {
+    id: "Q-001",
+    qid: "Q-001",
     title: "喜びの表情にしよう",
     text: "EMOTION命令を使って、ピクトグラムを喜びの状態にしてください。",
-    hint: "例: EMOTION JOY 0",
+    hint: "感情の変更には EMOTION [感情名] [秒数] を使います（JOY を指定）。",
     sample: `// 問題1: 喜びの表情にしよう
 EMOTION JOY 0`,
     kind: "joy",
@@ -454,9 +456,11 @@ EMOTION JOY 0`,
     failure: "まだ喜びになっていません。EMOTION JOY を使ってみましょう。",
   },
   {
+    id: "Q-002",
+    qid: "Q-002",
     title: "セリフを表示しよう",
     text: "SP命令を使って、ピクトグラムにひとこと話させてください。",
-    hint: "例: SP \"こんにちは\"",
+    hint: "セリフの表示には SP \"文字列\" を使います。",
     sample: `// 問題2: セリフを表示しよう
 SP "こんにちは"`,
     kind: "speech",
@@ -465,9 +469,11 @@ SP "こんにちは"`,
     failure: "SP \"文字\" の形でセリフを書いてみましょう。",
   },
   {
+    id: "Q-003",
+    qid: "Q-003",
     title: "線で三角形を描こう",
     text: "ペンを下ろして、移動とBODY回転を使い、三角形を描いてください。",
-    hint: "PEN DOWN、REPEAT 3、MW、R BODY 120 を組み合わせます。",
+    hint: "3回の繰り返しには REPEAT 3 ... END を使います。線の描画開始には PEN DOWN、終了には PEN UP を使います。部位の回転には R 部位 角度 を使います（BODY 120）。",
     sample: `// 問題3: 線で三角形を描こう
 PEN DOWN
 REPEAT 3
@@ -490,6 +496,10 @@ const CHALLENGES = DEFAULT_CHALLENGES.map(c => ({ ...c }));
 let currentChallengeIndex = 0;
 const challengeTrialCounts = {}; // 問題ごとの実行試行回数 { "1_タイトル": 回数 }
 const challengeProgress = {}; // 問題ごとの判定・入力状態（同一セッション内で保持）
+const sessionHistory = {
+  solvedMap: new Map(), // key=qid or id
+  createdList: []       // { qid, title, difficulty, createdAt }
+};
 let practiceMode = "default"; // default | community
 let practiceDifficulty = null;
 let defaultPracticeSnapshot = null;
@@ -568,9 +578,37 @@ function setChallengeResult(text, status = "") {
   challengeResult.classList.toggle("fail", status === "fail");
 }
 
+function recordCurrentChallengeToHistory() {
+  const challenge = CHALLENGES[currentChallengeIndex];
+  if (!challenge) return;
+  const qid = challenge.qid || challenge.id || `Q-${currentChallengeIndex + 1}`;
+  const diffLabel = DIFFICULTY_LABELS[challenge.difficulty || detectQuestionDifficulty(challenge)] || "通常";
+
+  const saved = challengeProgress[challengeProgressKey(challenge, currentChallengeIndex)];
+  const resText = saved?.resultText || challengeResult?.textContent || "未実行";
+  const resStatus = saved?.resultStatus || currentResultStatus() || "";
+
+  sessionHistory.solvedMap.set(qid, {
+    qid: qid,
+    title: challenge.title || `問題 ${currentChallengeIndex + 1}`,
+    diffLabel: diffLabel,
+    resultText: resText,
+    resultStatus: resStatus,
+    setIndex: currentChallengeIndex,
+    practiceMode: practiceMode,
+  });
+}
+
 function renderChallenge() {
   const challenge = CHALLENGES[currentChallengeIndex];
   if (!challenge || !challengeTitle) return;
+
+  const qid = challenge.qid || challenge.id || `Q-${currentChallengeIndex + 1}`;
+  const qidBadge = document.getElementById("challenge-qid-badge");
+  if (qidBadge) {
+    qidBadge.textContent = `ID: ${qid}`;
+    qidBadge.title = `問題の固定ID: ${qid}（アンケートで記入可）`;
+  }
 
   challengeCount.textContent = `問題 ${currentChallengeIndex + 1}/${CHALLENGES.length}`;
   challengeTitle.textContent = challenge.title;
@@ -580,6 +618,7 @@ function renderChallenge() {
   btnChallengeNext.disabled = currentChallengeIndex === CHALLENGES.length - 1;
   updatePracticeModeUI();
   applySavedChallengeProgress(challenge);
+  recordCurrentChallengeToHistory();
 }
 
 function normalizeSpeech(text) {
@@ -834,9 +873,18 @@ async function evaluateCurrentChallenge() {
   challengeTrialCounts[qKey] = (challengeTrialCounts[qKey] || 0) + 1;
   const trialCount = challengeTrialCounts[qKey];
 
+  // 履歴の判定状態を更新
+  const qid = challenge.qid || challenge.id || `Q-${qNumber}`;
+  const historyItem = sessionHistory.solvedMap.get(qid);
+  if (historyItem) {
+    historyItem.resultText = passed ? "できました！" : "もう少し！";
+    historyItem.resultStatus = passed ? "pass" : "fail";
+    sessionHistory.solvedMap.set(qid, historyItem);
+  }
+
   sendChallengeLog({
     questionNumber: qNumber,
-    questionTitle: challenge.title || `問題 ${qNumber}`,
+    questionTitle: `[${qid}] ${challenge.title || `問題 ${qNumber}`}`,
     trialCount: trialCount,
     result: passed ? "正解" : "不正解",
     code: rawUserCode,
@@ -930,6 +978,8 @@ function applyChallengesData(data) {
   data.forEach((s, i) => {
     const def = DEFAULT_CHALLENGES[i];
     CHALLENGES.push({
+      id: s.id || (def ? def.id : `Q-00${i + 1}`),
+      qid: s.qid || s.id || (def ? def.qid : `Q-00${i + 1}`),
       title: s.title || (def ? def.title : `問題 ${i + 1}`),
       text: s.text || (def ? def.text : ""),
       hint: s.hint || (def ? def.hint : ""),
@@ -1097,6 +1147,14 @@ btnChallengeAdd?.addEventListener("click", async () => {
     
     appendConsole(`💾 問題「${newChallenge.title}」を問題バンクに蓄積しました（バンク合計: ${result.total} 問）`, "ok");
     alert(`問題「${newChallenge.title}」を問題バンクに蓄積しました！（合計: ${result.total}問）`);
+
+    // セッション履歴に追加
+    sessionHistory.createdList.push({
+      qid: result.qid || newChallenge.qid || `NEW-${sessionHistory.createdList.length + 1}`,
+      title: newChallenge.title,
+      difficulty: DIFFICULTY_LABELS[newChallenge.difficulty] || "通常",
+      createdAt: new Date().toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit", second: "2-digit" })
+    });
 
     // バンクリストを更新
     if (typeof loadQuestionBank === "function") {
@@ -1399,14 +1457,17 @@ function shuffleArray(items) {
 }
 
 function toPlayableChallenge(q, i) {
+  const diff = detectQuestionDifficulty(q);
+  const qid = q.qid || q.id || `Q-${diff ? diff + "00" : ""}${i + 1}`;
   return {
     id: q.id || `community_${i}_${q.title || "untitled"}`,
+    qid: qid,
     title: q.title || `問題 ${i + 1}`,
     text: q.text || "",
     hint: q.hint || "",
     sample: q.sample || "",
     kind: q.kind || "contains_code",
-    difficulty: detectQuestionDifficulty(q),
+    difficulty: diff,
   };
 }
 
@@ -1891,5 +1952,130 @@ if (stageEl && coordTooltip) {
       tabs.forEach((t) => t.classList.toggle("active", t === tab));
       panes.forEach((pane) => pane.classList.toggle("active", pane.id === targetId));
     });
+  });
+})();
+
+// --- 📋 履歴・解いた問題モーダルの制御 ----------------------------------
+(function setupHistoryModal() {
+  const historyModal = document.getElementById("history-modal");
+  const btnHistoryTrigger = document.getElementById("btn-history-trigger");
+  const btnHistoryClose = document.getElementById("btn-history-modal-close");
+  const btnHistoryFooterClose = document.getElementById("btn-history-footer-close");
+  const tabBtnSolved = document.getElementById("tab-btn-history-solved");
+  const tabBtnCreated = document.getElementById("tab-btn-history-created");
+  const paneSolved = document.getElementById("history-pane-solved");
+  const paneCreated = document.getElementById("history-pane-created");
+  const solvedCountEl = document.getElementById("history-solved-count");
+  const createdCountEl = document.getElementById("history-created-count");
+  const solvedListEl = document.getElementById("history-solved-list");
+  const createdListEl = document.getElementById("history-created-list");
+
+  if (!historyModal) return;
+
+  function renderHistory() {
+    const solvedList = Array.from(sessionHistory.solvedMap.values());
+    const createdList = sessionHistory.createdList;
+
+    if (solvedCountEl) solvedCountEl.textContent = solvedList.length;
+    if (createdCountEl) createdCountEl.textContent = createdList.length;
+
+    // 1. 解いた問題
+    if (solvedListEl) {
+      if (solvedList.length === 0) {
+        solvedListEl.innerHTML = '<p style="text-align:center; color:var(--ink-soft); font-size:13px; padding:24px 0;">まだ解いた問題がありません。「みんなの問題を解く」から挑戦してみましょう！</p>';
+      } else {
+        let html = '<table style="width:100%; border-collapse:collapse; font-size:13px; text-align:left;">';
+        html += '<thead><tr style="border-bottom:2px solid var(--line); color:var(--ink-soft);"><th style="padding:8px 6px;">問題ID</th><th style="padding:8px 6px;">難易度</th><th style="padding:8px 6px;">タイトル</th><th style="padding:8px 6px;">判定</th><th style="padding:8px 6px; text-align:right;">操作</th></tr></thead><tbody>';
+        solvedList.forEach((item) => {
+          let statusBadge = '<span style="color:var(--ink-soft); font-size:11px;">未実行</span>';
+          if (item.resultStatus === "pass" || item.resultText.includes("できました")) {
+            statusBadge = '<span style="color:#059669; font-weight:700; font-size:12px;">🎉 できました</span>';
+          } else if (item.resultStatus === "fail" || item.resultText.includes("もう少し")) {
+            statusBadge = '<span style="color:#dc2626; font-weight:700; font-size:12px;">⚠️ もう少し</span>';
+          }
+          html += `<tr style="border-bottom:1px solid var(--line);">
+            <td style="padding:8px 6px;"><span style="font-family:monospace; font-weight:800; background:#e0e7ff; color:#3730a3; padding:2px 6px; border-radius:4px; font-size:12px;">${escapeHtml(item.qid)}</span></td>
+            <td style="padding:8px 6px; font-size:11px; color:var(--ink-soft);">${escapeHtml(item.diffLabel || "通常")}</td>
+            <td style="padding:8px 6px; font-weight:600; color:var(--ink);">${escapeHtml(item.title)}</td>
+            <td style="padding:8px 6px;">${statusBadge}</td>
+            <td style="padding:8px 6px; text-align:right;">
+              <button type="button" class="btn ghost btn-jump-challenge" data-index="${item.setIndex}" style="padding:3px 8px; font-size:11px; cursor:pointer;">開く</button>
+            </td>
+          </tr>`;
+        });
+        html += '</tbody></table>';
+        solvedListEl.innerHTML = html;
+
+        solvedListEl.querySelectorAll(".btn-jump-challenge").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            const targetIdx = parseInt(btn.dataset.index, 10);
+            if (!isNaN(targetIdx) && targetIdx >= 0 && targetIdx < CHALLENGES.length) {
+              saveCurrentChallengeProgress();
+              currentChallengeIndex = targetIdx;
+              renderChallenge();
+              closeHistory();
+            }
+          });
+        });
+      }
+    }
+
+    // 2. 作成した問題
+    if (createdListEl) {
+      if (createdList.length === 0) {
+        createdListEl.innerHTML = '<p style="text-align:center; color:var(--ink-soft); font-size:13px; padding:24px 0;">このセッションで新しく追加された問題はまだありません。</p>';
+      } else {
+        let html = '<table style="width:100%; border-collapse:collapse; font-size:13px; text-align:left;">';
+        html += '<thead><tr style="border-bottom:2px solid var(--line); color:var(--ink-soft);"><th style="padding:8px 6px;">問題ID</th><th style="padding:8px 6px;">難易度</th><th style="padding:8px 6px;">タイトル</th><th style="padding:8px 6px; text-align:right;">追加時刻</th></tr></thead><tbody>';
+        createdList.forEach((item) => {
+          html += `<tr style="border-bottom:1px solid var(--line);">
+            <td style="padding:8px 6px;"><span style="font-family:monospace; font-weight:800; background:#fef3c7; color:#92400e; padding:2px 6px; border-radius:4px; font-size:12px;">${escapeHtml(item.qid)}</span></td>
+            <td style="padding:8px 6px; font-size:11px; color:var(--ink-soft);">${escapeHtml(item.difficulty || "通常")}</td>
+            <td style="padding:8px 6px; font-weight:600; color:var(--ink);">${escapeHtml(item.title)}</td>
+            <td style="padding:8px 6px; text-align:right; font-size:11px; color:var(--ink-soft); font-family:monospace;">${escapeHtml(item.createdAt)}</td>
+          </tr>`;
+        });
+        html += '</tbody></table>';
+        createdListEl.innerHTML = html;
+      }
+    }
+  }
+
+  const openHistory = () => {
+    recordCurrentChallengeToHistory();
+    renderHistory();
+    historyModal.classList.add("active");
+  };
+
+  const closeHistory = () => {
+    historyModal.classList.remove("active");
+  };
+
+  btnHistoryTrigger?.addEventListener("click", openHistory);
+  btnHistoryClose?.addEventListener("click", closeHistory);
+  btnHistoryFooterClose?.addEventListener("click", closeHistory);
+
+  historyModal.addEventListener("click", (e) => {
+    if (e.target === historyModal) closeHistory();
+  });
+
+  window.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && historyModal.classList.contains("active")) {
+      closeHistory();
+    }
+  });
+
+  tabBtnSolved?.addEventListener("click", () => {
+    tabBtnSolved.classList.add("active");
+    tabBtnCreated?.classList.remove("active");
+    if (paneSolved) paneSolved.style.display = "";
+    if (paneCreated) paneCreated.style.display = "none";
+  });
+
+  tabBtnCreated?.addEventListener("click", () => {
+    tabBtnCreated.classList.add("active");
+    tabBtnSolved?.classList.remove("active");
+    if (paneCreated) paneCreated.style.display = "";
+    if (paneSolved) paneSolved.style.display = "none";
   });
 })();

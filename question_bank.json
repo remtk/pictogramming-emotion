@@ -7,7 +7,8 @@
     "kind": "contains_code",
     "id": "1791870601224_n599t",
     "createdAt": "2026-10-13T05:50:01.224Z",
-    "difficulty": "1"
+    "difficulty": "1",
+    "qid": "Q-101"
   },
   {
     "title": "【初級】元気に挨拶しよう",
@@ -17,7 +18,8 @@
     "kind": "speech",
     "id": "1791870602224_sj34h",
     "createdAt": "2026-10-13T05:50:02.224Z",
-    "difficulty": "1"
+    "difficulty": "1",
+    "qid": "Q-102"
   },
   {
     "title": "【初級】悲しい気持ちに切り替えよう",
@@ -27,7 +29,8 @@
     "kind": "contains_code",
     "id": "1791870603224_dohub",
     "createdAt": "2026-10-13T05:50:03.224Z",
-    "difficulty": "1"
+    "difficulty": "1",
+    "qid": "Q-103"
   },
   {
     "title": "【初級】右腕を水平に上げよう",
@@ -37,7 +40,8 @@
     "kind": "any",
     "id": "1791870604224_guesk",
     "createdAt": "2026-10-13T05:50:04.224Z",
-    "difficulty": "1"
+    "difficulty": "1",
+    "qid": "Q-104"
   },
   {
     "title": "【初級】怒りの表情にしてみよう",
@@ -47,7 +51,8 @@
     "kind": "contains_code",
     "id": "1791870605224_ghu63",
     "createdAt": "2026-10-13T05:50:05.224Z",
-    "difficulty": "1"
+    "difficulty": "1",
+    "qid": "Q-105"
   },
   {
     "title": "【初級】びっくり驚こう",
@@ -57,7 +62,8 @@
     "kind": "contains_code",
     "id": "1791870606224_n1w6t",
     "createdAt": "2026-10-13T05:50:06.224Z",
-    "difficulty": "1"
+    "difficulty": "1",
+    "qid": "Q-106"
   },
   {
     "title": "【初級】右へトコトコ歩こう",
@@ -67,7 +73,8 @@
     "kind": "any",
     "id": "1791870607224_kidgc",
     "createdAt": "2026-10-13T05:50:07.224Z",
-    "difficulty": "1"
+    "difficulty": "1",
+    "qid": "Q-107"
   },
   {
     "title": "【初級】左手で挙手しよう",
@@ -77,7 +84,8 @@
     "kind": "any",
     "id": "1791870608224_mjf6e",
     "createdAt": "2026-10-13T05:50:08.224Z",
-    "difficulty": "1"
+    "difficulty": "1",
+    "qid": "Q-108"
   },
   {
     "title": "【初級】足元にリンゴを置こう",
@@ -87,7 +95,8 @@
     "kind": "any",
     "id": "1791870609224_wp4lt",
     "createdAt": "2026-10-13T05:50:09.224Z",
-    "difficulty": "1"
+    "difficulty": "1",
+    "qid": "Q-109"
   },
   {
     "title": "【初級】普通の表情に戻ろう",
@@ -97,7 +106,8 @@
     "kind": "contains_code",
     "id": "1791870610224_6fhln",
     "createdAt": "2026-10-13T05:50:10.224Z",
-    "difficulty": "1"
+    "difficulty": "1",
+    "qid": "Q-110"
   },
   {
     "title": "【中級】バンザイして喜びを叫ぼう",
@@ -107,7 +117,8 @@
     "kind": "contains_code",
     "id": "1791870611224_dieeb",
     "createdAt": "2026-10-13T05:50:11.224Z",
-    "difficulty": "2"
+    "difficulty": "2",
+    "qid": "Q-201"
   },
   {
     "title": "【中級】丁寧なお辞儀（ペコリ）",
@@ -117,7 +128,8 @@
     "kind": "speech",
     "id": "1791870612224_w9p17",
     "createdAt": "2026-10-13T05:50:12.224Z",
-    "difficulty": "2"
+    "difficulty": "2",
+    "qid": "Q-202"
   },
   {
     "title": "【中級】ペンで正三角形を描こう",
@@ -127,7 +139,8 @@
     "kind": "triangle",
     "id": "1791870613224_y51sf",
     "createdAt": "2026-10-13T05:50:13.224Z",
-    "difficulty": "2"
+    "difficulty": "2",
+    "qid": "Q-203"
   },
   {
     "title": "【中級】赤色で正方形を描こう",
@@ -137,7 +150,8 @@
     "kind": "contains_code",
     "id": "1791870614224_sov6q",
     "createdAt": "2026-10-13T05:50:14.224Z",
-    "difficulty": "2"
+    "difficulty": "2",
+    "qid": "Q-204"
   },
   {
     "title": "【中級】落ちてくるボールをキャッチ！",
@@ -147,7 +161,8 @@
     "kind": "any",
     "id": "1791870615224_pfut1",
     "createdAt": "2026-10-13T05:50:15.224Z",
-    "difficulty": "2"
+    "difficulty": "2",
+    "qid": "Q-205"
   },
   {
     "title": "【中級】感情ストーリー（驚いてから喜ぶ）",
@@ -157,7 +172,8 @@
     "kind": "contains_code",
     "id": "1791870616224_4exj7",
     "createdAt": "2026-10-13T05:50:16.224Z",
-    "difficulty": "2"
+    "difficulty": "2",
+    "qid": "Q-206"
   },
   {
     "title": "【中級】階段ステップを描こう",
@@ -167,7 +183,8 @@
     "kind": "contains_code",
     "id": "1791870617224_63kjn",
     "createdAt": "2026-10-13T05:50:17.224Z",
-    "difficulty": "2"
+    "difficulty": "2",
+    "qid": "Q-207"
   },
   {
     "title": "【中級】走るポーズを作ろう",
@@ -177,7 +194,8 @@
     "kind": "any",
     "id": "1791870618224_sx71x",
     "createdAt": "2026-10-13T05:50:18.224Z",
-    "difficulty": "2"
+    "difficulty": "2",
+    "qid": "Q-208"
   },
   {
     "title": "【中級】右手を振ってバイバイ",
@@ -187,7 +205,8 @@
     "kind": "speech",
     "id": "1791870619224_n5swu",
     "createdAt": "2026-10-13T05:50:19.224Z",
-    "difficulty": "2"
+    "difficulty": "2",
+    "qid": "Q-209"
   },
   {
     "title": "【中級】アイテムを集めてお片付け",
@@ -197,7 +216,8 @@
     "kind": "speech",
     "id": "1791870620224_lps0c",
     "createdAt": "2026-10-13T05:50:20.224Z",
-    "difficulty": "2"
+    "difficulty": "2",
+    "qid": "Q-210"
   },
   {
     "title": "【上級】きらめく星型（五芒星）の一筆書き",
@@ -207,7 +227,8 @@
     "kind": "contains_code",
     "id": "1791870621224_855ob",
     "createdAt": "2026-10-13T05:50:21.224Z",
-    "difficulty": "3"
+    "difficulty": "3",
+    "qid": "Q-301"
   },
   {
     "title": "【上級】変数を使ってだんだん大きくなる渦巻き",
@@ -217,7 +238,8 @@
     "kind": "contains_code",
     "id": "1791870622224_skq9e",
     "createdAt": "2026-10-13T05:50:22.224Z",
-    "difficulty": "3"
+    "difficulty": "3",
+    "qid": "Q-302"
   },
   {
     "title": "【上級】変数と条件分岐でテストの合否判定",
@@ -227,7 +249,8 @@
     "kind": "contains_code",
     "id": "1791870623224_5jn9s",
     "createdAt": "2026-10-13T05:50:23.224Z",
-    "difficulty": "3"
+    "difficulty": "3",
+    "qid": "Q-303"
   },
   {
     "title": "【上級】リズミカルな反復ダンスルーティン",
@@ -237,7 +260,8 @@
     "kind": "contains_code",
     "id": "1791870624224_uw26d",
     "createdAt": "2026-10-13T05:50:24.224Z",
-    "difficulty": "3"
+    "difficulty": "3",
+    "qid": "Q-304"
   },
   {
     "title": "【上級】青い正六角形（ハニカム）を描こう",
@@ -247,7 +271,8 @@
     "kind": "contains_code",
     "id": "1791870625224_ngk0d",
     "createdAt": "2026-10-13T05:50:25.224Z",
-    "difficulty": "3"
+    "difficulty": "3",
+    "qid": "Q-305"
   },
   {
     "title": "【上級】飛んでくるボールをスライディングキャッチ！",
@@ -257,7 +282,8 @@
     "kind": "contains_code",
     "id": "1791870626224_5r3gd",
     "createdAt": "2026-10-13T05:50:26.224Z",
-    "difficulty": "3"
+    "difficulty": "3",
+    "qid": "Q-306"
   },
   {
     "title": "【上級】窓枠（二重正方形）を描こう",
@@ -267,7 +293,8 @@
     "kind": "contains_code",
     "id": "1791870627224_g47sb",
     "createdAt": "2026-10-13T05:50:27.224Z",
-    "difficulty": "3"
+    "difficulty": "3",
+    "qid": "Q-307"
   },
   {
     "title": "【上級】カウントダウン・ジャンプ！",
@@ -277,7 +304,8 @@
     "kind": "contains_code",
     "id": "1791870628224_xfid5",
     "createdAt": "2026-10-13T05:50:28.224Z",
-    "difficulty": "3"
+    "difficulty": "3",
+    "qid": "Q-308"
   },
   {
     "title": "【上級】ダイヤ型（ひし形）のペンダントを描こう",
@@ -287,7 +315,8 @@
     "kind": "contains_code",
     "id": "1791870629224_lnmje",
     "createdAt": "2026-10-13T05:50:29.224Z",
-    "difficulty": "3"
+    "difficulty": "3",
+    "qid": "Q-309"
   },
   {
     "title": "【上級】二重ループで3つの四角形を並べて描く",
@@ -297,7 +326,8 @@
     "kind": "contains_code",
     "id": "1791870630224_19mbz",
     "createdAt": "2026-10-13T05:50:30.224Z",
-    "difficulty": "3"
+    "difficulty": "3",
+    "qid": "Q-310"
   },
   {
     "id": "1794285678232_59tht",
@@ -307,7 +337,8 @@
     "sample": "EMOTION JOY 0",
     "kind": "contains_code",
     "difficulty": "1",
-    "createdAt": "2026-11-10T04:41:18.232Z"
+    "createdAt": "2026-11-10T04:41:18.232Z",
+    "qid": "Q-111"
   },
   {
     "id": "1794285679232_xlbsx",
@@ -317,7 +348,8 @@
     "sample": "EMOTION SAD 0",
     "kind": "contains_code",
     "difficulty": "1",
-    "createdAt": "2026-11-10T04:41:19.232Z"
+    "createdAt": "2026-11-10T04:41:19.232Z",
+    "qid": "Q-112"
   },
   {
     "id": "1794285680232_sv03y",
@@ -327,7 +359,8 @@
     "sample": "EMOTION ANGRY 0",
     "kind": "contains_code",
     "difficulty": "1",
-    "createdAt": "2026-11-10T04:41:20.232Z"
+    "createdAt": "2026-11-10T04:41:20.232Z",
+    "qid": "Q-113"
   },
   {
     "id": "1794285681232_9tmil",
@@ -337,7 +370,8 @@
     "sample": "EMOTION SURPRISE 0",
     "kind": "contains_code",
     "difficulty": "1",
-    "createdAt": "2026-11-10T04:41:21.232Z"
+    "createdAt": "2026-11-10T04:41:21.232Z",
+    "qid": "Q-114"
   },
   {
     "id": "1794285682232_zfiky",
@@ -347,7 +381,8 @@
     "sample": "EMOTION NORMAL 0",
     "kind": "contains_code",
     "difficulty": "1",
-    "createdAt": "2026-11-10T04:41:22.232Z"
+    "createdAt": "2026-11-10T04:41:22.232Z",
+    "qid": "Q-115"
   },
   {
     "id": "1794285683232_7w9xf",
@@ -357,7 +392,8 @@
     "sample": "EMOTION JOY 1",
     "kind": "contains_code",
     "difficulty": "1",
-    "createdAt": "2026-11-10T04:41:23.232Z"
+    "createdAt": "2026-11-10T04:41:23.232Z",
+    "qid": "Q-116"
   },
   {
     "id": "1794285684232_vipgv",
@@ -367,7 +403,8 @@
     "sample": "EMOTION ANGRY 0.5",
     "kind": "contains_code",
     "difficulty": "1",
-    "createdAt": "2026-11-10T04:41:24.232Z"
+    "createdAt": "2026-11-10T04:41:24.232Z",
+    "qid": "Q-117"
   },
   {
     "id": "1794285685232_29hoh",
@@ -377,7 +414,8 @@
     "sample": "EMOTION SAD 0.8",
     "kind": "contains_code",
     "difficulty": "1",
-    "createdAt": "2026-11-10T04:41:25.232Z"
+    "createdAt": "2026-11-10T04:41:25.232Z",
+    "qid": "Q-118"
   },
   {
     "id": "1794285686232_u74qi",
@@ -387,7 +425,8 @@
     "sample": "EMOTION NORMAL 0.5",
     "kind": "contains_code",
     "difficulty": "1",
-    "createdAt": "2026-11-10T04:41:26.232Z"
+    "createdAt": "2026-11-10T04:41:26.232Z",
+    "qid": "Q-119"
   },
   {
     "id": "1794285687232_1b2qk",
@@ -397,7 +436,8 @@
     "sample": "EMOTION SURPRISE 0.3",
     "kind": "contains_code",
     "difficulty": "1",
-    "createdAt": "2026-11-10T04:41:27.232Z"
+    "createdAt": "2026-11-10T04:41:27.232Z",
+    "qid": "Q-120"
   },
   {
     "id": "1794285688232_0a0be",
@@ -407,7 +447,8 @@
     "sample": "SP \"おはよう！\"",
     "kind": "speech",
     "difficulty": "1",
-    "createdAt": "2026-11-10T04:41:28.232Z"
+    "createdAt": "2026-11-10T04:41:28.232Z",
+    "qid": "Q-121"
   },
   {
     "id": "1794285689232_jd5b5",
@@ -417,7 +458,8 @@
     "sample": "SP \"ありがとう\"",
     "kind": "speech",
     "difficulty": "1",
-    "createdAt": "2026-11-10T04:41:29.232Z"
+    "createdAt": "2026-11-10T04:41:29.232Z",
+    "qid": "Q-122"
   },
   {
     "id": "1794285690232_aqdk4",
@@ -427,7 +469,8 @@
     "sample": "SP \"ぼくピクトくんです\"",
     "kind": "speech",
     "difficulty": "1",
-    "createdAt": "2026-11-10T04:41:30.232Z"
+    "createdAt": "2026-11-10T04:41:30.232Z",
+    "qid": "Q-123"
   },
   {
     "id": "1794285691232_mdlk1",
@@ -437,7 +480,8 @@
     "sample": "SP \"はい！\"",
     "kind": "speech",
     "difficulty": "1",
-    "createdAt": "2026-11-10T04:41:31.232Z"
+    "createdAt": "2026-11-10T04:41:31.232Z",
+    "qid": "Q-124"
   },
   {
     "id": "1794285692232_0ucoc",
@@ -447,7 +491,8 @@
     "sample": "SP \"さようなら\"",
     "kind": "speech",
     "difficulty": "1",
-    "createdAt": "2026-11-10T04:41:32.232Z"
+    "createdAt": "2026-11-10T04:41:32.232Z",
+    "qid": "Q-125"
   },
   {
     "id": "1794285693232_xsr5u",
@@ -457,7 +502,8 @@
     "sample": "SP \"元気ですか？\"",
     "kind": "speech",
     "difficulty": "1",
-    "createdAt": "2026-11-10T04:41:33.232Z"
+    "createdAt": "2026-11-10T04:41:33.232Z",
+    "qid": "Q-126"
   },
   {
     "id": "1794285694232_intub",
@@ -467,7 +513,8 @@
     "sample": "SP \"おめでとう！\"",
     "kind": "speech",
     "difficulty": "1",
-    "createdAt": "2026-11-10T04:41:34.232Z"
+    "createdAt": "2026-11-10T04:41:34.232Z",
+    "qid": "Q-127"
   },
   {
     "id": "1794285695232_0wy8g",
@@ -477,7 +524,8 @@
     "sample": "SP \"えいえいおー！\"",
     "kind": "speech",
     "difficulty": "1",
-    "createdAt": "2026-11-10T04:41:35.232Z"
+    "createdAt": "2026-11-10T04:41:35.232Z",
+    "qid": "Q-128"
   },
   {
     "id": "1794285696232_d90w1",
@@ -487,7 +535,8 @@
     "sample": "SP \"わっ！\"",
     "kind": "speech",
     "difficulty": "1",
-    "createdAt": "2026-11-10T04:41:36.232Z"
+    "createdAt": "2026-11-10T04:41:36.232Z",
+    "qid": "Q-129"
   },
   {
     "id": "1794285697232_303mh",
@@ -497,7 +546,8 @@
     "sample": "SP \"やったー！\"",
     "kind": "speech",
     "difficulty": "1",
-    "createdAt": "2026-11-10T04:41:37.232Z"
+    "createdAt": "2026-11-10T04:41:37.232Z",
+    "qid": "Q-130"
   },
   {
     "id": "1794285698232_jevwx",
@@ -507,7 +557,8 @@
     "sample": "R LUA 90",
     "kind": "contains_code",
     "difficulty": "1",
-    "createdAt": "2026-11-10T04:41:38.232Z"
+    "createdAt": "2026-11-10T04:41:38.232Z",
+    "qid": "Q-131"
   },
   {
     "id": "1794285699232_0582c",
@@ -517,7 +568,8 @@
     "sample": "R RUA -165",
     "kind": "contains_code",
     "difficulty": "1",
-    "createdAt": "2026-11-10T04:41:39.232Z"
+    "createdAt": "2026-11-10T04:41:39.232Z",
+    "qid": "Q-132"
   },
   {
     "id": "1794285700232_f33h1",
@@ -527,7 +579,8 @@
     "sample": "R LLA 90",
     "kind": "contains_code",
     "difficulty": "1",
-    "createdAt": "2026-11-10T04:41:40.232Z"
+    "createdAt": "2026-11-10T04:41:40.232Z",
+    "qid": "Q-133"
   },
   {
     "id": "1794285701232_y0dxn",
@@ -537,7 +590,8 @@
     "sample": "R RLA -90",
     "kind": "contains_code",
     "difficulty": "1",
-    "createdAt": "2026-11-10T04:41:41.232Z"
+    "createdAt": "2026-11-10T04:41:41.232Z",
+    "qid": "Q-134"
   },
   {
     "id": "1794285702232_17wui",
@@ -547,7 +601,8 @@
     "sample": "R LUL 60",
     "kind": "contains_code",
     "difficulty": "1",
-    "createdAt": "2026-11-10T04:41:42.232Z"
+    "createdAt": "2026-11-10T04:41:42.232Z",
+    "qid": "Q-135"
   },
   {
     "id": "1794285703232_8g0f4",
@@ -557,7 +612,8 @@
     "sample": "R RUL -45",
     "kind": "contains_code",
     "difficulty": "1",
-    "createdAt": "2026-11-10T04:41:43.232Z"
+    "createdAt": "2026-11-10T04:41:43.232Z",
+    "qid": "Q-136"
   },
   {
     "id": "1794285704232_3zdwt",
@@ -567,7 +623,8 @@
     "sample": "R LLL -60",
     "kind": "contains_code",
     "difficulty": "1",
-    "createdAt": "2026-11-10T04:41:44.232Z"
+    "createdAt": "2026-11-10T04:41:44.232Z",
+    "qid": "Q-137"
   },
   {
     "id": "1794285705232_dv7kr",
@@ -577,7 +634,8 @@
     "sample": "R RLL -45",
     "kind": "contains_code",
     "difficulty": "1",
-    "createdAt": "2026-11-10T04:41:45.232Z"
+    "createdAt": "2026-11-10T04:41:45.232Z",
+    "qid": "Q-138"
   },
   {
     "id": "1794285706232_dfcaj",
@@ -587,7 +645,8 @@
     "sample": "R BODY 30",
     "kind": "contains_code",
     "difficulty": "1",
-    "createdAt": "2026-11-10T04:41:46.232Z"
+    "createdAt": "2026-11-10T04:41:46.232Z",
+    "qid": "Q-139"
   },
   {
     "id": "1794285707232_3iyn0",
@@ -597,7 +656,8 @@
     "sample": "R BODY -30",
     "kind": "contains_code",
     "difficulty": "1",
-    "createdAt": "2026-11-10T04:41:47.232Z"
+    "createdAt": "2026-11-10T04:41:47.232Z",
+    "qid": "Q-140"
   },
   {
     "id": "1794285708232_8z47s",
@@ -607,7 +667,8 @@
     "sample": "R LUA 90\nR RUA -90",
     "kind": "contains_code",
     "difficulty": "1",
-    "createdAt": "2026-11-10T04:41:48.232Z"
+    "createdAt": "2026-11-10T04:41:48.232Z",
+    "qid": "Q-141"
   },
   {
     "id": "1794285709232_euj7s",
@@ -617,7 +678,8 @@
     "sample": "R LUA 165\nR RUA -165",
     "kind": "contains_code",
     "difficulty": "1",
-    "createdAt": "2026-11-10T04:41:49.232Z"
+    "createdAt": "2026-11-10T04:41:49.232Z",
+    "qid": "Q-142"
   },
   {
     "id": "1794285710232_2iigr",
@@ -627,7 +689,8 @@
     "sample": "R LUA 60\nR RUA 60",
     "kind": "contains_code",
     "difficulty": "1",
-    "createdAt": "2026-11-10T04:41:50.232Z"
+    "createdAt": "2026-11-10T04:41:50.232Z",
+    "qid": "Q-143"
   },
   {
     "id": "1794285711232_65uhy",
@@ -637,7 +700,8 @@
     "sample": "R LUA 0\nR RUA 0",
     "kind": "contains_code",
     "difficulty": "1",
-    "createdAt": "2026-11-10T04:41:51.232Z"
+    "createdAt": "2026-11-10T04:41:51.232Z",
+    "qid": "Q-144"
   },
   {
     "id": "1794285712232_xhtdx",
@@ -647,7 +711,8 @@
     "sample": "R RUA -120\nR RLA -30",
     "kind": "contains_code",
     "difficulty": "1",
-    "createdAt": "2026-11-10T04:41:52.232Z"
+    "createdAt": "2026-11-10T04:41:52.232Z",
+    "qid": "Q-145"
   },
   {
     "id": "1794285713232_y2qez",
@@ -657,7 +722,8 @@
     "sample": "R LUA 60\nR LLA 90",
     "kind": "contains_code",
     "difficulty": "1",
-    "createdAt": "2026-11-10T04:41:53.232Z"
+    "createdAt": "2026-11-10T04:41:53.232Z",
+    "qid": "Q-146"
   },
   {
     "id": "1794285714232_bgz2p",
@@ -667,7 +733,8 @@
     "sample": "R LUL -20\nR RUL 20",
     "kind": "contains_code",
     "difficulty": "1",
-    "createdAt": "2026-11-10T04:41:54.232Z"
+    "createdAt": "2026-11-10T04:41:54.232Z",
+    "qid": "Q-147"
   },
   {
     "id": "1794285715232_j4xwo",
@@ -677,7 +744,8 @@
     "sample": "R LUL 45\nR LLL -45",
     "kind": "contains_code",
     "difficulty": "1",
-    "createdAt": "2026-11-10T04:41:55.232Z"
+    "createdAt": "2026-11-10T04:41:55.232Z",
+    "qid": "Q-148"
   },
   {
     "id": "1794285716232_tbigv",
@@ -687,7 +755,8 @@
     "sample": "M 50 0",
     "kind": "contains_code",
     "difficulty": "1",
-    "createdAt": "2026-11-10T04:41:56.232Z"
+    "createdAt": "2026-11-10T04:41:56.232Z",
+    "qid": "Q-149"
   },
   {
     "id": "1794285717232_2im2w",
@@ -697,7 +766,8 @@
     "sample": "M -50 0",
     "kind": "contains_code",
     "difficulty": "1",
-    "createdAt": "2026-11-10T04:41:57.232Z"
+    "createdAt": "2026-11-10T04:41:57.232Z",
+    "qid": "Q-150"
   },
   {
     "id": "1794285718232_mhffm",
@@ -707,7 +777,8 @@
     "sample": "M 0 -50",
     "kind": "contains_code",
     "difficulty": "1",
-    "createdAt": "2026-11-10T04:41:58.232Z"
+    "createdAt": "2026-11-10T04:41:58.232Z",
+    "qid": "Q-151"
   },
   {
     "id": "1794285719232_iou1b",
@@ -717,7 +788,8 @@
     "sample": "M 0 50",
     "kind": "contains_code",
     "difficulty": "1",
-    "createdAt": "2026-11-10T04:41:59.232Z"
+    "createdAt": "2026-11-10T04:41:59.232Z",
+    "qid": "Q-152"
   },
   {
     "id": "1794285720232_125w0",
@@ -727,7 +799,8 @@
     "sample": "MW 60 0 1",
     "kind": "contains_code",
     "difficulty": "1",
-    "createdAt": "2026-11-10T04:42:00.232Z"
+    "createdAt": "2026-11-10T04:42:00.232Z",
+    "qid": "Q-153"
   },
   {
     "id": "1794285721232_pzdzq",
@@ -737,7 +810,8 @@
     "sample": "MW -60 0 0.8",
     "kind": "contains_code",
     "difficulty": "1",
-    "createdAt": "2026-11-10T04:42:01.232Z"
+    "createdAt": "2026-11-10T04:42:01.232Z",
+    "qid": "Q-154"
   },
   {
     "id": "1794285722232_nuia4",
@@ -747,7 +821,8 @@
     "sample": "ITEM 星 0 -90",
     "kind": "contains_code",
     "difficulty": "1",
-    "createdAt": "2026-11-10T04:42:02.232Z"
+    "createdAt": "2026-11-10T04:42:02.232Z",
+    "qid": "Q-155"
   },
   {
     "id": "1794285723232_ets0b",
@@ -757,7 +832,8 @@
     "sample": "ITEM 剣 50 0",
     "kind": "contains_code",
     "difficulty": "1",
-    "createdAt": "2026-11-10T04:42:03.232Z"
+    "createdAt": "2026-11-10T04:42:03.232Z",
+    "qid": "Q-156"
   },
   {
     "id": "1794285724232_a7qct",
@@ -767,7 +843,8 @@
     "sample": "ITEM ハート 0 -20",
     "kind": "contains_code",
     "difficulty": "1",
-    "createdAt": "2026-11-10T04:42:04.232Z"
+    "createdAt": "2026-11-10T04:42:04.232Z",
+    "qid": "Q-157"
   },
   {
     "id": "1794285725232_2ic0h",
@@ -777,7 +854,8 @@
     "sample": "PEN DOWN\nMW 60 0 0.5\nPEN UP",
     "kind": "contains_code",
     "difficulty": "1",
-    "createdAt": "2026-11-10T04:42:05.232Z"
+    "createdAt": "2026-11-10T04:42:05.232Z",
+    "qid": "Q-158"
   },
   {
     "id": "1794285726232_rgi51",
@@ -787,7 +865,8 @@
     "sample": "PEN COLOR \"#E74C3C\"\nPEN DOWN\nMW 50 0 0.5\nPEN UP",
     "kind": "contains_code",
     "difficulty": "1",
-    "createdAt": "2026-11-10T04:42:06.232Z"
+    "createdAt": "2026-11-10T04:42:06.232Z",
+    "qid": "Q-159"
   },
   {
     "id": "1794285727232_te0sx",
@@ -797,7 +876,8 @@
     "sample": "PEN COLOR \"#3498DB\"\nPEN DOWN\nMW 0 60 0.5\nPEN UP",
     "kind": "contains_code",
     "difficulty": "1",
-    "createdAt": "2026-11-10T04:42:07.232Z"
+    "createdAt": "2026-11-10T04:42:07.232Z",
+    "qid": "Q-160"
   },
   {
     "id": "1794285778232_xrx7i",
@@ -807,7 +887,8 @@
     "sample": "RW BODY 30 0.4\nRW BODY -30 0.4\nSP \"よろしくお願いします！\"",
     "kind": "contains_code",
     "difficulty": "2",
-    "createdAt": "2026-11-10T04:42:58.232Z"
+    "createdAt": "2026-11-10T04:42:58.232Z",
+    "qid": "Q-211"
   },
   {
     "id": "1794285779232_whwbf",
@@ -817,7 +898,8 @@
     "sample": "EMOTION ANGRY 0.3\nSP \"もう知らない！\"\nR RUL 40\nR RUL -40",
     "kind": "contains_code",
     "difficulty": "2",
-    "createdAt": "2026-11-10T04:42:59.232Z"
+    "createdAt": "2026-11-10T04:42:59.232Z",
+    "qid": "Q-212"
   },
   {
     "id": "1794285780232_j7icx",
@@ -827,7 +909,8 @@
     "sample": "MW 0 -50 0.3\nR LUA 165\nR RUA -165\nEMOTION JOY 0.3\nSP \"やったー！\"",
     "kind": "contains_code",
     "difficulty": "2",
-    "createdAt": "2026-11-10T04:43:00.232Z"
+    "createdAt": "2026-11-10T04:43:00.232Z",
+    "qid": "Q-213"
   },
   {
     "id": "1794285781232_cqohw",
@@ -837,7 +920,8 @@
     "sample": "EMOTION SURPRISE 0.2\nMW -50 0 0.2\nSP \"うわっ！\"",
     "kind": "contains_code",
     "difficulty": "2",
-    "createdAt": "2026-11-10T04:43:01.232Z"
+    "createdAt": "2026-11-10T04:43:01.232Z",
+    "qid": "Q-214"
   },
   {
     "id": "1794285782232_gqx7f",
@@ -847,7 +931,8 @@
     "sample": "RW BODY 20 0.5\nEMOTION SAD 0.5\nSP \"ため息…\"",
     "kind": "contains_code",
     "difficulty": "2",
-    "createdAt": "2026-11-10T04:43:02.232Z"
+    "createdAt": "2026-11-10T04:43:02.232Z",
+    "qid": "Q-215"
   },
   {
     "id": "1794285783232_0x6bq",
@@ -857,7 +942,8 @@
     "sample": "EMOTION JOY 0.3\nR RUA -120\nRW RLA -30 0.2\nRW RLA 60 0.2\nSP \"バイバイ！\"",
     "kind": "contains_code",
     "difficulty": "2",
-    "createdAt": "2026-11-10T04:43:03.232Z"
+    "createdAt": "2026-11-10T04:43:03.232Z",
+    "qid": "Q-216"
   },
   {
     "id": "1794285784232_6jqp9",
@@ -867,7 +953,8 @@
     "sample": "R LUA 90\nR RUA -135\nR BODY 15\nSP \"シャキーン！\"",
     "kind": "contains_code",
     "difficulty": "2",
-    "createdAt": "2026-11-10T04:43:04.232Z"
+    "createdAt": "2026-11-10T04:43:04.232Z",
+    "qid": "Q-217"
   },
   {
     "id": "1794285785232_yorl4",
@@ -877,7 +964,8 @@
     "sample": "R LUA 90\nR RUA -90\nWAIT 1\nR LUA -90\nR RUA 90\nSP \"すーはー\"",
     "kind": "contains_code",
     "difficulty": "2",
-    "createdAt": "2026-11-10T04:43:05.232Z"
+    "createdAt": "2026-11-10T04:43:05.232Z",
+    "qid": "Q-218"
   },
   {
     "id": "1794285786232_ws0bo",
@@ -887,7 +975,8 @@
     "sample": "R BODY 20\nMW 80 0 0.6\nSP \"ダッシュ完了！\"",
     "kind": "contains_code",
     "difficulty": "2",
-    "createdAt": "2026-11-10T04:43:06.232Z"
+    "createdAt": "2026-11-10T04:43:06.232Z",
+    "qid": "Q-219"
   },
   {
     "id": "1794285787232_8jvl2",
@@ -897,7 +986,8 @@
     "sample": "R BODY 90\nWAIT 1\nR BODY -90",
     "kind": "contains_code",
     "difficulty": "2",
-    "createdAt": "2026-11-10T04:43:07.232Z"
+    "createdAt": "2026-11-10T04:43:07.232Z",
+    "qid": "Q-220"
   },
   {
     "id": "1794285788232_cnkl1",
@@ -907,7 +997,8 @@
     "sample": "PEN DOWN\nREPEAT 3\n  MW 60 0 0.3\n  R BODY 120\nEND\nPEN UP",
     "kind": "contains_code",
     "difficulty": "2",
-    "createdAt": "2026-11-10T04:43:08.232Z"
+    "createdAt": "2026-11-10T04:43:08.232Z",
+    "qid": "Q-221"
   },
   {
     "id": "1794285789232_f549t",
@@ -917,7 +1008,8 @@
     "sample": "PEN DOWN\nREPEAT 4\n  MW 50 0 0.3\n  R BODY 90\nEND\nPEN UP",
     "kind": "contains_code",
     "difficulty": "2",
-    "createdAt": "2026-11-10T04:43:09.232Z"
+    "createdAt": "2026-11-10T04:43:09.232Z",
+    "qid": "Q-222"
   },
   {
     "id": "1794285790232_zx58l",
@@ -927,7 +1019,8 @@
     "sample": "PEN DOWN\nREPEAT 5\n  MW 45 0 0.3\n  R BODY 72\nEND\nPEN UP",
     "kind": "contains_code",
     "difficulty": "2",
-    "createdAt": "2026-11-10T04:43:10.232Z"
+    "createdAt": "2026-11-10T04:43:10.232Z",
+    "qid": "Q-223"
   },
   {
     "id": "1794285791232_0nzsl",
@@ -937,7 +1030,8 @@
     "sample": "PEN COLOR \"#2ECC71\"\nPEN DOWN\nREPEAT 6\n  MW 40 0 0.3\n  R BODY 60\nEND\nPEN UP",
     "kind": "contains_code",
     "difficulty": "2",
-    "createdAt": "2026-11-10T04:43:11.232Z"
+    "createdAt": "2026-11-10T04:43:11.232Z",
+    "qid": "Q-224"
   },
   {
     "id": "1794285792232_zbxia",
@@ -947,7 +1041,8 @@
     "sample": "PEN COLOR \"#E67E22\"\nPEN DOWN\nREPEAT 8\n  MW 30 0 0.25\n  R BODY 45\nEND\nPEN UP",
     "kind": "contains_code",
     "difficulty": "2",
-    "createdAt": "2026-11-10T04:43:12.232Z"
+    "createdAt": "2026-11-10T04:43:12.232Z",
+    "qid": "Q-225"
   },
   {
     "id": "1794285793232_pyo44",
@@ -957,7 +1052,8 @@
     "sample": "PEN COLOR \"#9B59B6\"\nPEN DOWN\nREPEAT 2\n  MW 60 0 0.3\n  R BODY 90\n  MW 30 0 0.3\n  R BODY 90\nEND\nPEN UP",
     "kind": "contains_code",
     "difficulty": "2",
-    "createdAt": "2026-11-10T04:43:13.232Z"
+    "createdAt": "2026-11-10T04:43:13.232Z",
+    "qid": "Q-226"
   },
   {
     "id": "1794285794232_bnz6p",
@@ -967,7 +1063,8 @@
     "sample": "PEN DOWN\nREPEAT 3\n  MW 30 0 0.3\n  MW 0 -30 0.3\nEND\nPEN UP",
     "kind": "contains_code",
     "difficulty": "2",
-    "createdAt": "2026-11-10T04:43:14.232Z"
+    "createdAt": "2026-11-10T04:43:14.232Z",
+    "qid": "Q-227"
   },
   {
     "id": "1794285795232_wqwpu",
@@ -977,7 +1074,8 @@
     "sample": "PEN DOWN\nREPEAT 4\n  MW 30 -30 0.25\n  MW 30 30 0.25\nEND\nPEN UP",
     "kind": "contains_code",
     "difficulty": "2",
-    "createdAt": "2026-11-10T04:43:15.232Z"
+    "createdAt": "2026-11-10T04:43:15.232Z",
+    "qid": "Q-228"
   },
   {
     "id": "1794285796232_3rvbq",
@@ -987,7 +1085,8 @@
     "sample": "PEN COLOR \"#F1C40F\"\nPEN DOWN\nREPEAT 4\n  MW 25 0 0.2\n  R BODY -90\n  MW 25 0 0.2\n  R BODY 90\nEND\nPEN UP",
     "kind": "contains_code",
     "difficulty": "2",
-    "createdAt": "2026-11-10T04:43:16.232Z"
+    "createdAt": "2026-11-10T04:43:16.232Z",
+    "qid": "Q-229"
   },
   {
     "id": "1794285797232_hbcjo",
@@ -997,7 +1096,8 @@
     "sample": "R BODY 45\nPEN DOWN\nREPEAT 4\n  MW 50 0 0.3\n  R BODY 90\nEND\nPEN UP",
     "kind": "contains_code",
     "difficulty": "2",
-    "createdAt": "2026-11-10T04:43:17.232Z"
+    "createdAt": "2026-11-10T04:43:17.232Z",
+    "qid": "Q-230"
   },
   {
     "id": "1794285798232_pln0r",
@@ -1007,7 +1107,8 @@
     "sample": "ITEM リンゴ 60 -30\nIK 右腕 60 -30",
     "kind": "contains_code",
     "difficulty": "2",
-    "createdAt": "2026-11-10T04:43:18.232Z"
+    "createdAt": "2026-11-10T04:43:18.232Z",
+    "qid": "Q-231"
   },
   {
     "id": "1794285799232_trxqa",
@@ -1017,7 +1118,8 @@
     "sample": "ITEM 星 -60 -50\nIK 左腕 -60 -50",
     "kind": "contains_code",
     "difficulty": "2",
-    "createdAt": "2026-11-10T04:43:19.232Z"
+    "createdAt": "2026-11-10T04:43:19.232Z",
+    "qid": "Q-232"
   },
   {
     "id": "1794285800232_4inb0",
@@ -1027,7 +1129,8 @@
     "sample": "ITEM ボール 40 70\nIK 右脚 40 70",
     "kind": "contains_code",
     "difficulty": "2",
-    "createdAt": "2026-11-10T04:43:20.232Z"
+    "createdAt": "2026-11-10T04:43:20.232Z",
+    "qid": "Q-233"
   },
   {
     "id": "1794285801232_fuzbi",
@@ -1037,7 +1140,8 @@
     "sample": "ITEM ハート -50 60\nIK 左脚 -50 60",
     "kind": "contains_code",
     "difficulty": "2",
-    "createdAt": "2026-11-10T04:43:21.232Z"
+    "createdAt": "2026-11-10T04:43:21.232Z",
+    "qid": "Q-234"
   },
   {
     "id": "1794285802232_ugmcv",
@@ -1047,7 +1151,8 @@
     "sample": "ITEM 剣 50 -10\nIKW 右腕 50 -10 0.5",
     "kind": "contains_code",
     "difficulty": "2",
-    "createdAt": "2026-11-10T04:43:22.232Z"
+    "createdAt": "2026-11-10T04:43:22.232Z",
+    "qid": "Q-235"
   },
   {
     "id": "1794285803232_lxy9q",
@@ -1057,7 +1162,8 @@
     "sample": "ITEM 星 0 -80\nIK 左腕 -30 -80\nIK 右腕 30 -80",
     "kind": "contains_code",
     "difficulty": "2",
-    "createdAt": "2026-11-10T04:43:23.232Z"
+    "createdAt": "2026-11-10T04:43:23.232Z",
+    "qid": "Q-236"
   },
   {
     "id": "1794285804232_gi4ph",
@@ -1067,7 +1173,8 @@
     "sample": "ITEM 星 40 0\nIKW 右腕 40 0 0.4\nSP \"開いた！\"",
     "kind": "contains_code",
     "difficulty": "2",
-    "createdAt": "2026-11-10T04:43:24.232Z"
+    "createdAt": "2026-11-10T04:43:24.232Z",
+    "qid": "Q-237"
   },
   {
     "id": "1794285805232_t6tu2",
@@ -1077,7 +1184,8 @@
     "sample": "ITEM リンゴ 50 30\nIK 右腕 50 30\nEMOTION JOY 0.3",
     "kind": "contains_code",
     "difficulty": "2",
-    "createdAt": "2026-11-10T04:43:25.232Z"
+    "createdAt": "2026-11-10T04:43:25.232Z",
+    "qid": "Q-238"
   },
   {
     "id": "1794285806232_ndnqh",
@@ -1087,7 +1195,8 @@
     "sample": "ITEM ボール -50 40\nIMW ボール 80 0 1",
     "kind": "contains_code",
     "difficulty": "2",
-    "createdAt": "2026-11-10T04:43:26.232Z"
+    "createdAt": "2026-11-10T04:43:26.232Z",
+    "qid": "Q-239"
   },
   {
     "id": "1794285807232_9wk41",
@@ -1097,7 +1206,8 @@
     "sample": "ITEM 星 0 0\nIMW 星 0 -80 1",
     "kind": "contains_code",
     "difficulty": "2",
-    "createdAt": "2026-11-10T04:43:27.232Z"
+    "createdAt": "2026-11-10T04:43:27.232Z",
+    "qid": "Q-240"
   },
   {
     "id": "1794285808232_tdhgl",
@@ -1107,7 +1217,8 @@
     "sample": "ITEM ハート -30 20\nIMW ハート 60 -40 1",
     "kind": "contains_code",
     "difficulty": "2",
-    "createdAt": "2026-11-10T04:43:28.232Z"
+    "createdAt": "2026-11-10T04:43:28.232Z",
+    "qid": "Q-241"
   },
   {
     "id": "1794285809232_34pmu",
@@ -1117,7 +1228,8 @@
     "sample": "ITEM リンゴ -80 -20\nIMW リンゴ 120 0 1\nSP \"あっ！\"",
     "kind": "contains_code",
     "difficulty": "2",
-    "createdAt": "2026-11-10T04:43:29.232Z"
+    "createdAt": "2026-11-10T04:43:29.232Z",
+    "qid": "Q-242"
   },
   {
     "id": "1794285810232_jnjn3",
@@ -1127,7 +1239,8 @@
     "sample": "ITEM 剣 -40 0\nIM 剣 80 0",
     "kind": "contains_code",
     "difficulty": "2",
-    "createdAt": "2026-11-10T04:43:30.232Z"
+    "createdAt": "2026-11-10T04:43:30.232Z",
+    "qid": "Q-243"
   },
   {
     "id": "1794285811232_vjkw7",
@@ -1137,7 +1250,8 @@
     "sample": "ITEM 星 30 0\nITEM リンゴ -30 0\nITEM CLEAR",
     "kind": "contains_code",
     "difficulty": "2",
-    "createdAt": "2026-11-10T04:43:31.232Z"
+    "createdAt": "2026-11-10T04:43:31.232Z",
+    "qid": "Q-244"
   },
   {
     "id": "1794285812232_gwb90",
@@ -1147,7 +1261,8 @@
     "sample": "ITEM 星 0 0\nIMW 星 50 0 0.8\nMW 50 0 0.8",
     "kind": "contains_code",
     "difficulty": "2",
-    "createdAt": "2026-11-10T04:43:32.232Z"
+    "createdAt": "2026-11-10T04:43:32.232Z",
+    "qid": "Q-245"
   },
   {
     "id": "1794285813232_omxlw",
@@ -1157,7 +1272,8 @@
     "sample": "ITEM ボール 20 60\nR RUL 40\nIMW ボール 80 -30 0.8",
     "kind": "contains_code",
     "difficulty": "2",
-    "createdAt": "2026-11-10T04:43:33.232Z"
+    "createdAt": "2026-11-10T04:43:33.232Z",
+    "qid": "Q-246"
   },
   {
     "id": "1794285814232_mu835",
@@ -1167,7 +1283,8 @@
     "sample": "REPEAT 2\n  MW 40 0 0.3\n  MW -40 0 0.3\nEND",
     "kind": "contains_code",
     "difficulty": "2",
-    "createdAt": "2026-11-10T04:43:34.232Z"
+    "createdAt": "2026-11-10T04:43:34.232Z",
+    "qid": "Q-247"
   },
   {
     "id": "1794285815232_2sd6q",
@@ -1177,7 +1294,8 @@
     "sample": "REPEAT 2\n  MW 0 30 0.3\n  MW 0 -30 0.3\nEND",
     "kind": "contains_code",
     "difficulty": "2",
-    "createdAt": "2026-11-10T04:43:35.232Z"
+    "createdAt": "2026-11-10T04:43:35.232Z",
+    "qid": "Q-248"
   },
   {
     "id": "1794285816232_uvvty",
@@ -1187,7 +1305,8 @@
     "sample": "REPEAT 2\n  R LUA 90\n  R RUA -90\n  R LUA -90\n  R RUA 90\nEND",
     "kind": "contains_code",
     "difficulty": "2",
-    "createdAt": "2026-11-10T04:43:36.232Z"
+    "createdAt": "2026-11-10T04:43:36.232Z",
+    "qid": "Q-249"
   },
   {
     "id": "1794285817232_gjawp",
@@ -1197,7 +1316,8 @@
     "sample": "R RUA 60\nR RUA -60\nR LUA -60\nR LUA 60",
     "kind": "contains_code",
     "difficulty": "2",
-    "createdAt": "2026-11-10T04:43:37.232Z"
+    "createdAt": "2026-11-10T04:43:37.232Z",
+    "qid": "Q-250"
   },
   {
     "id": "1794285818232_xyh1s",
@@ -1207,7 +1327,8 @@
     "sample": "REPEAT 3\n  R LUA 40\n  R RUA -40\n  R LUA -40\n  R RUA 40\nEND",
     "kind": "contains_code",
     "difficulty": "2",
-    "createdAt": "2026-11-10T04:43:38.232Z"
+    "createdAt": "2026-11-10T04:43:38.232Z",
+    "qid": "Q-251"
   },
   {
     "id": "1794285819232_iq314",
@@ -1217,7 +1338,8 @@
     "sample": "REPEAT 2\n  R LUL 30\n  MW 30 0 0.3\n  R LUL -30\nEND",
     "kind": "contains_code",
     "difficulty": "2",
-    "createdAt": "2026-11-10T04:43:39.232Z"
+    "createdAt": "2026-11-10T04:43:39.232Z",
+    "qid": "Q-252"
   },
   {
     "id": "1794285820232_w8cx1",
@@ -1227,7 +1349,8 @@
     "sample": "R BODY 20\nEMOTION SURPRISE 0.3\nSP \"あれれ？\"",
     "kind": "contains_code",
     "difficulty": "2",
-    "createdAt": "2026-11-10T04:43:40.232Z"
+    "createdAt": "2026-11-10T04:43:40.232Z",
+    "qid": "Q-253"
   },
   {
     "id": "1794285821232_a6idy",
@@ -1237,7 +1360,8 @@
     "sample": "R RUA -90\nR RLA 90\nEMOTION JOY 0.3\nSP \"勝った！\"",
     "kind": "contains_code",
     "difficulty": "2",
-    "createdAt": "2026-11-10T04:43:41.232Z"
+    "createdAt": "2026-11-10T04:43:41.232Z",
+    "qid": "Q-254"
   },
   {
     "id": "1794285822232_tfngt",
@@ -1247,7 +1371,8 @@
     "sample": "LET DIST 50\nMW [DIST] 0 0.5",
     "kind": "contains_code",
     "difficulty": "2",
-    "createdAt": "2026-11-10T04:43:42.232Z"
+    "createdAt": "2026-11-10T04:43:42.232Z",
+    "qid": "Q-255"
   },
   {
     "id": "1794285823232_i9epr",
@@ -1257,7 +1382,8 @@
     "sample": "LET SIZE 40\nPEN DOWN\nREPEAT 4\n  MW [SIZE] 0 0.3\n  R BODY 90\nEND\nPEN UP",
     "kind": "contains_code",
     "difficulty": "2",
-    "createdAt": "2026-11-10T04:43:43.232Z"
+    "createdAt": "2026-11-10T04:43:43.232Z",
+    "qid": "Q-256"
   },
   {
     "id": "1794285824232_j8wae",
@@ -1267,7 +1393,8 @@
     "sample": "LET NUM 5\nSP [NUM]",
     "kind": "speech",
     "difficulty": "2",
-    "createdAt": "2026-11-10T04:43:44.232Z"
+    "createdAt": "2026-11-10T04:43:44.232Z",
+    "qid": "Q-257"
   },
   {
     "id": "1794285825232_9yq4t",
@@ -1277,7 +1404,8 @@
     "sample": "LET OK 1\nIF [OK == 1]\n  EMOTION JOY 0.3\nEND",
     "kind": "contains_code",
     "difficulty": "2",
-    "createdAt": "2026-11-10T04:43:45.232Z"
+    "createdAt": "2026-11-10T04:43:45.232Z",
+    "qid": "Q-258"
   },
   {
     "id": "1794285826232_8zm5m",
@@ -1287,7 +1415,8 @@
     "sample": "LET POINT 80\nIF [POINT >= 70]\n  SP \"合格！\"\nEND",
     "kind": "speech",
     "difficulty": "2",
-    "createdAt": "2026-11-10T04:43:46.232Z"
+    "createdAt": "2026-11-10T04:43:46.232Z",
+    "qid": "Q-259"
   },
   {
     "id": "1794285827232_3omlx",
@@ -1297,7 +1426,8 @@
     "sample": "LET X 20\nLET X [X + 30]\nMW [X] 0 0.5",
     "kind": "contains_code",
     "difficulty": "2",
-    "createdAt": "2026-11-10T04:43:47.232Z"
+    "createdAt": "2026-11-10T04:43:47.232Z",
+    "qid": "Q-260"
   },
   {
     "id": "1794285878232_qxn9a",
@@ -1307,7 +1437,8 @@
     "sample": "LET LEN 20\nPEN DOWN\nREPEAT 5\n  MW [LEN] 0 0.3\n  R BODY 90\n  LET LEN [LEN + 15]\nEND\nPEN UP",
     "kind": "contains_code",
     "difficulty": "3",
-    "createdAt": "2026-11-10T04:44:38.232Z"
+    "createdAt": "2026-11-10T04:44:38.232Z",
+    "qid": "Q-311"
   },
   {
     "id": "1794285879232_pfqby",
@@ -1317,7 +1448,8 @@
     "sample": "LET LEN 80\nPEN DOWN\nREPEAT 4\n  MW [LEN] 0 0.3\n  R BODY 90\n  LET LEN [LEN - 15]\nEND\nPEN UP",
     "kind": "contains_code",
     "difficulty": "3",
-    "createdAt": "2026-11-10T04:44:39.232Z"
+    "createdAt": "2026-11-10T04:44:39.232Z",
+    "qid": "Q-312"
   },
   {
     "id": "1794285880232_i5d5c",
@@ -1327,7 +1459,8 @@
     "sample": "LET STEP 20\nPEN DOWN\nREPEAT 3\n  MW 30 0 0.3\n  MW 0 [-STEP] 0.3\n  LET STEP [STEP + 15]\nEND\nPEN UP",
     "kind": "contains_code",
     "difficulty": "3",
-    "createdAt": "2026-11-10T04:44:40.232Z"
+    "createdAt": "2026-11-10T04:44:40.232Z",
+    "qid": "Q-313"
   },
   {
     "id": "1794285881232_g8ik9",
@@ -1337,7 +1470,8 @@
     "sample": "LET NUM 3\nREPEAT 3\n  SP [NUM]\n  WAIT 0.5\n  LET NUM [NUM - 1]\nEND\nMW 0 -80 0.4\nSP \"発射！\"",
     "kind": "contains_code",
     "difficulty": "3",
-    "createdAt": "2026-11-10T04:44:41.232Z"
+    "createdAt": "2026-11-10T04:44:41.232Z",
+    "qid": "Q-314"
   },
   {
     "id": "1794285882232_fx1bx",
@@ -1347,7 +1481,8 @@
     "sample": "LET EDGE 25\nPEN DOWN\nREPEAT 4\n  MW [EDGE] 0 0.3\n  R BODY 120\n  LET EDGE [EDGE + 20]\nEND\nPEN UP",
     "kind": "contains_code",
     "difficulty": "3",
-    "createdAt": "2026-11-10T04:44:42.232Z"
+    "createdAt": "2026-11-10T04:44:42.232Z",
+    "qid": "Q-315"
   },
   {
     "id": "1794285883232_ya30a",
@@ -1357,7 +1492,8 @@
     "sample": "LET STEP 20\nREPEAT 3\n  MW [STEP] 0 0.3\n  LET STEP [STEP + 20]\nEND\nSP \"スピードアップ！\"",
     "kind": "contains_code",
     "difficulty": "3",
-    "createdAt": "2026-11-10T04:44:43.232Z"
+    "createdAt": "2026-11-10T04:44:43.232Z",
+    "qid": "Q-316"
   },
   {
     "id": "1794285884232_gjyrb",
@@ -1367,7 +1503,8 @@
     "sample": "PEN DOWN\nREPEAT 4\n  MW 40 0 0.25\n  R BODY 90\nEND\nPEN UP\nM -20 20\nPEN DOWN\nREPEAT 4\n  MW 80 0 0.25\n  R BODY 90\nEND\nPEN UP",
     "kind": "contains_code",
     "difficulty": "3",
-    "createdAt": "2026-11-10T04:44:44.232Z"
+    "createdAt": "2026-11-10T04:44:44.232Z",
+    "qid": "Q-317"
   },
   {
     "id": "1794285885232_rfw4o",
@@ -1377,7 +1514,8 @@
     "sample": "PEN DOWN\nREPEAT 2\n  MW 60 0 0.3\n  R BODY 60\n  MW 35 0 0.3\n  R BODY 120\nEND\nPEN UP",
     "kind": "contains_code",
     "difficulty": "3",
-    "createdAt": "2026-11-10T04:44:45.232Z"
+    "createdAt": "2026-11-10T04:44:45.232Z",
+    "qid": "Q-318"
   },
   {
     "id": "1794285886232_286c5",
@@ -1387,7 +1525,8 @@
     "sample": "LET SPD 10\nREPEAT 3\n  MW [SPD] 0 0.3\n  LET SPD [SPD * 2]\nEND",
     "kind": "contains_code",
     "difficulty": "3",
-    "createdAt": "2026-11-10T04:44:46.232Z"
+    "createdAt": "2026-11-10T04:44:46.232Z",
+    "qid": "Q-319"
   },
   {
     "id": "1794285887232_4h8df",
@@ -1397,7 +1536,8 @@
     "sample": "PEN DOWN\nREPEAT 4\n  MW 40 0 0.25\n  R BODY 90\nEND\nPEN UP\nM 60 0\nPEN DOWN\nREPEAT 4\n  MW 40 0 0.25\n  R BODY 90\nEND\nPEN UP",
     "kind": "contains_code",
     "difficulty": "3",
-    "createdAt": "2026-11-10T04:44:47.232Z"
+    "createdAt": "2026-11-10T04:44:47.232Z",
+    "qid": "Q-320"
   },
   {
     "id": "1794285888232_c3j83",
@@ -1407,7 +1547,8 @@
     "sample": "PEN DOWN\nREPEAT 6\n  MW 15 0 0.1\n  R BODY 15\nEND\nPEN UP",
     "kind": "contains_code",
     "difficulty": "3",
-    "createdAt": "2026-11-10T04:44:48.232Z"
+    "createdAt": "2026-11-10T04:44:48.232Z",
+    "qid": "Q-321"
   },
   {
     "id": "1794285889232_v8cit",
@@ -1417,7 +1558,8 @@
     "sample": "PEN DOWN\nREPEAT 12\n  MW 15 0 0.1\n  R BODY 30\nEND\nPEN UP",
     "kind": "contains_code",
     "difficulty": "3",
-    "createdAt": "2026-11-10T04:44:49.232Z"
+    "createdAt": "2026-11-10T04:44:49.232Z",
+    "qid": "Q-322"
   },
   {
     "id": "1794285890232_zndx9",
@@ -1427,7 +1569,8 @@
     "sample": "LET SCORE 85\nIF [SCORE >= 80]\n  EMOTION JOY 0.5\n  SP \"合格！\"\nEND\nIF [SCORE < 80]\n  EMOTION SAD 0.5\n  SP \"不合格…\"\nEND",
     "kind": "contains_code",
     "difficulty": "3",
-    "createdAt": "2026-11-10T04:44:50.232Z"
+    "createdAt": "2026-11-10T04:44:50.232Z",
+    "qid": "Q-323"
   },
   {
     "id": "1794285891232_3474u",
@@ -1437,7 +1580,8 @@
     "sample": "LET MONEY 500\nIF [MONEY >= 300]\n  EMOTION JOY 0.3\n  SP \"買えました！\"\nEND\nIF [MONEY < 300]\n  EMOTION SAD 0.3\n  SP \"足りない…\"\nEND",
     "kind": "contains_code",
     "difficulty": "3",
-    "createdAt": "2026-11-10T04:44:51.232Z"
+    "createdAt": "2026-11-10T04:44:51.232Z",
+    "qid": "Q-324"
   },
   {
     "id": "1794285892232_u87hp",
@@ -1447,7 +1591,8 @@
     "sample": "LET LUCK 1\nIF [LUCK == 1]\n  EMOTION JOY 0.3\n  SP \"大吉！\"\nEND\nIF [LUCK == 2]\n  SP \"中吉！\"\nEND\nIF [LUCK == 3]\n  EMOTION SAD 0.3\n  SP \"凶…\"\nEND",
     "kind": "contains_code",
     "difficulty": "3",
-    "createdAt": "2026-11-10T04:44:52.232Z"
+    "createdAt": "2026-11-10T04:44:52.232Z",
+    "qid": "Q-325"
   },
   {
     "id": "1794285893232_fobl8",
@@ -1457,7 +1602,8 @@
     "sample": "LET TEMP 32\nIF [TEMP >= 30]\n  EMOTION ANGRY 0.3\n  SP \"暑いですね！\"\nEND\nIF [TEMP < 30]\n  EMOTION NORMAL 0.3\n  SP \"過ごしやすいですね\"\nEND",
     "kind": "contains_code",
     "difficulty": "3",
-    "createdAt": "2026-11-10T04:44:53.232Z"
+    "createdAt": "2026-11-10T04:44:53.232Z",
+    "qid": "Q-326"
   },
   {
     "id": "1794285894232_di1wu",
@@ -1467,7 +1613,8 @@
     "sample": "LET HP 15\nIF [HP <= 20]\n  EMOTION SAD 0.3\n  SP \"ピンチ！\"\nEND\nIF [HP > 20]\n  EMOTION JOY 0.3\nEND",
     "kind": "contains_code",
     "difficulty": "3",
-    "createdAt": "2026-11-10T04:44:54.232Z"
+    "createdAt": "2026-11-10T04:44:54.232Z",
+    "qid": "Q-327"
   },
   {
     "id": "1794285895232_u78jm",
@@ -1477,7 +1624,8 @@
     "sample": "LET LIGHT 1\nIF [LIGHT == 1]\n  SP \"渡ろう！\"\n  MW 50 0 0.5\nEND\nIF [LIGHT == 2]\n  SP \"止まれ！\"\nEND",
     "kind": "contains_code",
     "difficulty": "3",
-    "createdAt": "2026-11-10T04:44:55.232Z"
+    "createdAt": "2026-11-10T04:44:55.232Z",
+    "qid": "Q-328"
   },
   {
     "id": "1794285896232_4gaqu",
@@ -1487,7 +1635,8 @@
     "sample": "LET FLAG 1\nIF [FLAG == 1]\n  R RUA -90\nEND\nIF [FLAG == 0]\n  R LUA 90\nEND",
     "kind": "contains_code",
     "difficulty": "3",
-    "createdAt": "2026-11-10T04:44:56.232Z"
+    "createdAt": "2026-11-10T04:44:56.232Z",
+    "qid": "Q-329"
   },
   {
     "id": "1794285897232_opu1d",
@@ -1497,7 +1646,8 @@
     "sample": "LET BATTERY 100\nIF [BATTERY == 100]\n  EMOTION JOY 0.3\n  SP \"満タンです！\"\nEND\nIF [BATTERY < 20]\n  EMOTION SAD 0.3\n  SP \"充電して…\"\nEND",
     "kind": "contains_code",
     "difficulty": "3",
-    "createdAt": "2026-11-10T04:44:57.232Z"
+    "createdAt": "2026-11-10T04:44:57.232Z",
+    "qid": "Q-330"
   },
   {
     "id": "1794285898232_kw16w",
@@ -1507,7 +1657,8 @@
     "sample": "LET RESULT 1\nIF [RESULT == 1]\n  EMOTION JOY 0.3\n  SP \"勝った！\"\nEND\nIF [RESULT == 2]\n  EMOTION SAD 0.3\n  SP \"負けた…\"\nEND",
     "kind": "contains_code",
     "difficulty": "3",
-    "createdAt": "2026-11-10T04:44:58.232Z"
+    "createdAt": "2026-11-10T04:44:58.232Z",
+    "qid": "Q-331"
   },
   {
     "id": "1794285899232_h9p4l",
@@ -1517,7 +1668,8 @@
     "sample": "LET LV 5\nIF [LV >= 5]\n  EMOTION JOY 0.3\n  R LUA 165\n  R RUA -165\n  SP \"レベルアップ！\"\nEND",
     "kind": "contains_code",
     "difficulty": "3",
-    "createdAt": "2026-11-10T04:44:59.232Z"
+    "createdAt": "2026-11-10T04:44:59.232Z",
+    "qid": "Q-332"
   },
   {
     "id": "1794285900232_rwd0x",
@@ -1527,7 +1679,8 @@
     "sample": "LET COUNT 3\nIF [COUNT >= 3]\n  EMOTION SURPRISE 0.3\n  SP \"たくさん見つけた！\"\nEND\nIF [COUNT == 0]\n  EMOTION SAD 0.3\n  SP \"ゼロ個…\"\nEND",
     "kind": "contains_code",
     "difficulty": "3",
-    "createdAt": "2026-11-10T04:45:00.232Z"
+    "createdAt": "2026-11-10T04:45:00.232Z",
+    "qid": "Q-333"
   },
   {
     "id": "1794285901232_pk23v",
@@ -1537,7 +1690,8 @@
     "sample": "LET HOUR 8\nIF [HOUR < 11]\n  SP \"おはよう\"\nEND\nIF [HOUR >= 11]\n  SP \"こんにちは\"\nEND",
     "kind": "contains_code",
     "difficulty": "3",
-    "createdAt": "2026-11-10T04:45:01.232Z"
+    "createdAt": "2026-11-10T04:45:01.232Z",
+    "qid": "Q-334"
   },
   {
     "id": "1794285902232_mi0yl",
@@ -1547,7 +1701,8 @@
     "sample": "REPEAT 3\n  PEN DOWN\n  REPEAT 4\n    MW 30 0 0.2\n    R BODY 90\n  END\n  PEN UP\n  M 45 0\nEND",
     "kind": "contains_code",
     "difficulty": "3",
-    "createdAt": "2026-11-10T04:45:02.232Z"
+    "createdAt": "2026-11-10T04:45:02.232Z",
+    "qid": "Q-335"
   },
   {
     "id": "1794285903232_4cmr5",
@@ -1557,7 +1712,8 @@
     "sample": "REPEAT 3\n  PEN DOWN\n  REPEAT 3\n    MW 30 0 0.2\n    R BODY 120\n  END\n  PEN UP\n  M 40 0\nEND",
     "kind": "contains_code",
     "difficulty": "3",
-    "createdAt": "2026-11-10T04:45:03.232Z"
+    "createdAt": "2026-11-10T04:45:03.232Z",
+    "qid": "Q-336"
   },
   {
     "id": "1794285904232_af0oy",
@@ -1567,7 +1723,8 @@
     "sample": "REPEAT 4\n  PEN DOWN\n  REPEAT 4\n    MW 30 0 0.2\n    R BODY 90\n  END\n  PEN UP\n  R BODY 90\nEND",
     "kind": "contains_code",
     "difficulty": "3",
-    "createdAt": "2026-11-10T04:45:04.232Z"
+    "createdAt": "2026-11-10T04:45:04.232Z",
+    "qid": "Q-337"
   },
   {
     "id": "1794285905232_tm46v",
@@ -1577,7 +1734,8 @@
     "sample": "REPEAT 6\n  PEN DOWN\n  REPEAT 3\n    MW 30 0 0.2\n    R BODY 120\n  END\n  PEN UP\n  R BODY 60\nEND",
     "kind": "contains_code",
     "difficulty": "3",
-    "createdAt": "2026-11-10T04:45:05.232Z"
+    "createdAt": "2026-11-10T04:45:05.232Z",
+    "qid": "Q-338"
   },
   {
     "id": "1794285906232_39dvt",
@@ -1587,7 +1745,8 @@
     "sample": "REPEAT 3\n  PEN DOWN\n  REPEAT 2\n    MW 30 0 0.2\n    R BODY 60\n    MW 30 0 0.2\n    R BODY 120\n  END\n  PEN UP\n  M 50 0\nEND",
     "kind": "contains_code",
     "difficulty": "3",
-    "createdAt": "2026-11-10T04:45:06.232Z"
+    "createdAt": "2026-11-10T04:45:06.232Z",
+    "qid": "Q-339"
   },
   {
     "id": "1794285907232_pgih0",
@@ -1597,7 +1756,8 @@
     "sample": "REPEAT 2\n  REPEAT 2\n    PEN DOWN\n    MW 5 0 0.1\n    PEN UP\n    M 30 0\n  END\n  M -70 30\nEND",
     "kind": "contains_code",
     "difficulty": "3",
-    "createdAt": "2026-11-10T04:45:07.232Z"
+    "createdAt": "2026-11-10T04:45:07.232Z",
+    "qid": "Q-340"
   },
   {
     "id": "1794285908232_uzsvh",
@@ -1607,7 +1767,8 @@
     "sample": "PEN DOWN\nREPEAT 3\n  REPEAT 2\n    MW 20 -20 0.15\n    MW 20 20 0.15\n  END\nEND\nPEN UP",
     "kind": "contains_code",
     "difficulty": "3",
-    "createdAt": "2026-11-10T04:45:08.232Z"
+    "createdAt": "2026-11-10T04:45:08.232Z",
+    "qid": "Q-341"
   },
   {
     "id": "1794285909232_hb4i9",
@@ -1617,7 +1778,8 @@
     "sample": "PEN DOWN\nREPEAT 4\n  MW 40 0 0.2\n  MW -40 0 0.2\n  R BODY 90\nEND\nPEN UP",
     "kind": "contains_code",
     "difficulty": "3",
-    "createdAt": "2026-11-10T04:45:09.232Z"
+    "createdAt": "2026-11-10T04:45:09.232Z",
+    "qid": "Q-342"
   },
   {
     "id": "1794285910232_57u6v",
@@ -1627,7 +1789,8 @@
     "sample": "ITEM ボール -120 -30\nIMW ボール 120 0 1\nWAIT 1\nIK 右腕 0 -30\nEMOTION JOY 0.3\nSP \"ナイスキャッチ！\"",
     "kind": "contains_code",
     "difficulty": "3",
-    "createdAt": "2026-11-10T04:45:10.232Z"
+    "createdAt": "2026-11-10T04:45:10.232Z",
+    "qid": "Q-343"
   },
   {
     "id": "1794285911232_nf5rn",
@@ -1637,7 +1800,8 @@
     "sample": "ITEM 星 80 0\nEMOTION SURPRISE 0.3\nSP \"あそこに星が！\"\nMW 70 0 1\nIK 右腕 80 0",
     "kind": "contains_code",
     "difficulty": "3",
-    "createdAt": "2026-11-10T04:45:11.232Z"
+    "createdAt": "2026-11-10T04:45:11.232Z",
+    "qid": "Q-344"
   },
   {
     "id": "1794285912232_ak6jh",
@@ -1647,7 +1811,8 @@
     "sample": "ITEM 剣 0 30\nIK 右腕 0 30\nRW RUA -150 0.4\nEMOTION JOY 0.3\nSP \"勇者の剣を手に入れた！\"",
     "kind": "contains_code",
     "difficulty": "3",
-    "createdAt": "2026-11-10T04:45:12.232Z"
+    "createdAt": "2026-11-10T04:45:12.232Z",
+    "qid": "Q-345"
   },
   {
     "id": "1794285913232_uq4a3",
@@ -1657,7 +1822,8 @@
     "sample": "ITEM リンゴ 0 -20\nIMW リンゴ 0 70 0.6\nWAIT 0.6\nEMOTION SAD 0.4\nSP \"あっ…落としちゃった\"",
     "kind": "contains_code",
     "difficulty": "3",
-    "createdAt": "2026-11-10T04:45:13.232Z"
+    "createdAt": "2026-11-10T04:45:13.232Z",
+    "qid": "Q-346"
   },
   {
     "id": "1794285914232_mwzn5",
@@ -1667,7 +1833,8 @@
     "sample": "ITEM ハート 0 0\nIMW ハート 60 0 0.8\nMW 60 0 0.8\nEMOTION JOY 0.3\nSP \"お届けものです！\"",
     "kind": "contains_code",
     "difficulty": "3",
-    "createdAt": "2026-11-10T04:45:14.232Z"
+    "createdAt": "2026-11-10T04:45:14.232Z",
+    "qid": "Q-347"
   },
   {
     "id": "1794285915232_dsny0",
@@ -1677,7 +1844,8 @@
     "sample": "ITEM 剣 40 -20\nIK 右腕 40 -20\nITEM 星 60 -50\nEMOTION JOY 0.3\nSP \"えいっ！\"",
     "kind": "contains_code",
     "difficulty": "3",
-    "createdAt": "2026-11-10T04:45:15.232Z"
+    "createdAt": "2026-11-10T04:45:15.232Z",
+    "qid": "Q-348"
   },
   {
     "id": "1794285916232_yxr6j",
@@ -1687,7 +1855,8 @@
     "sample": "REPEAT 2\n  RW LUA 90 0.2\n  RW RUA -90 0.2\n  RW LUA -90 0.2\n  RW RUA 90 0.2\nEND\nEMOTION JOY 0.3\nSP \"フィーバー！\"",
     "kind": "contains_code",
     "difficulty": "3",
-    "createdAt": "2026-11-10T04:45:16.232Z"
+    "createdAt": "2026-11-10T04:45:16.232Z",
+    "qid": "Q-349"
   },
   {
     "id": "1794285917232_eb9hz",
@@ -1697,7 +1866,8 @@
     "sample": "MW 50 0 0.5\nIK 右腕 50 -10\nSP \"はい、バトン！\"",
     "kind": "contains_code",
     "difficulty": "3",
-    "createdAt": "2026-11-10T04:45:17.232Z"
+    "createdAt": "2026-11-10T04:45:17.232Z",
+    "qid": "Q-350"
   },
   {
     "id": "1794285918232_0025e",
@@ -1707,7 +1877,8 @@
     "sample": "PEN DOWN\nREPEAT 5\n  MW 50 0 0.3\n  R BODY 144\nEND\nPEN UP",
     "kind": "contains_code",
     "difficulty": "3",
-    "createdAt": "2026-11-10T04:45:18.232Z"
+    "createdAt": "2026-11-10T04:45:18.232Z",
+    "qid": "Q-351"
   },
   {
     "id": "1794285919232_k655e",
@@ -1717,7 +1888,8 @@
     "sample": "PEN COLOR \"#00BCD4\"\nPEN DOWN\nREPEAT 6\n  MW 45 0 0.3\n  R BODY 60\nEND\nPEN UP",
     "kind": "contains_code",
     "difficulty": "3",
-    "createdAt": "2026-11-10T04:45:19.232Z"
+    "createdAt": "2026-11-10T04:45:19.232Z",
+    "qid": "Q-352"
   },
   {
     "id": "1794285920232_znbqd",
@@ -1727,7 +1899,8 @@
     "sample": "PEN DOWN\nREPEAT 4\n  MW 50 0 0.25\n  R BODY 90\nEND\nPEN UP\nM 0 -50\nPEN DOWN\nREPEAT 3\n  MW 50 0 0.25\n  R BODY 120\nEND\nPEN UP",
     "kind": "contains_code",
     "difficulty": "3",
-    "createdAt": "2026-11-10T04:45:20.232Z"
+    "createdAt": "2026-11-10T04:45:20.232Z",
+    "qid": "Q-353"
   },
   {
     "id": "1794285921232_0wzei",
@@ -1737,7 +1910,8 @@
     "sample": "PEN DOWN\nREPEAT 10\n  MW 25 0 0.2\n  R BODY 36\nEND\nPEN UP",
     "kind": "contains_code",
     "difficulty": "3",
-    "createdAt": "2026-11-10T04:45:21.232Z"
+    "createdAt": "2026-11-10T04:45:21.232Z",
+    "qid": "Q-354"
   },
   {
     "id": "1794285922232_j6j22",
@@ -1747,7 +1921,8 @@
     "sample": "PEN DOWN\nPEN COLOR \"#E74C3C\"\nMW 40 0 0.3\nPEN COLOR \"#3498DB\"\nMW 0 -40 0.3\nPEN UP",
     "kind": "contains_code",
     "difficulty": "3",
-    "createdAt": "2026-11-10T04:45:22.232Z"
+    "createdAt": "2026-11-10T04:45:22.232Z",
+    "qid": "Q-355"
   },
   {
     "id": "1794285923232_vi9wa",
@@ -1757,7 +1932,8 @@
     "sample": "PEN DOWN\nREPEAT 8\n  MW 45 0 0.25\n  R BODY 135\nEND\nPEN UP",
     "kind": "contains_code",
     "difficulty": "3",
-    "createdAt": "2026-11-10T04:45:23.232Z"
+    "createdAt": "2026-11-10T04:45:23.232Z",
+    "qid": "Q-356"
   },
   {
     "id": "1794285924232_qm5n4",
@@ -1767,7 +1943,8 @@
     "sample": "ITEM ボール 20 60\nREPEAT 2\n  R RUL 30\n  IMW ボール 0 -30 0.2\n  IMW ボール 0 30 0.2\n  R RUL -30\nEND",
     "kind": "contains_code",
     "difficulty": "3",
-    "createdAt": "2026-11-10T04:45:24.232Z"
+    "createdAt": "2026-11-10T04:45:24.232Z",
+    "qid": "Q-357"
   },
   {
     "id": "1794285925232_t03pw",
@@ -1777,7 +1954,8 @@
     "sample": "ITEM 星 50 -30\nITEM 星 100 0\nIK 右腕 50 -30\nMW 50 0 0.5\nIK 右腕 100 0\nSP \"全部集めた！\"",
     "kind": "contains_code",
     "difficulty": "3",
-    "createdAt": "2026-11-10T04:45:25.232Z"
+    "createdAt": "2026-11-10T04:45:25.232Z",
+    "qid": "Q-358"
   },
   {
     "id": "1794285926232_q50zh",
@@ -1787,7 +1965,8 @@
     "sample": "ITEM 剣 30 -50\nIK 右腕 30 -50\nRW BODY 30 0.3\nIKW 右腕 50 30 0.3\nSP \"スラッシュ！\"",
     "kind": "contains_code",
     "difficulty": "3",
-    "createdAt": "2026-11-10T04:45:26.232Z"
+    "createdAt": "2026-11-10T04:45:26.232Z",
+    "qid": "Q-359"
   },
   {
     "id": "1794285927232_uuado",
@@ -1797,6 +1976,7 @@
     "sample": "ITEM リンゴ 0 0\nIK 右腕 0 0\nIMW リンゴ 50 0 0.6\nMW 50 0 0.6\nIK 右腕 50 20\nSP \"完了！\"",
     "kind": "contains_code",
     "difficulty": "3",
-    "createdAt": "2026-11-10T04:45:27.232Z"
+    "createdAt": "2026-11-10T04:45:27.232Z",
+    "qid": "Q-360"
   }
 ]
