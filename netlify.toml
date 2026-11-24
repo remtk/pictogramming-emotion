@@ -9,6 +9,20 @@
   status = 200
   force = true
 
+# /api/question-bank/:id → 問題削除 (DELETE) にリダイレクト
+[[redirects]]
+  from = "/api/question-bank/:id"
+  to = "/.netlify/functions/question-bank"
+  status = 200
+  force = true
+
+# /api/question-bank → 問題バンク CRUD (GET/POST) にリダイレクト
+[[redirects]]
+  from = "/api/question-bank"
+  to = "/.netlify/functions/question-bank"
+  status = 200
+  force = true
+
 # SPA フォールバック（必要な場合）
 [[redirects]]
   from = "/*"

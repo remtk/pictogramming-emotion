@@ -15,5 +15,8 @@
     "pictogram",
     "programming-education",
     "emotion"
-  ]
+  ],
+  "dependencies": {
+    "@netlify/blobs": "^11.1.10"
+  }
 }

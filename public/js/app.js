@@ -2,11 +2,10 @@ import { renderSVG, EMOTIONS, createInitialPose, normalizeCode } from "./pictogr
 import { Interpreter } from "./interpreter.js";
 
 // -------------------- API base URL 設定 --------------------
-// Netlify でホストされている場合はバックエンドのフル URL を指定（本番環境のエンドポイント）
-// それ以外（ローカル開発）では空文字にして相対パスのまま動作させる
-const API_BASE = window.location.hostname.includes("netlify")
-  ? "https://YOUR_BACKEND_HOST" // ← デプロイ先のサーバー URL に置き換えてください
-  : "";
+// Netlify のリダイレクト設定により /api/question-bank が自動的に
+// Netlify Function (/.netlify/functions/question-bank) に転送される。
+// そのため API_BASE は常に空文字（相対パス）でOK。
+const API_BASE = "";
 
 const stage = document.getElementById("pictogram-stage");
 const speechBubble = document.getElementById("speech-bubble");
@@ -1379,7 +1378,7 @@ async function loadQuestionBank() {
   if (countLabel) countLabel.textContent = "読み込み中...";
 
   try {
-    const res = await fetch("/api/question-bank");
+    const res = await fetch(`${API_BASE}/api/question-bank`);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const bank = await res.json();
 
@@ -1517,7 +1516,7 @@ async function startCommunitySet(diff) {
   saveCurrentChallengeProgress();
   let bank = [];
   try {
-    const res = await fetch("/api/question-bank");
+    const res = await fetch(`${API_BASE}/api/question-bank`);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     bank = await res.json();
   } catch (err) {
