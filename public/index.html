@@ -394,6 +394,63 @@ EMOTION 喜び"></textarea>
           </table>
         </div>
         <p class="manual-note">※ 部位名: 「左上腕」「左前腕」「右上腕」「右前腕」「体」「左上腿」「左下腿」「右上腿」「右下腿」または英字（LUA, LLA, RUA, RLA, BODY, LUL, LLL, RUL, RLL）で指定できます。</p>
+
+        <!-- 初心者向け：組み合わせレシピ -->
+        <h4 class="manual-heading" style="margin-top:20px;">💡 初心者向け：よく使う組み合わせレシピ</h4>
+        <p style="font-size:12px; color:var(--ink-soft); margin-bottom:10px;">プログラミングでは、命令を単体ではなく「セット」で組み合わせることで賢い動作が作れます。</p>
+
+        <div style="display:flex; flex-direction:column; gap:12px;">
+          <!-- レシピ1: LET と IF -->
+          <div class="manual-point-box" style="border-left-color: #3b82f6;">
+            <strong style="color:#1d4ed8; font-size:13px;">① 【超定番】変数（LET）と条件分岐（IF）の組み合わせ</strong>
+            <p style="margin-bottom:6px;">「点数や数値によってピクトグラムのセリフや感情を変えたい」ときは、<strong>LET（数字を箱に入れる）</strong>と<strong>IF（もし〜なら）</strong>をセットで使います。</p>
+            <div class="manual-code-box" style="margin-top:4px; font-size:12px;">
+              LET SCORE 80<br>
+              IF [SCORE >= 70]<br>
+              &nbsp;&nbsp;EMOTION JOY 0<br>
+              &nbsp;&nbsp;SP "合格です！"<br>
+              END
+            </div>
+            <p style="margin-top:6px; font-size:11px; color:var(--ink-soft); line-height:1.4;">
+              ・<code>LET SCORE 80</code> で SCORE という名前の箱に「80」を入れます。<br>
+              ・<code>IF [SCORE >= 70]</code> で「もし箱の中身が70以上なら、ENDまでの命令を実行」します。<br>
+              ・※条件式や変数は必ず <strong>半角の角括弧 <code>[ ... ]</code></strong> で囲むのがルールです。
+            </p>
+          </div>
+
+          <!-- レシピ2: LET と REPEAT -->
+          <div class="manual-point-box" style="border-left-color: #10b981;">
+            <strong style="color:#047857; font-size:13px;">② 【だんだん変化】変数（LET）と繰り返し（REPEAT）の組み合わせ</strong>
+            <p style="margin-bottom:6px;">「繰り返すたびに、だんだん進む距離を増やしたい（階段やうずまき等）」ときに使います。</p>
+            <div class="manual-code-box" style="margin-top:4px; font-size:12px;">
+              LET STEP 20<br>
+              REPEAT 3<br>
+              &nbsp;&nbsp;MW [STEP] 0 0.4<br>
+              &nbsp;&nbsp;LET STEP [STEP + 20]<br>
+              END
+            </div>
+            <p style="margin-top:6px; font-size:11px; color:var(--ink-soft); line-height:1.4;">
+              ・1周目: <code>MW 20</code>（20進む）<br>
+              ・<code>LET STEP [STEP + 20]</code> で箱の中身を 20 ➔ 40 に増やします。<br>
+              ・2周目: <code>MW 40</code>（40進む）と、回数を重ねるごとに大きく動くようになります。
+            </p>
+          </div>
+
+          <!-- レシピ3: 腕を戻すお作法 -->
+          <div class="manual-point-box" style="border-left-color: #f59e0b;">
+            <strong style="color:#b45309; font-size:13px;">③ 【重要なお作法】動かした腕を「元の姿勢に戻す」組み合わせ</strong>
+            <p style="margin-bottom:6px;">腕や足を動かしたあと直立姿勢に戻すときは、「0度にする」のではなく<strong>「反対向き（マイナス）の角度」</strong>を指定します。</p>
+            <div class="manual-code-box" style="margin-top:4px; font-size:12px;">
+              R 右上腕 -90<br>
+              WAIT 0.5<br>
+              R 右上腕 90
+            </div>
+            <p style="margin-top:6px; font-size:11px; color:var(--ink-soft); line-height:1.4;">
+              ・ピクトコードの回転（R / RW）は「現在の角度からの変化量」です。<br>
+              ・<code>R 右上腕 -90</code> で腕を上げたら、反対のプラス <code>90</code> を指定すると元の0度に戻ります。
+            </p>
+          </div>
+        </div>
       </div>
 
       <!-- タブ3: 感情表現 -->
@@ -492,6 +549,10 @@ EMOTION 喜び"></textarea>
         <div class="manual-point-box" style="margin-top:10px; border-left-color: #f59e0b;">
           <strong>💡 ヒントと 🏳️ ギブアップの活用</strong>
           <p>解き方に迷ったら「💡 ヒント」ボタンで手がかりを確認できます。どうしても解けない場合は「🏳️ ギブアップ」を押すと模範解答を確認でき、そのまま次の問題へ進むことができます。</p>
+        </div>
+        <div class="manual-point-box" style="margin-top:10px; border-left-color: #8b5cf6;">
+          <strong>🧩 命令を組み合わせて使うコツ（LETとIFなど）</strong>
+          <p>「LET（変数に数字を入れる）」と「IF（もし〜なら）」はセットで使います。詳しい書き方は<strong>「💃 動作・制御命令」タブの後半にある『組み合わせレシピ』</strong>に具体例が載っていますので、ぜひ参考にしてください！</p>
         </div>
       </div>
 
