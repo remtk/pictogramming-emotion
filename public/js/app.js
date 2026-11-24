@@ -631,13 +631,10 @@ function renderChallenge() {
   if (!challenge || !challengeTitle) return;
 
   const qid = challenge.qid || challenge.id || `Q-${currentChallengeIndex + 1}`;
-  const subDiffMatch = String(qid).match(/-([1-3])$/);
-  const subDiff = challenge.subDifficulty || (subDiffMatch ? parseInt(subDiffMatch[1], 10) : null);
-  const starLabel = subDiff ? ` ★${subDiff}` : "";
   const qidBadge = document.getElementById("challenge-qid-badge");
   if (qidBadge) {
-    qidBadge.textContent = `ID: ${qid}${starLabel}`;
-    qidBadge.title = `問題の固定ID: ${qid}${starLabel ? `（難易度レベル: ★${subDiff}）` : ""}`;
+    qidBadge.textContent = `ID: ${qid}`;
+    qidBadge.title = `問題の固定ID: ${qid}`;
   }
 
   challengeCount.textContent = `問題 ${currentChallengeIndex + 1}/${CHALLENGES.length}`;
@@ -1611,7 +1608,7 @@ function adaptOnGiveup() {
 
     if (replacement) {
       CHALLENGES[nextIdx] = toPlayableChallenge(replacement, nextIdx);
-      appendConsole(`🌱 ギブアップを受けて、次の問題を基礎レベル（★${targetSub}）に調整しました。リラックスして挑戦してみましょう！`, "info");
+      appendConsole("🌱 ギブアップを受けて、次の問題を解きやすい基礎的な問題に調整しました。リラックスして挑戦してみましょう！", "info");
     }
   }
 }
@@ -1664,7 +1661,7 @@ async function startCommunitySet(diff) {
   replaceChallengeSet(set);
   closeCommunityModal();
   renderChallenge();
-  appendConsole(`🧩 みんなの問題（${DIFFICULTY_LABELS[diff]}）を ${set.length} 問出題します。（基礎 ★1 から順にステップアップ！）`, "ok");
+  appendConsole(`🧩 みんなの問題（${DIFFICULTY_LABELS[diff]}）を ${set.length} 問出題します。（基礎から順にステップアップ！）`, "ok");
 }
 
 function exitCommunitySet() {
