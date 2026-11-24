@@ -631,10 +631,13 @@ function renderChallenge() {
   if (!challenge || !challengeTitle) return;
 
   const qid = challenge.qid || challenge.id || `Q-${currentChallengeIndex + 1}`;
+  const subDiffMatch = String(qid).match(/-([1-3])$/);
+  const subDiff = challenge.subDifficulty || (subDiffMatch ? parseInt(subDiffMatch[1], 10) : null);
+  const starLabel = subDiff ? ` ★${subDiff}` : "";
   const qidBadge = document.getElementById("challenge-qid-badge");
   if (qidBadge) {
-    qidBadge.textContent = `ID: ${qid}`;
-    qidBadge.title = `問題の固定ID: ${qid}（アンケートで記入可）`;
+    qidBadge.textContent = `ID: ${qid}${starLabel}`;
+    qidBadge.title = `問題の固定ID: ${qid}${starLabel ? `（難易度レベル: ★${subDiff}）` : ""}`;
   }
 
   challengeCount.textContent = `問題 ${currentChallengeIndex + 1}/${CHALLENGES.length}`;
@@ -965,6 +968,9 @@ btnChallengeGiveup?.addEventListener("click", () => {
   btnChallengeGiveup.textContent = "正解を隠す";
   appendConsole(`🏳️ 問題「${challenge?.title || ""}」をギブアップしました。正解コード例を確認してみましょう。`, "info");
   saveCurrentChallengeProgress();
+
+  // ギブアップ時のアダプティブ調整（次の問題を同等またはやさしい問題に調整）
+  adaptOnGiveup();
 
   // ギブアップログ送信
   const qNumber = currentChallengeIndex + 1;
@@ -1512,9 +1518,16 @@ function shuffleArray(items) {
   return arr;
 }
 
+// アダプティブ出題用の残り問題プール
+let adaptivePools = { 1: [], 2: [], 3: [] };
+
 function toPlayableChallenge(q, i) {
   const diff = detectQuestionDifficulty(q);
-  const qid = q.qid || q.id || `Q-${diff ? diff + "00" : ""}${i + 1}`;
+  const subDiffMatch = String(q.qid || "").match(/-([1-3])$/);
+  const subDiff = q.subDifficulty || (subDiffMatch ? parseInt(subDiffMatch[1], 10) : 1);
+  const baseQid = q.qid || q.id || `Q-${diff ? diff + "00" : ""}${i + 1}`;
+  const qid = String(baseQid).match(/-[1-3]$/) ? baseQid : `${baseQid}-${subDiff}`;
+
   return {
     id: q.id || `community_${i}_${q.title || "untitled"}`,
     qid: qid,
@@ -1524,7 +1537,83 @@ function toPlayableChallenge(q, i) {
     sample: q.sample || "",
     kind: q.kind || "contains_code",
     difficulty: diff,
+    subDifficulty: subDiff,
   };
+}
+
+function buildAdaptiveSequence(rawQuestions, count) {
+  // 難易度（★1, ★2, ★3）ごとにプールを分ける
+  const p1 = shuffleArray(rawQuestions.filter((q) => (q.subDifficulty || 1) === 1));
+  const p2 = shuffleArray(rawQuestions.filter((q) => (q.subDifficulty || 1) === 2));
+  const p3 = shuffleArray(rawQuestions.filter((q) => (q.subDifficulty || 1) === 3));
+
+  adaptivePools = { 1: p1, 2: p2, 3: p3 };
+
+  // 目標難易度ステップの決定（最初は★1からスタートし、徐々に★2、★3へステップアップ）
+  const seq = [];
+  for (let i = 0; i < count; i++) {
+    const ratio = count === 1 ? 0 : i / (count - 1);
+    if (ratio < 0.34) {
+      seq.push(1); // 前半: ★1（入門・基礎）
+    } else if (ratio < 0.74) {
+      seq.push(2); // 中盤: ★2（標準）
+    } else {
+      seq.push(3); // 終盤: ★3（発展・応用）
+    }
+  }
+
+  // シーケンスに沿ってプールから問題を取り出す
+  const challengeSet = [];
+  seq.forEach((targetSub, idx) => {
+    let chosen = null;
+    if (adaptivePools[targetSub] && adaptivePools[targetSub].length > 0) {
+      chosen = adaptivePools[targetSub].pop();
+    } else {
+      // 指定プールの問題が尽きた場合は隣接プールから取得
+      for (const alt of [targetSub === 1 ? 2 : 1, 3, 2, 1]) {
+        if (adaptivePools[alt] && adaptivePools[alt].length > 0) {
+          chosen = adaptivePools[alt].pop();
+          break;
+        }
+      }
+    }
+    if (chosen) {
+      challengeSet.push(toPlayableChallenge(chosen, idx));
+    }
+  });
+
+  return challengeSet;
+}
+
+function adaptOnGiveup() {
+  if (practiceMode !== "community") return;
+  const currentQ = CHALLENGES[currentChallengeIndex];
+  if (!currentQ) return;
+  const currentSub = currentQ.subDifficulty || 2;
+
+  // 次の問題（currentChallengeIndex + 1）以降があれば調整
+  const nextIdx = currentChallengeIndex + 1;
+  if (nextIdx < CHALLENGES.length) {
+    const nextQ = CHALLENGES[nextIdx];
+    const nextSub = nextQ.subDifficulty || 2;
+
+    // 次の問題が現在の問題以上の場合、または現在★2/★3でギブアップした場合、同等または1段易しいレベルに差し替え
+    const targetSub = Math.max(1, Math.min(nextSub - 1, currentSub - 1));
+
+    let replacement = null;
+    if (adaptivePools[targetSub] && adaptivePools[targetSub].length > 0) {
+      replacement = adaptivePools[targetSub].pop();
+    } else if (adaptivePools[1] && adaptivePools[1].length > 0) {
+      replacement = adaptivePools[1].pop();
+    } else if (adaptivePools[2] && adaptivePools[2].length > 0) {
+      replacement = adaptivePools[2].pop();
+    }
+
+    if (replacement) {
+      CHALLENGES[nextIdx] = toPlayableChallenge(replacement, nextIdx);
+      appendConsole(`🌱 ギブアップを受けて、次の問題を基礎レベル（★${targetSub}）に調整しました。リラックスして挑戦してみましょう！`, "info");
+    }
+  }
 }
 
 function replaceChallengeSet(list) {
@@ -1552,8 +1641,8 @@ async function startCommunitySet(diff) {
   }
 
   const filtered = (Array.isArray(bank) ? bank : [])
-    .filter((q) => detectQuestionDifficulty(q) === String(diff))
-    .map(toPlayableChallenge);
+    .filter((q) => detectQuestionDifficulty(q) === String(diff));
+
   if (filtered.length === 0) {
     alert(`${DIFFICULTY_LABELS[diff] || "選択した難易度"}の問題がまだありません。`);
     return;
@@ -1567,13 +1656,15 @@ async function startCommunitySet(diff) {
   const selectedCountRadio = document.querySelector('input[name="community-qcount"]:checked');
   const count = selectedCountRadio ? parseInt(selectedCountRadio.value, 10) : 5;
 
-  const set = shuffleArray(filtered).slice(0, count);
+  // 簡単な問題（★1）から順にステップアップするアダプティブ問題セットを生成
+  const set = buildAdaptiveSequence(filtered, count);
+
   practiceMode = "community";
   practiceDifficulty = String(diff);
   replaceChallengeSet(set);
   closeCommunityModal();
   renderChallenge();
-  appendConsole(`🧩 みんなの問題（${DIFFICULTY_LABELS[diff]}）を ${set.length} 問出題します。`, "ok");
+  appendConsole(`🧩 みんなの問題（${DIFFICULTY_LABELS[diff]}）を ${set.length} 問出題します。（基礎 ★1 から順にステップアップ！）`, "ok");
 }
 
 function exitCommunitySet() {
