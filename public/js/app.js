@@ -31,6 +31,10 @@ const challengeGiveup = document.getElementById("challenge-giveup");
 const challengeGiveupCode = document.getElementById("challenge-giveup-code");
 const btnChallengeGiveupCopy = document.getElementById("btn-challenge-giveup-copy");
 const btnChallengeAdmin = document.getElementById("btn-challenge-admin");
+const ADMIN_PASSWORD = "K4narioFi"; // 管理者パスワード
+let isAdminMode = false;
+let isCreateMode = false;
+
 // Click brand (logo) to unlock admin mode (hidden alternative)
 const brandDiv = document.querySelector('.brand');
 brandDiv?.addEventListener('click', () => {
@@ -998,9 +1002,6 @@ renderChallenge();
 // --- 問題編集（管理者モード） -----------------------------------------------
 // 合言葉で管理者モードを解除し、問題を自由に編集・保存できる。
 // 保存先はサーバーの questions.json → 全ユーザーに一括反映される。
-const ADMIN_PASSWORD = "teacher"; // ここを変えると合言葉を変更できる
-let isAdminMode = false;
-let isCreateMode = false;
 
 function applyChallengesData(data) {
   if (!Array.isArray(data) || data.length === 0) return false;
