@@ -66,6 +66,13 @@ const MIME = {
 const server = http.createServer((req, res) => {
   let reqPath = decodeURIComponent(req.url.split("?")[0]);
 
+  // CORSヘッダー (Netlify からの跨域アクセスを許可)
+  if (reqPath.startsWith("/api/")) {
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type,Authorization");
+  }
+
   // APIエンドポイント: ログの記録
   if (req.method === "POST" && reqPath === "/api/logs") {
     let body = "";

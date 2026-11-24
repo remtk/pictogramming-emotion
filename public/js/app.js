@@ -1,6 +1,13 @@
 import { renderSVG, EMOTIONS, createInitialPose, normalizeCode } from "./pictogram.js";
 import { Interpreter } from "./interpreter.js";
 
+// -------------------- API base URL 設定 --------------------
+// Netlify でホストされている場合はバックエンドのフル URL を指定（本番環境のエンドポイント）
+// それ以外（ローカル開発）では空文字にして相対パスのまま動作させる
+const API_BASE = window.location.hostname.includes("netlify")
+  ? "https://YOUR_BACKEND_HOST" // ← デプロイ先のサーバー URL に置き換えてください
+  : "";
+
 const stage = document.getElementById("pictogram-stage");
 const speechBubble = document.getElementById("speech-bubble");
 const codeInput = document.getElementById("code-input");
@@ -1158,7 +1165,7 @@ btnChallengeAdd?.addEventListener("click", async () => {
     btnChallengeAdd.textContent = "保存中...";
 
     // デフォルト問題セット（CHALLENGES）には追加せず、問題バンクに蓄積する
-    const res = await fetch("/api/question-bank", {
+    const res = await fetch(`${API_BASE}/api/question-bank`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(newChallenge),
@@ -1434,7 +1441,7 @@ async function loadQuestionBank() {
         if (!confirm(`「${title}」を問題バンクから削除しますか？`)) return;
 
         try {
-          const delRes = await fetch(`/api/question-bank/${encodeURIComponent(id)}`, { method: "DELETE" });
+          const delRes = await fetch(`${API_BASE}/api/question-bank/${encodeURIComponent(id)}`, { method: "DELETE" });
           const result = await delRes.json();
           if (!delRes.ok || !result.success) throw new Error(result.error || "削除失敗");
           appendConsole(`🗑️ 「${title}」を問題バンクから削除しました（残 ${result.total} 問）`, "ok");
