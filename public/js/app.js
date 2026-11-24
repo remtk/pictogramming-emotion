@@ -1369,6 +1369,37 @@ const KIND_LABELS = {
   any: "✅ 実行OK",
 };
 
+// 問題バンク取得用ヘルパー（API取得に失敗または空の場合、同梱された静的JSONにフォールバック）
+async function fetchQuestionBankData() {
+  try {
+    const res = await fetch(`${API_BASE}/api/question-bank`);
+    if (res.ok) {
+      const data = await res.json();
+      if (Array.isArray(data) && data.length > 0) {
+        return data;
+      }
+    }
+  } catch (e) {
+    console.warn("API経由での問題バンク取得に失敗、静的JSONフォールバックを試行:", e);
+  }
+
+  // フォールバック: public/question_bank.json から読み込む
+  try {
+    const fallbackRes = await fetch("./question_bank.json");
+    if (fallbackRes.ok) {
+      const fallbackData = await fallbackRes.json();
+      if (Array.isArray(fallbackData) && fallbackData.length > 0) {
+        console.log(`静的JSONから ${fallbackData.length} 問の問題をロードしました`);
+        return fallbackData;
+      }
+    }
+  } catch (e) {
+    console.error("静的JSONからの読み込みにも失敗:", e);
+  }
+
+  return [];
+}
+
 async function loadQuestionBank() {
   const bankList = document.getElementById("bank-list");
   const countLabel = document.getElementById("bank-count-label");
@@ -1378,9 +1409,7 @@ async function loadQuestionBank() {
   if (countLabel) countLabel.textContent = "読み込み中...";
 
   try {
-    const res = await fetch(`${API_BASE}/api/question-bank`);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const bank = await res.json();
+    const bank = await fetchQuestionBankData();
 
     if (countLabel) countLabel.textContent = `📦 蓄積済み問題: ${bank.length} 問`;
 
@@ -1516,9 +1545,7 @@ async function startCommunitySet(diff) {
   saveCurrentChallengeProgress();
   let bank = [];
   try {
-    const res = await fetch(`${API_BASE}/api/question-bank`);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    bank = await res.json();
+    bank = await fetchQuestionBankData();
   } catch (err) {
     alert(`問題バンクの読み込みに失敗しました: ${err.message}`);
     return;

@@ -31,24 +31,54 @@ try {
   console.warn("[question-bank] @netlify/blobs のロードに失敗:", e.message);
 }
 
-// メモリキャッシュ（Blobs が使えない場合のフォールバック）
-let memoryBank = [];
+// 初期データ（180問のシードデータ）の読み込み
+let seedQuestions = [];
+try {
+  seedQuestions = require("./question_bank_seed.json");
+  if (!Array.isArray(seedQuestions)) seedQuestions = [];
+} catch (e) {
+  console.warn("[question-bank] シードデータの読み込みに失敗:", e.message);
+}
+
+// メモリキャッシュ（Blobs が使えない場合のフォールバック、初期値に180問をセット）
+let memoryBank = [...seedQuestions];
 
 async function readBank() {
   if (blobsAvailable) {
     try {
       const store = getStore({ name: "question-bank", consistency: "strong" });
       const data = await store.get("bank", { type: "json" });
+      if (Array.isArray(data) && data.length > 0) {
+        return data;
+      }
+      // データがまだ保存されていないか空の場合、シードデータ（180問）で初期化
+      if (seedQuestions.length > 0) {
+        console.log(`[question-bank] シードデータ（${seedQuestions.length}問）でBlobsを初期化します`);
+        try {
+          await store.setJSON("bank", seedQuestions);
+        } catch (we) {
+          console.warn("[question-bank] Blobs初期保存警告:", we.message);
+        }
+        return [...seedQuestions];
+      }
       return Array.isArray(data) ? data : [];
     } catch (e) {
-      // エントリが存在しない（初回）場合は空配列
-      if (e.message && e.message.includes("404")) return [];
+      if (e.message && e.message.includes("404")) {
+        // 未作成の場合はシードを保存して返す
+        if (seedQuestions.length > 0) {
+          try {
+            const store = getStore({ name: "question-bank", consistency: "strong" });
+            await store.setJSON("bank", seedQuestions);
+          } catch (_) {}
+          return [...seedQuestions];
+        }
+        return [];
+      }
       console.error("[question-bank] Blobs 読み取りエラー:", e.message);
-      // Blobs エラー時はメモリにフォールバック
-      return memoryBank;
+      return memoryBank.length > 0 ? memoryBank : [...seedQuestions];
     }
   }
-  return memoryBank;
+  return memoryBank.length > 0 ? memoryBank : [...seedQuestions];
 }
 
 async function writeBank(bank) {
