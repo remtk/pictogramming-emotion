@@ -2,15 +2,10 @@
  * netlify/functions/question-bank.js
  * Netlify Functions として動作するサーバーレス関数。
  * 問題バンクの取得・追加・削除を処理する。
- * データの永続化には Netlify Blobs を使用する。
  *
- * 対応リクエスト:
- *   GET  /api/question-bank        → 問題バンク一覧を取得
- *   POST /api/question-bank        → 問題バンクへ問題を追加
- *   DELETE /api/question-bank/:id  → 指定IDの問題を削除
+ * データの永続化: Netlify Blobs を使用する。
+ * Netlify Blobs が使えない環境ではメモリ内配列にフォールバックする。
  */
-
-const { getStore } = require("@netlify/blobs");
 
 const CORS_HEADERS = {
   "Access-Control-Allow-Origin": "*",
@@ -19,52 +14,83 @@ const CORS_HEADERS = {
   "Content-Type": "application/json; charset=utf-8",
 };
 
-// Blobs ストアから問題バンク配列を取得する
-async function readBank(store) {
-  try {
-    const data = await store.get("bank", { type: "json" });
-    return Array.isArray(data) ? data : [];
-  } catch (e) {
-    // まだデータが存在しない場合は空配列
-    return [];
+// ---- Netlify Blobs ヘルパー ----------------------------------------
+// Netlify Blobs が使えるかどうかを実行時に判定する
+let blobsAvailable = false;
+let getStore;
+
+try {
+  ({ getStore } = require("@netlify/blobs"));
+  blobsAvailable = !!(process.env.NETLIFY_BLOBS_CONTEXT || process.env.NETLIFY_SITE_ID);
+  if (blobsAvailable) {
+    console.log("[question-bank] Netlify Blobs を使用します");
+  } else {
+    console.warn("[question-bank] Blobs 環境変数が未設定。メモリモードで動作します（再起動でデータが消えます）");
   }
+} catch (e) {
+  console.warn("[question-bank] @netlify/blobs のロードに失敗:", e.message);
 }
 
-// Blobs ストアへ問題バンク配列を保存する
-async function writeBank(store, bank) {
-  await store.setJSON("bank", bank);
+// メモリキャッシュ（Blobs が使えない場合のフォールバック）
+let memoryBank = [];
+
+async function readBank() {
+  if (blobsAvailable) {
+    try {
+      const store = getStore({ name: "question-bank", consistency: "strong" });
+      const data = await store.get("bank", { type: "json" });
+      return Array.isArray(data) ? data : [];
+    } catch (e) {
+      // エントリが存在しない（初回）場合は空配列
+      if (e.message && e.message.includes("404")) return [];
+      console.error("[question-bank] Blobs 読み取りエラー:", e.message);
+      // Blobs エラー時はメモリにフォールバック
+      return memoryBank;
+    }
+  }
+  return memoryBank;
 }
 
+async function writeBank(bank) {
+  if (blobsAvailable) {
+    try {
+      const store = getStore({ name: "question-bank", consistency: "strong" });
+      await store.setJSON("bank", bank);
+      return;
+    } catch (e) {
+      console.error("[question-bank] Blobs 書き込みエラー:", e.message);
+    }
+  }
+  // フォールバック: メモリに保存
+  memoryBank = bank;
+}
+
+// ---- メインハンドラ ------------------------------------------------
 exports.handler = async (event, context) => {
-  // プリフライトリクエスト (CORS OPTIONS) への対応
+  // プリフライトリクエスト (CORS OPTIONS)
   if (event.httpMethod === "OPTIONS") {
     return { statusCode: 204, headers: CORS_HEADERS, body: "" };
   }
 
-  // Netlify Blobs ストアを初期化
-  const store = getStore({
-    name: "question-bank",
-    consistency: "strong",
-  });
-
   const method = event.httpMethod;
-  // パスから ID を抽出 (DELETE /api/question-bank/:id の場合)
   const rawPath = event.path || "";
-  const idMatch = rawPath.match(/\/api\/question-bank\/(.+)$/);
+  // パスから ID を抽出 (DELETE /api/question-bank/:id の場合)
+  const idMatch = rawPath.match(/(?:\/api\/question-bank|\/question-bank)\/(.+)$/);
   const targetId = idMatch ? decodeURIComponent(idMatch[1]) : null;
 
   // ============================================================
   // GET: 問題バンク一覧を取得
   // ============================================================
-  if (method === "GET" && !targetId) {
+  if (method === "GET") {
     try {
-      const bank = await readBank(store);
+      const bank = await readBank();
       return {
         statusCode: 200,
         headers: CORS_HEADERS,
         body: JSON.stringify(bank),
       };
     } catch (err) {
+      console.error("GET error:", err.message);
       return {
         statusCode: 500,
         headers: CORS_HEADERS,
@@ -78,7 +104,17 @@ exports.handler = async (event, context) => {
   // ============================================================
   if (method === "POST") {
     try {
-      const newQuestion = JSON.parse(event.body || "{}");
+      let newQuestion;
+      try {
+        newQuestion = JSON.parse(event.body || "{}");
+      } catch {
+        return {
+          statusCode: 400,
+          headers: CORS_HEADERS,
+          body: JSON.stringify({ error: "Invalid JSON body" }),
+        };
+      }
+
       if (typeof newQuestion !== "object" || !newQuestion.title) {
         return {
           statusCode: 400,
@@ -87,7 +123,7 @@ exports.handler = async (event, context) => {
         };
       }
 
-      const bank = await readBank(store);
+      const bank = await readBank();
 
       // ID と qid を付与
       newQuestion.id = Date.now() + "_" + Math.random().toString(36).slice(2, 7);
@@ -98,7 +134,7 @@ exports.handler = async (event, context) => {
       newQuestion.createdAt = new Date().toISOString();
 
       bank.push(newQuestion);
-      await writeBank(store, bank);
+      await writeBank(bank);
 
       return {
         statusCode: 200,
@@ -108,11 +144,13 @@ exports.handler = async (event, context) => {
           total: bank.length,
           id: newQuestion.id,
           qid: newQuestion.qid,
+          persistent: blobsAvailable,
         }),
       };
     } catch (err) {
+      console.error("POST error:", err.message);
       return {
-        statusCode: 400,
+        statusCode: 500,
         headers: CORS_HEADERS,
         body: JSON.stringify({ error: err.message }),
       };
@@ -124,10 +162,10 @@ exports.handler = async (event, context) => {
   // ============================================================
   if (method === "DELETE" && targetId) {
     try {
-      let bank = await readBank(store);
+      let bank = await readBank();
       const before = bank.length;
       bank = bank.filter(q => q.id !== targetId);
-      await writeBank(store, bank);
+      await writeBank(bank);
 
       return {
         statusCode: 200,
@@ -139,6 +177,7 @@ exports.handler = async (event, context) => {
         }),
       };
     } catch (err) {
+      console.error("DELETE error:", err.message);
       return {
         statusCode: 500,
         headers: CORS_HEADERS,
