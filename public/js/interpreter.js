@@ -573,10 +573,13 @@ export class Interpreter {
     const alpha = Math.acos(Math.max(-1, Math.min(1, (L1 * L1 + D * D - L2 * L2) / (2 * L1 * D))));
     const beta = Math.acos(Math.max(-1, Math.min(1, (L1 * L1 + L2 * L2 - D * D) / (2 * L1 * L2))));
 
-    const bendDir = isRight ? -1 : 1;
+    // 自然な関節曲げ方向（右半身は外側/下向き+1、左半身は外側/下向き-1）
+    const bendSign = isRight ? 1 : -1;
     
-    const upperRad = theta + bendDir * alpha;
-    const lowerRadRelative = bendDir * (Math.PI - beta);
+    // 股関節/肩から膝/肘への回転角
+    const upperRad = theta + bendSign * alpha;
+    // 膝/肘から足先/手先への相対曲げ角（目標点に戻るため反対向きに曲げる）
+    const lowerRadRelative = -bendSign * (Math.PI - beta);
 
     const targetUpperDeg = (upperRad * 180) / Math.PI + 90;
     const targetLowerDeg = (lowerRadRelative * 180) / Math.PI;

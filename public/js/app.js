@@ -792,9 +792,9 @@ function diagnoseFailureReason({ challenge, rawUserCode, currentState, targetSta
         LLA: "左ひじ・左前腕(LLA)",
         RUA: "右腕・右上腕(RUA)",
         RLA: "右ひじ・右前腕(RLA)",
-        LUL: "左足・左上腿(LUL)",
+        LUL: "左脚・左上腿(LUL)",
         LLL: "左ひざ・左下腿(LLL)",
-        RUL: "右足・右上腿(RUL)",
+        RUL: "右脚・右上腿(RUL)",
         RLL: "右ひざ・右下腿(RLL)",
       };
       for (const part of Object.keys(partNamesJp)) {
