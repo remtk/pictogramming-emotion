@@ -541,25 +541,42 @@ export class Interpreter {
 
     let ox, oy, L1, L2, upperKey, lowerKey, isRight;
     const targetAlias = targetLimb.trim().toUpperCase();
+    const resolvedKey = resolvePartName(targetLimb);
 
-    if (["LA", "左腕", "ひだりうで"].includes(targetAlias)) {
+    if (["LUA", "LLA"].includes(resolvedKey) || ["LA", "左腕", "ひだりうで", "左上腕", "左前腕"].includes(targetAlias)) {
       ox = -shoulderOffsetX; oy = shoulderY;
       L1 = DIMS.upperArmL; L2 = DIMS.lowerArmL;
       upperKey = "LUA"; lowerKey = "LLA"; isRight = false;
-    } else if (["RA", "右腕", "みぎうで"].includes(targetAlias)) {
+    } else if (["RUA", "RLA"].includes(resolvedKey) || ["RA", "右腕", "みぎうで", "右上腕", "右前腕"].includes(targetAlias)) {
       ox = shoulderOffsetX; oy = shoulderY;
       L1 = DIMS.upperArmL; L2 = DIMS.lowerArmL;
       upperKey = "RUA"; lowerKey = "RLA"; isRight = true;
-    } else if (["LL", "左脚", "ひだりあし"].includes(targetAlias)) {
+    } else if (["LUL", "LLL"].includes(resolvedKey) || ["LL", "左脚", "ひだりあし", "左上腿", "左下腿"].includes(targetAlias)) {
       ox = -hipOffsetX; oy = hipY;
       L1 = DIMS.upperLegL; L2 = DIMS.lowerLegL;
       upperKey = "LUL"; lowerKey = "LLL"; isRight = false;
-    } else if (["RL", "右脚", "みぎあし"].includes(targetAlias)) {
+    } else if (["RUL", "RLL"].includes(resolvedKey) || ["RL", "右脚", "みぎあし", "右上腿", "右下腿"].includes(targetAlias)) {
       ox = hipOffsetX; oy = hipY;
       L1 = DIMS.upperLegL; L2 = DIMS.lowerLegL;
       upperKey = "RUL"; lowerKey = "RLL"; isRight = true;
+    } else if (resolvedKey === "BODY" || ["BODY", "体", "からだ"].includes(targetAlias)) {
+      // 体が指定された場合は体位置の平行移動として処理
+      if (!animate) {
+        this.pose.x = x;
+        this.pose.y = y;
+        this._emit();
+        return Promise.resolve();
+      }
+      const duration = args[3] !== undefined ? this.evalExpr(args[3]) : 1;
+      const startX = this.pose.x || 0;
+      const startY = this.pose.y || 0;
+      return this._animateValue(duration, (p) => {
+        this.pose.x = startX + (x - startX) * p;
+        this.pose.y = startY + (y - startY) * p;
+        this._emit();
+      });
     } else {
-      throw new Error(`IKの部位は 左腕, 右腕, 左脚, 右脚 のいずれかを指定してください`);
+      throw new Error(`IKの部位は 左腕（左上腕）, 右腕（右上腕）, 左脚（左上腿）, 右脚（右上腿）などを指定してください`);
     }
 
     const vx = localTx - ox;

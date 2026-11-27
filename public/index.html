@@ -393,7 +393,16 @@ EMOTION 喜び"></textarea>
             </tbody>
           </table>
         </div>
-        <p class="manual-note">※ 部位名: 「右腕」「左腕」「右脚」「左脚」と指定すると腕全体・脚全体を動かせます。肘や膝だけを細かく曲げたい場合は「右上腕」「右前腕」「左前腕」「右下腿」などの詳細名や、英字（RUA, RLA, LUA, LLA, BODY, RUL, RLL, LUL, LLL）でも指定できます。</p>
+        <div class="manual-point-box" style="margin-top:12px; background:var(--paper-soft); border-left-color:var(--accent-primary);">
+          <strong style="color:var(--ink); font-size:12px;">※ 部位名の指定ルール（R・RW命令、IK・IKW命令どちらでも共通して使えます）:</strong>
+          <p style="font-size:11.5px; color:var(--ink); line-height:1.6; margin-top:4px;">
+            ・<strong>上腕（右上腕 / 左上腕 / 右腕 / 左腕）:</strong> 「肩から先（腕全体）」を動かします。<br>
+            ・<strong>上腿（右上腿 / 左上腿 / 右脚 / 左脚）:</strong> 「股関節から先（脚全体）」を動かします。<br>
+            ・<strong>前腕（右前腕 / 左前腕 / 右ひじ / 左ひじ）:</strong> 「ひじから先」を曲げます。<br>
+            ・<strong>下腿（右下腿 / 左下腿 / 右ひざ / 左ひざ）:</strong> 「ひざから先」を曲げます。<br>
+            ・英字記号（BODY, RUA, RLA, LUA, LLA, RUL, RLL, LUL, LLL）でも同じように指定できます。
+          </p>
+        </div>
 
         <!-- 初心者向け：組み合わせレシピ -->
         <h4 class="manual-heading" style="margin-top:20px;">💡 初心者向け：よく使う組み合わせレシピ</h4>
@@ -524,8 +533,8 @@ EMOTION 喜び"></textarea>
               <tr><td><code>ITEM 種類 x y</code></td><td>指定座標にアイテム（リンゴ, 星, ハート, 剣, ボール）を配置します。</td></tr>
               <tr><td><code>IMW 種類 x y 秒</code></td><td>配置したアイテムを指定秒数かけて平行移動させます。</td></tr>
               <tr><td><code>ITEM CLEAR</code></td><td>配置したアイテムをすべて画面から消去します。</td></tr>
-              <tr><td><code>IK 腕・脚 x y</code></td><td>手先・足先を指定座標(x, y)へ瞬時に伸ばします（右腕, 左腕, 右脚, 左脚）。</td></tr>
-              <tr><td><code>IKW 腕・脚 x y 秒</code></td><td>指定秒数をかけて手足先を座標(x, y)へ伸ばすアニメーションを行います。</td></tr>
+              <tr><td><code>IK 部位 x y</code></td><td>指定した腕・脚の手先・足先を座標(x, y)へ伸ばします（右腕/右上腕, 左腕/左上腕, 右脚/右上腿, 左脚/左上腿など）。</td></tr>
+              <tr><td><code>IKW 部位 x y 秒</code></td><td>指定秒数をかけて手先・足先を座標(x, y)へ伸ばすアニメーションを行います。</td></tr>
             </tbody>
           </table>
         </div>
