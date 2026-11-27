@@ -279,6 +279,16 @@ EMOTION 喜び"></textarea>
           <span id="bank-count-label" style="font-size:12px; font-weight:700; color:var(--ink-soft);">読み込み中...</span>
           <button class="btn ghost" id="btn-bank-refresh" style="padding:4px 12px; font-size:11px;">🔄 更新</button>
         </div>
+        <!-- 検索バー・難易度フィルター -->
+        <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+          <input type="text" id="bank-search-input" placeholder="🔍 問題ID（例: Q-243-1）やタイトルで検索..." style="flex:1; min-width:200px; padding:6px 12px; font-size:12px; border:1px solid var(--line); border-radius:6px; background:#fff;" />
+          <select id="bank-diff-filter" style="padding:6px 10px; font-size:12px; border:1px solid var(--line); border-radius:6px; background:#fff;">
+            <option value="">すべての難易度</option>
+            <option value="1">初級</option>
+            <option value="2">中級</option>
+            <option value="3">上級</option>
+          </select>
+        </div>
         <div id="bank-list" class="bank-list">
           <!-- JSで動的生成 -->
         </div>

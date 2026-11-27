@@ -684,6 +684,14 @@ function matchTraceItem(tItem, uItem) {
   if (tItem.type === "PEN") {
     return tItem.action === uItem.action;
   }
+  if (tItem.type === "ITEM") {
+    return tItem.item === uItem.item;
+  }
+  if (tItem.type === "ITEM_MOVE") {
+    const signX = Math.sign(tItem.dx || 0) === Math.sign(uItem.dx || 0);
+    const signY = Math.sign(tItem.dy || 0) === Math.sign(uItem.dy || 0);
+    return (!tItem.item || tItem.item === uItem.item) && signX && signY;
+  }
   return true;
 }
 
@@ -820,6 +828,15 @@ async function evaluateCurrentChallenge() {
   const challenge = CHALLENGES[currentChallengeIndex];
   if (!challenge) return;
 
+  // 実行時エラーまたは構文エラーが発生している場合は無条件で不合格
+  if (interpreter.lastError) {
+    setChallengeResult("もう少し", "fail");
+    saveCurrentChallengeProgress();
+    appendConsole(`⚠️ プログラム実行中にエラーが発生したため不合格となります: ${interpreter.lastError}`, "warn");
+    recordCurrentChallengeToHistory();
+    return;
+  }
+
   let passed = false;
   const rawUserCode = codeInput.value || "";
   const normUserCode = normalizeCode(rawUserCode).replace(/\s+/g, "");
@@ -834,14 +851,26 @@ async function evaluateCurrentChallenge() {
     normSampleCode = normalizeCode(challenge.sample).replace(/\s+/g, "");
   }
 
-  // ユーザーコードのシミュレーショントレース取得
+  // ユーザーコードのシミュレーション（エラー検出含む）
   let userSim = null;
+  let userSimError = null;
   try {
     userSim = await Interpreter.simulate(rawUserCode);
-  } catch (e) {}
+  } catch (e) {
+    userSimError = e;
+  }
+
+  if (userSimError) {
+    setChallengeResult("もう少し", "fail");
+    saveCurrentChallengeProgress();
+    appendConsole(`⚠️ プログラムに構文・実行エラーが含まれています: ${userSimError.message}`, "warn");
+    recordCurrentChallengeToHistory();
+    return;
+  }
+
   const userTrace = userSim ? userSim.trace : (interpreter.executionTrace || []);
 
-  // 1. ポーズ（回転角度）と感情の状態一致チェック
+  // 1. ポーズ（回転角度）と感情、アイテム、移動の状態一致チェック
   let isStateMatched = false;
   if (targetState && currentState.pose) {
     // 模範解答に PEN UP があり、ユーザーが PEN UP していない場合は BODY角度の差を許容
@@ -857,7 +886,33 @@ async function evaluateCurrentChallenge() {
       return Math.abs(uAngle - tAngle) < 1; // 誤差1度未満
     });
     const isEmotionEqual = !targetState.emotion || currentState.emotion === targetState.emotion;
-    isStateMatched = isPoseEqual && isEmotionEqual;
+
+    // アイテムの一致チェック
+    let isItemsMatched = true;
+    if (targetState.items && targetState.items.length > 0) {
+      const currentItems = currentState.items || [];
+      if (currentItems.length !== targetState.items.length) {
+        isItemsMatched = false;
+      } else {
+        isItemsMatched = targetState.items.every((tItem) => {
+          return currentItems.some((uItem) => {
+            return uItem.type === tItem.type && Math.abs(uItem.x - tItem.x) < 5 && Math.abs(uItem.y - tItem.y) < 5;
+          });
+        });
+      }
+    }
+
+    // 移動(M/MW)の一致チェック
+    let isMoveMatched = true;
+    const tX = targetState.pose.x || 0;
+    const tY = targetState.pose.y || 0;
+    const uX = currentState.pose.x || 0;
+    const uY = currentState.pose.y || 0;
+    if (Math.abs(tX - uX) >= 5 || Math.abs(tY - uY) >= 5) {
+      isMoveMatched = false;
+    }
+
+    isStateMatched = isPoseEqual && isEmotionEqual && isItemsMatched && isMoveMatched;
   }
 
   // 2. 動作ステップ（トレース）の一致チェック（途中の動作スキップを防止）
@@ -1404,6 +1459,119 @@ async function fetchQuestionBankData() {
   return [];
 }
 
+let cachedBankData = [];
+
+function renderFilteredBank() {
+  const bankList = document.getElementById("bank-list");
+  const countLabel = document.getElementById("bank-count-label");
+  const searchInput = document.getElementById("bank-search-input");
+  const diffFilter = document.getElementById("bank-diff-filter");
+  if (!bankList) return;
+
+  const query = (searchInput?.value || "").trim().toLowerCase();
+  const selectedDiff = diffFilter?.value || "";
+
+  let filtered = [...cachedBankData];
+
+  // 難易度フィルター
+  if (selectedDiff) {
+    filtered = filtered.filter(q => detectQuestionDifficulty(q) === selectedDiff);
+  }
+
+  // キーワード/ID検索フィルター
+  if (query) {
+    filtered = filtered.filter(q => {
+      const qid = String(q.qid || q.id || "").toLowerCase();
+      const title = String(q.title || "").toLowerCase();
+      const text = String(q.text || "").toLowerCase();
+      return qid.includes(query) || title.includes(query) || text.includes(query);
+    });
+  }
+
+  if (countLabel) {
+    const isFiltered = query || selectedDiff;
+    countLabel.textContent = isFiltered
+      ? `🔍 検索結果: ${filtered.length} / ${cachedBankData.length} 問`
+      : `📦 蓄積済み問題: ${cachedBankData.length} 問`;
+  }
+
+  if (filtered.length === 0) {
+    bankList.innerHTML = `
+      <div class="bank-empty">
+        <span class="bank-empty-icon">🔍</span>
+        条件に一致する問題が見つかりませんでした。<br>
+        <small style="color:var(--ink-soft);">検索キーワードや難易度フィルターを変更してください。</small>
+      </div>`;
+    return;
+  }
+
+  bankList.innerHTML = "";
+  // 新しい順（末尾が最新）に逆順表示
+  [...filtered].reverse().forEach((q, idx) => {
+    const item = document.createElement("div");
+    item.className = "bank-item";
+
+    const createdAt = q.createdAt
+      ? new Date(q.createdAt).toLocaleString("ja-JP", { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" })
+      : "不明";
+
+    const num = filtered.length - idx;
+    const qid = q.qid || q.id || "未採番";
+    const diff = detectQuestionDifficulty(q);
+    const diffBadge = diff ? `<span style="background:${diff === '3' ? '#fee2e2; color:#991b1b' : diff === '2' ? '#fef3c7; color:#92400e' : '#dcfce7; color:#166534'}; padding:1px 6px; border-radius:4px; font-size:10px; font-weight:700;">${DIFFICULTY_LABELS[diff]}</span>` : "";
+
+    item.innerHTML = `
+      <div class="bank-item-info">
+        <div class="bank-item-title" style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+          <span style="color:var(--ink-soft); font-size:11px;">#${num}</span>
+          <span style="background:#e0e7ff; color:#3730a3; padding:2px 8px; border-radius:4px; font-weight:700; font-size:11px; font-family:var(--font-mono); letter-spacing:0.5px;">ID: ${escapeHtml(qid)}</span>
+          ${diffBadge}
+          <span style="font-weight:700;">${escapeHtml(q.title || "無題")}</span>
+        </div>
+        <div class="bank-item-meta">
+          <span>🕐 ${createdAt}</span>
+        </div>
+        <div class="bank-item-text">${escapeHtml(q.text || "")}</div>
+      </div>
+      <div class="bank-item-actions">
+        <button class="btn ghost bank-btn" data-action="detail" data-id="${escapeHtml(q.id)}">詳細</button>
+        <button class="btn danger bank-btn" data-action="delete" data-id="${escapeHtml(q.id)}" data-title="${escapeHtml(q.title || "無題")}">削除</button>
+      </div>`;
+
+    // 詳細ボタン：フォームにデータを流し込んで作成・編集タブへ
+    item.querySelector("[data-action='detail']").addEventListener("click", () => {
+      challengeEditTitle.value  = q.title || "";
+      challengeEditText.value   = q.text || "";
+      challengeEditHint.value   = q.hint || "";
+      challengeEditSample.value = q.sample || "";
+      if (challengeEditKind) challengeEditKind.value = q.kind || "contains_code";
+      // 作成・編集タブへ切り替え
+      adminTabs.forEach(t => t.classList.toggle("active", t.dataset.adminTab === "tab-editor"));
+      adminTabPanes.forEach(p => p.classList.toggle("active", p.id === "tab-editor"));
+      appendConsole(`📋 バンクから「[${qid}] ${q.title}」を編集エリアに読み込みました`, "info");
+    });
+
+    // 削除ボタン
+    item.querySelector("[data-action='delete']").addEventListener("click", async (e) => {
+      const id = e.currentTarget.dataset.id;
+      const title = e.currentTarget.dataset.title;
+      if (!confirm(`「[${qid}] ${title}」を問題バンクから削除しますか？`)) return;
+
+      try {
+        const delRes = await fetch(`${API_BASE}/api/question-bank/${encodeURIComponent(id)}`, { method: "DELETE" });
+        const result = await delRes.json();
+        if (!delRes.ok || !result.success) throw new Error(result.error || "削除失敗");
+        appendConsole(`🗑️ 「${title}」を問題バンクから削除しました（残 ${result.total} 問）`, "ok");
+        loadQuestionBank(); // 再読み込み
+      } catch (err) {
+        appendConsole(`削除に失敗しました: ${err.message}`, "error");
+      }
+    });
+
+    bankList.appendChild(item);
+  });
+}
+
 async function loadQuestionBank() {
   const bankList = document.getElementById("bank-list");
   const countLabel = document.getElementById("bank-count-label");
@@ -1414,82 +1582,17 @@ async function loadQuestionBank() {
 
   try {
     const bank = await fetchQuestionBankData();
-
-    if (countLabel) countLabel.textContent = `📦 蓄積済み問題: ${bank.length} 問`;
-
-    if (bank.length === 0) {
-      bankList.innerHTML = `
-        <div class="bank-empty">
-          <span class="bank-empty-icon">📭</span>
-          まだ問題が蓄積されていません。<br>
-          「バンクに追加」ボタンで問題を作成してください。
-        </div>`;
-      return;
-    }
-
-    bankList.innerHTML = "";
-    // 新しい順（末尾が最新）に逆順表示
-    [...bank].reverse().forEach((q, idx) => {
-      const item = document.createElement("div");
-      item.className = "bank-item";
-
-      const createdAt = q.createdAt
-        ? new Date(q.createdAt).toLocaleString("ja-JP", { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" })
-        : "不明";
-
-      const kindLabel = KIND_LABELS[q.kind] || q.kind || "不明";
-      const num = bank.length - idx; // 新→旧の順番号
-
-      item.innerHTML = `
-        <div class="bank-item-info">
-          <div class="bank-item-title">#${num} ${escapeHtml(q.title || "無題")}</div>
-          <div class="bank-item-meta">
-            <span>🕐 ${createdAt}</span>
-          </div>
-          <div class="bank-item-text">${escapeHtml(q.text || "")}</div>
-        </div>
-        <div class="bank-item-actions">
-          <button class="btn ghost bank-btn" data-action="detail" data-id="${escapeHtml(q.id)}">詳細</button>
-          <button class="btn danger bank-btn" data-action="delete" data-id="${escapeHtml(q.id)}" data-title="${escapeHtml(q.title || "無題")}">削除</button>
-        </div>`;
-
-      // 詳細ボタン：フォームにデータを流し込んで作成・編集タブへ
-      item.querySelector("[data-action='detail']").addEventListener("click", () => {
-        challengeEditTitle.value  = q.title || "";
-        challengeEditText.value   = q.text || "";
-        challengeEditHint.value   = q.hint || "";
-        challengeEditSample.value = q.sample || "";
-        if (challengeEditKind) challengeEditKind.value = q.kind || "contains_code";
-        // 作成・編集タブへ切り替え
-        adminTabs.forEach(t => t.classList.toggle("active", t.dataset.adminTab === "tab-editor"));
-        adminTabPanes.forEach(p => p.classList.toggle("active", p.id === "tab-editor"));
-        appendConsole(`📋 バンクから「${q.title}」を編集エリアに読み込みました`, "info");
-      });
-
-      // 削除ボタン
-      item.querySelector("[data-action='delete']").addEventListener("click", async (e) => {
-        const id = e.currentTarget.dataset.id;
-        const title = e.currentTarget.dataset.title;
-        if (!confirm(`「${title}」を問題バンクから削除しますか？`)) return;
-
-        try {
-          const delRes = await fetch(`${API_BASE}/api/question-bank/${encodeURIComponent(id)}`, { method: "DELETE" });
-          const result = await delRes.json();
-          if (!delRes.ok || !result.success) throw new Error(result.error || "削除失敗");
-          appendConsole(`🗑️ 「${title}」を問題バンクから削除しました（残 ${result.total} 問）`, "ok");
-          loadQuestionBank(); // 再読み込み
-        } catch (err) {
-          appendConsole(`削除に失敗しました: ${err.message}`, "error");
-        }
-      });
-
-      bankList.appendChild(item);
-    });
+    cachedBankData = Array.isArray(bank) ? bank : [];
+    renderFilteredBank();
   } catch (err) {
     bankList.innerHTML = `<div class="bank-empty"><span class="bank-empty-icon">⚠️</span>読み込みに失敗しました<br><small>${escapeHtml(err.message)}</small></div>`;
     if (countLabel) countLabel.textContent = "取得エラー";
   }
 }
+
+// 検索入力＆難易度フィルターイベント
+document.getElementById("bank-search-input")?.addEventListener("input", renderFilteredBank);
+document.getElementById("bank-diff-filter")?.addEventListener("change", renderFilteredBank);
 
 // 更新ボタン
 document.getElementById("btn-bank-refresh")?.addEventListener("click", loadQuestionBank);

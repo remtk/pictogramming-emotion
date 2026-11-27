@@ -49,6 +49,7 @@ export class Interpreter {
     this.walkDir = 1; // 歩行中の向き（1=右向き、-1=左向き）
     this._stopRequested = false;
     this._running = false;
+    this.lastError = null;
   }
 
   stop() {
@@ -210,8 +211,8 @@ export class Interpreter {
     try {
       ast = this.parse(code);
     } catch (e) {
+      this.lastError = e.message;
       this.log(`構文エラー (${e.lineNo ?? "?"}行目): ${e.message}`, "error");
-      this.onDone();
       if (this._throwErrors) throw e;
       return;
     }
@@ -222,6 +223,7 @@ export class Interpreter {
       if (e instanceof StopRequested) {
         this.log("停止しました", "warn");
       } else {
+        this.lastError = e.message;
         this.log(`実行エラー: ${e.message}`, "error");
         if (this._throwErrors) throw e;
       }
@@ -277,6 +279,14 @@ export class Interpreter {
       } else if (cmd === "PEN") {
         const sub = (args[0] || "").toUpperCase();
         this.executionTrace.push({ type: "PEN", action: sub });
+      } else if (cmd === "ITEM") {
+        const itemType = args[0] ? (resolveItemName(args[0].replace(/^"|"$/g, "")) || args[0]) : "";
+        this.executionTrace.push({ type: "ITEM", item: itemType });
+      } else if (cmd === "IM" || cmd === "IMW") {
+        const itemType = args[0] ? (resolveItemName(args[0].replace(/^"|"$/g, "")) || args[0]) : "";
+        const dx = args[1] !== undefined ? this.evalExpr(args[1]) : 0;
+        const dy = args[2] !== undefined ? this.evalExpr(args[2]) : 0;
+        this.executionTrace.push({ type: "ITEM_MOVE", item: itemType, dx, dy });
       }
 
       switch (cmd) {
@@ -633,7 +643,7 @@ export class Interpreter {
   }
 
   async _animateValue(duration, frameFn) {
-    if (duration <= 0) {
+    if (this._fastMode || duration <= 0 || typeof requestAnimationFrame === "undefined") {
       frameFn(1);
       return;
     }
@@ -675,7 +685,7 @@ export class Interpreter {
   }
 
   _sleep(ms) {
-    if (this._fastMode) return Promise.resolve();
+    if (this._fastMode || ms <= 0 || typeof requestAnimationFrame === "undefined") return Promise.resolve();
     return new Promise((resolve) => {
       const start = performance.now();
       const step = () => {
