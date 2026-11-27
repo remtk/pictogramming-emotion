@@ -2325,3 +2325,129 @@ if (stageEl && coordTooltip) {
     if (paneSolved) paneSolved.style.display = "none";
   });
 })();
+
+// --- 初回起動チュートリアル --------------------------------------------
+(function setupFirstRunTutorial() {
+  const STORAGE_KEY = "pictocode_tutorial_done";
+  const root = document.getElementById("tutorial-root");
+  const spotlight = document.getElementById("tutorial-spotlight");
+  const card = document.getElementById("tutorial-card");
+  const titleEl = document.getElementById("tutorial-title");
+  const bodyEl = document.getElementById("tutorial-body");
+  const progressEl = document.getElementById("tutorial-progress");
+  const btnNext = document.getElementById("tutorial-next");
+  const btnPrev = document.getElementById("tutorial-prev");
+  const btnSkip = document.getElementById("tutorial-skip");
+  if (!root || !card) return;
+
+  const steps = [
+    {
+      title: "ここが今日の課題です",
+      body: "画面中央上に問題文が出ます。まずはこのお題を読んでから、下の入力欄に命令を書いてみましょう。",
+      target: "#challenge-panel",
+    },
+    {
+      title: "ここに命令を書きます",
+      body: "ピクトグラムを動かす命令を入力します。右の「入力可能命令一覧」や、左下の感情パレットも使えます。",
+      target: "#code-area-wrap",
+    },
+    {
+      title: "「実行 ▶」で動かします",
+      body: "書けたらこのボタンを押してください。ピクトグラムが動き、お題どおりなら「できました」になります。詰まったらヒントやギブアップも使えます。",
+      target: "#btn-run",
+    },
+    {
+      title: "問題を増やして遊ぶ",
+      body: "「みんなの問題を解く」で難易度別の問題セットに挑戦できます。くわしい命令の説明は「使い方ガイド」にあります。",
+      target: "#btn-community-mode",
+    },
+  ];
+
+  let index = 0;
+
+  function placeCard(targetRect) {
+    const margin = 12;
+    const cardW = card.offsetWidth || 360;
+    const cardH = card.offsetHeight || 180;
+    let left = targetRect.left;
+    let top = targetRect.bottom + margin;
+    if (top + cardH > window.innerHeight - 8) {
+      top = Math.max(8, targetRect.top - cardH - margin);
+    }
+    if (left + cardW > window.innerWidth - 8) {
+      left = Math.max(8, window.innerWidth - cardW - 16);
+    }
+    if (left < 8) left = 8;
+    card.style.left = `${left}px`;
+    card.style.top = `${top}px`;
+  }
+
+  function highlight(step) {
+    const el = document.querySelector(step.target);
+    const pad = 6;
+    if (el) {
+      const r = el.getBoundingClientRect();
+      spotlight.style.display = "block";
+      spotlight.style.top = `${Math.max(0, r.top - pad)}px`;
+      spotlight.style.left = `${Math.max(0, r.left - pad)}px`;
+      spotlight.style.width = `${r.width + pad * 2}px`;
+      spotlight.style.height = `${r.height + pad * 2}px`;
+      placeCard(r);
+    } else {
+      spotlight.style.display = "none";
+      card.style.left = "50%";
+      card.style.top = "24px";
+      card.style.transform = "translateX(-50%)";
+    }
+  }
+
+  function render() {
+    const step = steps[index];
+    titleEl.textContent = step.title;
+    bodyEl.textContent = step.body;
+    progressEl.textContent = `${index + 1} / ${steps.length}`;
+    btnPrev.hidden = index === 0;
+    btnNext.textContent = index === steps.length - 1 ? "はじめる" : "次へ";
+    card.style.transform = "";
+    highlight(step);
+  }
+
+  function openTutorial() {
+    index = 0;
+    root.hidden = false;
+    render();
+  }
+
+  function closeTutorial(markDone) {
+    root.hidden = true;
+    if (markDone) {
+      try { localStorage.setItem(STORAGE_KEY, "1"); } catch (_) {}
+    }
+  }
+
+  btnNext?.addEventListener("click", () => {
+    if (index >= steps.length - 1) {
+      closeTutorial(true);
+      return;
+    }
+    index += 1;
+    render();
+  });
+  btnPrev?.addEventListener("click", () => {
+    if (index > 0) {
+      index -= 1;
+      render();
+    }
+  });
+  btnSkip?.addEventListener("click", () => closeTutorial(true));
+  document.getElementById("btn-tutorial-trigger")?.addEventListener("click", openTutorial);
+  window.addEventListener("resize", () => {
+    if (!root.hidden) highlight(steps[index]);
+  });
+
+  let seen = false;
+  try { seen = localStorage.getItem(STORAGE_KEY) === "1"; } catch (_) {}
+  if (!seen) {
+    requestAnimationFrame(() => openTutorial());
+  }
+})();

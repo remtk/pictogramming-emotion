@@ -1,6 +1,9 @@
 [build]
   publish = "public"
   functions = "netlify/functions"
+  # GitHub への push で Netlify へデプロイしない（容量上限対策）
+  # 再開するときは次の1行を削除する
+  ignore = "exit 0"
 
 # /api/generate-challenge → Netlify Function にリダイレクト
 [[redirects]]
